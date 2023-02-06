@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+package gophkeeper;
+
+option go_package = "internal/pb";
+
+import "google/protobuf/timestamp.proto";
+
+message Secrets {
+  optional bytes notes = 1 ; // @gotags: db:"notes"
+  optional bytes secret = 2;  // @gotags: db:"secret"
+}
+
+message Additions {
+  optional bytes uris =1 ; // @gotags: db:"uris"
+  optional bytes custom_fields = 2;  // @gotags: db:"custom_fields"
+}
+
+message Item {
+  int64 id = 1; // @gotags: db:"id"
+  string name = 2;  // @gotags: db:"name"
+  string type = 3;  // @gotags: db:"type"
+  optional bool reprompt = 4; // @gotags: db:"reprompt"
+  optional google.protobuf.Timestamp updated = 5; // @gotags: db:"updated"
+  optional bytes hash = 6; // @gotags: db:"hash"
+  optional Secrets secrets = 7; // @gotags: db:"secrets"
+  optional Additions additions = 8; // @gotags: db:"additions"
+}
+
+message CreateItemRequest {
+  string username = 1;
+  Item item = 2;
+}
+
+message CreateItemResponce {
+  string info = 1;
+}
+
+message GetItemRequest {
+  string username = 1;
+  string item_name = 2;
+  string item_type = 3;
+}
+
+message GetItemResponce {
+  string info = 1;
+  Item item = 2;
+}
+
+message ItemShort {
+  string name = 1; // @gotags: db:"name"
+  string type = 2; // @gotags: db:"type"
+  optional google.protobuf.Timestamp updated = 3; // @gotags: db:"updated"
+  bytes hash = 4; // @gotags: db:"hash"
+}
+
+message GetItemListRequest {
+  string username = 1;
+}
+
+message GetItemListResponce {
+  repeated ItemShort items = 1;
+}
+
+message UpdateItemRequest {
+  string username = 1;
+  Item item = 2;
+}
+
+message UpdateItemResponce {
+  string info = 1;
+}
+
+message DeleteItemRequest {
+  string username = 1;
+  int64 id = 2;
+}
+
+message DeleteItemResponce {
+  string info = 1;
+}
+
+service Items {
+  rpc CreateItem(CreateItemRequest) returns (CreateItemResponce);
+  rpc GetItem(GetItemRequest) returns (GetItemResponce);
+  rpc GetItemList(GetItemListRequest) returns (GetItemListResponce);
+  rpc UpdateItem(UpdateItemRequest) returns (UpdateItemResponce);
+  rpc DeleteItem(DeleteItemRequest) returns (DeleteItemResponce);
+}

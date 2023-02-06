@@ -1,0 +1,14 @@
+textfield: text1
+intfield: 100500
+boolfield: true
+nested:
+  textfield: text2
+  intfield: 200500
+  boolfield: true
+list:
+  - "listfield1"
+  - "listfield2"
+  - "listfield3"
+map:
+  mapkey1: 200
+  mapkey2: 300

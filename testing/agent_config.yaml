@@ -1,0 +1,20 @@
+# username
+user: test2f2
+
+# secret key, used for decrypt encription key from server
+secretkey: cisco-123
+
+# agent working mode - local / server(not implemented yet)
+mode: local
+
+# server address
+server: 127.0.0.1:3200
+
+# show by default sensitive information
+showsensitive: true
+
+# CA certificate path (recommended place use system's root CA)
+cacert: /workspaces/gophkeeper/certs/ca.crt
+
+# agent log level, currently useless, ignore it
+loglevel: error
