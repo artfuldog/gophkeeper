@@ -309,6 +309,144 @@ func TestDBPosgtre_GetUserAuthData(t *testing.T) {
 	}
 }
 
+func TestDBPosgtre_GetUserEKey(t *testing.T) {
+	canceledCtx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	type args struct {
+		ctx      context.Context
+		username string
+	}
+	tests := []struct {
+		name     string
+		args     args
+		wantEkey []byte
+		wantErr  bool
+		err      error
+	}{
+		{
+			name: "Get existing user",
+			args: args{
+				ctx:      context.Background(),
+				username: testUser1.Username,
+			},
+			wantEkey: testUser1.Ekey,
+			wantErr:  false,
+		},
+		{
+			name: "Get unexisting user",
+			args: args{
+				ctx:      context.Background(),
+				username: "unexisting_user",
+			},
+			wantErr: true,
+			err:     ErrNotFound,
+		},
+		{
+			name: "Empty user name",
+			args: args{
+				ctx:      context.Background(),
+				username: "",
+			},
+			wantErr: true,
+			err:     ErrNotFound,
+		},
+		{
+			name: "Canceled context",
+			args: args{
+				ctx:      canceledCtx,
+				username: testUser1.Username,
+			},
+			wantErr: true,
+			err:     ErrUndefinedError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotEkey, err := testDB.GetUserEKey(tt.args.ctx, tt.args.username)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("DBPosgtre.GetUserEKey() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && !errors.Is(tt.err, assert.AnError) {
+				assert.ErrorIs(t, err, tt.err)
+			}
+
+			assert.Equal(t, gotEkey, tt.wantEkey)
+		})
+	}
+}
+
+func TestDBPosgtre_GetUserRevision(t *testing.T) {
+	canceledCtx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	type args struct {
+		ctx      context.Context
+		username string
+	}
+	tests := []struct {
+		name         string
+		args         args
+		wantRevision []byte
+		wantErr      bool
+		err          error
+	}{
+		{
+			name: "Get existing user",
+			args: args{
+				ctx:      context.Background(),
+				username: testUser1.Username,
+			},
+			wantRevision: testUser1.Revision,
+			wantErr:      false,
+		},
+		{
+			name: "Get unexisting user",
+			args: args{
+				ctx:      context.Background(),
+				username: "unexisting_user",
+			},
+			wantErr: true,
+			err:     ErrNotFound,
+		},
+		{
+			name: "Empty user name",
+			args: args{
+				ctx:      context.Background(),
+				username: "",
+			},
+			wantErr: true,
+			err:     ErrNotFound,
+		},
+		{
+			name: "Canceled context",
+			args: args{
+				ctx:      canceledCtx,
+				username: testUser1.Username,
+			},
+			wantErr: true,
+			err:     ErrUndefinedError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotRevision, err := testDB.GetUserRevision(tt.args.ctx, tt.args.username)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("DBPosgtre.GetUserEKey() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && !errors.Is(tt.err, assert.AnError) {
+				assert.ErrorIs(t, err, tt.err)
+			}
+
+			assert.Equal(t, gotRevision, tt.wantRevision)
+		})
+	}
+}
+
 func TestDBPosgtre_UpdateUser(t *testing.T) {
 	newEmail := common.PtrTo("newemail@mail.com")
 	newPwdHash := common.PtrTo("newupdatepwdhash")
@@ -411,6 +549,11 @@ func TestDBPosgtre_UpdateUser(t *testing.T) {
 		assert.Equal(t, updatedUser.OtpKey, newOtpKey)
 		assert.Equal(t, updatedUser.Regdate, testUser1.Regdate)
 	})
+}
+
+// TODO UpdateUserSecrets updates user's password and encryption key.
+func TestDBPosgtre_UpdateUserSecrets(t *testing.T) {
+	testDB.UpdateUserSecrets(context.Background(), nil)
 }
 
 func TestDBPosgtre_DeleteUserByName(t *testing.T) {

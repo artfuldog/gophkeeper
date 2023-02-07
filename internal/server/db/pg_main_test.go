@@ -9,7 +9,11 @@ import (
 	"github.com/artfuldog/gophkeeper/internal/common"
 	"github.com/artfuldog/gophkeeper/internal/mocks/mocklogger"
 	"github.com/artfuldog/gophkeeper/internal/pb"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+// Testing helpers vars and functions
 
 var testDB *DBPosgtre
 
@@ -103,6 +107,9 @@ var (
 			Secret: []byte("secret"),
 		},
 	}
+
+	testItems = []*pb.Item{testItemLogin, testItemCard, testItemData,
+		testItemNotes, testItemEmptyAdditionsNotes, testItemEmptyNotesSecrets}
 )
 
 // TestMain initializes testing database before test will start,
@@ -132,12 +139,10 @@ func TestMain(m *testing.M) {
 		testUsers[i].Regdate = newUser.Regdate
 	}
 
-	testItems := []*pb.Item{testItemLogin, testItemCard, testItemData,
-		testItemNotes, testItemEmptyAdditionsNotes, testItemEmptyNotesSecrets}
-
 	for i, item := range testItems {
 		testDB.CreateItem(ctx, testUser1.Username, item)
 		newItem, _ := testDB.GetItemByNameAndType(ctx, testUser1.Username, item.Name, item.Type)
+		testItems[i].Id = newItem.Id
 		testItems[i].Updated = newItem.Updated
 	}
 
@@ -152,4 +157,74 @@ func TestMain(m *testing.M) {
 	testDB.pool.Close()
 
 	os.Exit(exitCode)
+}
+
+// Tests
+
+func TestNewDBPostgre(t *testing.T) {
+	logger := mocklogger.NewMockLogger()
+	t.Run("No DB address", func(t *testing.T) {
+		dbParams := NewDBParameters("", "", "", 10000000)
+		_, err := newDBPosgtre(dbParams, logger)
+		assert.Error(t, err)
+	})
+	t.Run("Empty username and password", func(t *testing.T) {
+		dbParams := NewDBParameters("localhost", "", "", 10000000)
+		db, err := newDBPosgtre(dbParams, logger)
+		require.NoError(t, err)
+		assert.NotEmpty(t, db)
+	})
+
+	t.Run("Empty password", func(t *testing.T) {
+		dbParams := NewDBParameters("localhost", "user", "", 10000000)
+		db, err := newDBPosgtre(dbParams, logger)
+		require.NoError(t, err)
+		assert.NotEmpty(t, db)
+	})
+	t.Run("New postgres DB", func(t *testing.T) {
+		dbParams := NewDBParameters("localhost", "user", "password", 10000000)
+		db, err := newDBPosgtre(dbParams, logger)
+		require.NoError(t, err)
+		assert.NotEmpty(t, db)
+	})
+}
+
+func TestDBPostgre_Connect(t *testing.T) {
+	logger := mocklogger.NewMockLogger()
+	dbParams := NewDBParameters("wrong dsn", "", "", 10000000)
+	db, err := newDBPosgtre(dbParams, logger)
+	require.NoError(t, err)
+	assert.NotEmpty(t, db)
+
+	err = db.Connect(context.Background())
+	assert.Error(t, err)
+}
+
+func TestDBPostgre_ConnectAndSetupRun(t *testing.T) {
+	logger := mocklogger.NewMockLogger()
+	db, err := newDBPosgtre(&testDBConnParams, logger)
+	require.NoError(t, err)
+	assert.NotEmpty(t, db)
+
+	testCtx, cancel := context.WithCancel(context.Background())
+
+	err = db.ConnectAndSetup(testCtx)
+	require.NoError(t, err)
+
+	ch := make(chan struct{})
+	go db.Run(testCtx, ch)
+
+	cancel()
+	<-ch
+
+	db.Clear(testCtx)
+}
+
+func TestDBPostgre_GetMaxSecretSize(t *testing.T) {
+	logger := mocklogger.NewMockLogger()
+	db, err := newDBPosgtre(&testDBConnParams, logger)
+	require.NoError(t, err)
+	assert.NotEmpty(t, db)
+
+	assert.Equal(t, testDBConnParams.maxSecretSize, db.GetMaxSecretSize())
 }

@@ -31,3 +31,6 @@ dist/
 # Self-signed certificates
 certs/
 
+# Test coverage files
+*.cov
+

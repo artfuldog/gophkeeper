@@ -17,12 +17,13 @@ var unAuthMethods = []string{
 	"UserLogin",
 }
 
+// Metadata fields
 const (
 	authMetadataKey = "authorization"
 	authUsernameKey = "username"
 )
 
-// isAuthorized is gRPC interceptor.
+// isAuthorized is gRPC interceptor for user authentication and authorization.
 func IsAuthorized(auth authorizer.A) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context,
 		req interface{},

@@ -1,8 +1,9 @@
 proto:			## Generate protobuf files
-	protoc --go_out=. --go_opt=paths=import \
+	@rm -f pb/*.go
+	@protoc --go_out=. --go_opt=paths=import \
 	--go-grpc_out=. --go-grpc_opt=paths=import \
-	internal/proto/*.proto && \
-	protoc-go-inject-tag -input="./internal/pb/*.pb.go"
+	internal/proto/*.proto
+	@protoc-go-inject-tag -input="./internal/pb/*.pb.go"
 
 tests:			## Make relevent packages tests with clean cache
 	@/usr/local/go/bin/go clean -testcache
@@ -26,6 +27,14 @@ mocks:			## Generate mocks for protobuf and database
 	@mockgen -source=internal/pb/users_grpc.pb.go -destination=internal/mocks/mockgrpc/users.go -package=mockgrpc
 	@mockgen -source=internal/server/db/db.go -destination=internal/mocks/mockdb/db.go -package=mockdb
 	@mockgen -source=internal/server/authorizer/authorizer.go -destination=internal/mocks/mockauth/authorizer.go -package=mockauth
+
+release-dry-run:
+	@goreleaser build \
+	&& goreleaser release --skip-publish --snapshow --rm-dist
+
+release:
+	@goreleaser build \
+	&& goreleaser release --rm-dist
 
 certs:			## Generate self-signed certificates to encrypt (./certs/)
 	@mkdir -p certs
@@ -63,4 +72,4 @@ run-client-race-notls:	## Run server with race flag and disaled tls
 help:	## Show this help.
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 
-.PHONY: help, list, proto, tests, tests-all, mocks, certs, certs-verify, install-ca-cert
+.PHONY: help, list, proto, tests, tests-all, mocks, certs, certs-verify, install-ca-cert, release

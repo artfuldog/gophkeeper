@@ -26,6 +26,7 @@ func NewItemsService(db db.DB, l logger.L) *ItemsService {
 	}
 }
 
+// CreateItem creates new item.
 func (s *ItemsService) CreateItem(ctx context.Context, req *pb.CreateItemRequest) (*pb.CreateItemResponce, error) {
 	componentName := "ItemsService:CreateItem"
 	resp := new(pb.CreateItemResponce)
@@ -40,6 +41,7 @@ func (s *ItemsService) CreateItem(ctx context.Context, req *pb.CreateItemRequest
 	return resp, nil
 }
 
+// GetItem returns item's information.
 func (s *ItemsService) GetItem(ctx context.Context, req *pb.GetItemRequest) (*pb.GetItemResponce, error) {
 	componentName := "ItemsService:GetItem"
 	resp := new(pb.GetItemResponce)
@@ -54,6 +56,7 @@ func (s *ItemsService) GetItem(ctx context.Context, req *pb.GetItemRequest) (*pb
 	return resp, nil
 }
 
+// GetItemList returns list with items' short representation.
 func (s *ItemsService) GetItemList(ctx context.Context, req *pb.GetItemListRequest) (*pb.GetItemListResponce, error) {
 	componentName := "ItemsService:GetItemList"
 	resp := new(pb.GetItemListResponce)
@@ -68,6 +71,7 @@ func (s *ItemsService) GetItemList(ctx context.Context, req *pb.GetItemListReque
 	return resp, nil
 }
 
+// UpdateItem updates existing item.
 func (s *ItemsService) UpdateItem(ctx context.Context, req *pb.UpdateItemRequest) (*pb.UpdateItemResponce, error) {
 	componentName := "ItemsService:UpdateItem"
 	resp := new(pb.UpdateItemResponce)
@@ -82,6 +86,7 @@ func (s *ItemsService) UpdateItem(ctx context.Context, req *pb.UpdateItemRequest
 	return resp, nil
 }
 
+// DeleteItem deletes item.
 func (s *ItemsService) DeleteItem(ctx context.Context, req *pb.DeleteItemRequest) (*pb.DeleteItemResponce, error) {
 	componentName := "ItemsService:DeleteItem"
 	resp := new(pb.DeleteItemResponce)

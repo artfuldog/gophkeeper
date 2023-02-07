@@ -74,7 +74,6 @@ func (db *DBPosgtre) GetUserAuthData(ctx context.Context, username Username) (Pa
 	sqlStmt := `select pwdhash, coalesce (otpkey, '') from users where username = $1`
 
 	var pwdhash, otpkey string
-	//pwdkey := make
 
 	db.logger.Debug(fmt.Sprintf("run SQL: %s", sqlStmt), componentName)
 	if err := db.pool.QueryRow(ctx, sqlStmt, username).Scan(&pwdhash, &otpkey); err != nil {

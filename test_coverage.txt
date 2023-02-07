@@ -1,0 +1,20 @@
+=== Package - internal/client ===
+ok  	github.com/artfuldog/gophkeeper/internal/client	0.015s	coverage: 84.2% of statements
+ok  	github.com/artfuldog/gophkeeper/internal/client/api	0.465s	coverage: 96.9% of statements
+ok  	github.com/artfuldog/gophkeeper/internal/client/config	0.024s	coverage: 98.7% of statements
+?   	github.com/artfuldog/gophkeeper/internal/client/ui	[no test files]
+
+=== Package - internal/common ===
+ok  	github.com/artfuldog/gophkeeper/internal/common	0.006s	coverage: 100.0% of statements
+
+=== Package - internal/crypt ===
+ok  	github.com/artfuldog/gophkeeper/internal/crypt	1.216s	coverage: 89.6% of statements
+
+=== Package - internal/logger ===
+ok  	github.com/artfuldog/gophkeeper/internal/logger	0.006s	coverage: 92.9% of statements
+
+=== Package - internal/server ===
+ok  	github.com/artfuldog/gophkeeper/internal/server	6.055s	coverage: 88.9% of statements
+ok  	github.com/artfuldog/gophkeeper/internal/server/authorizer	0.008s	coverage: 94.4% of statements
+ok  	github.com/artfuldog/gophkeeper/internal/server/db	0.171s	coverage: 90.0% of statements
+ok  	github.com/artfuldog/gophkeeper/internal/server/grpcapi	0.051s	coverage: 100.0% of statements

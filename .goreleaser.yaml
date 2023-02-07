@@ -7,7 +7,7 @@ before:
     # you may remove this if you don't need go generate
     - go generate ./...
 builds:
-  - main: ./cmd/server/
+  - main: ./cmd/client/
     env:
       - CGO_ENABLED=0
     goos:
@@ -15,9 +15,9 @@ builds:
       - windows
       - darwin
     ldflags:
-      - -s -w -X main.buildVersion={{.Version}}
-      - -s -w -X main.buildDate={{.Date}}
-      - -s -w -X main.buildCommit={{.Commit}}
+      - -s -w -X github.com/artfuldog/gophkeeper/internal/client.buildVersion={{.Version}}
+      - -s -w -X github.com/artfuldog/gophkeeper/internal/client.buildDate={{.Date}}
+      - -s -w -X github.com/artfuldog/gophkeeper/internal/client.buildCommit={{.Commit}}
 
 archives:
   - format: tar.gz

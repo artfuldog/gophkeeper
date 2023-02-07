@@ -34,10 +34,6 @@ func NewUsersService(db db.DB, l logger.L, a authorizer.A) *UsersService {
 }
 
 // CreateUser creates new user.
-//
-// Returns codes:
-// - AlreadyExists
-// - InvalidArgument
 func (s *UsersService) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb.CreateUserResponce, error) {
 	componentName := "UsersService:CreateUser"
 	resp := new(pb.CreateUserResponce)
@@ -71,11 +67,7 @@ func (s *UsersService) CreateUser(ctx context.Context, req *pb.CreateUserRequest
 	return resp, nil
 }
 
-// CreateUser creates new user.
-//
-// Returns codes:
-// - NotFound
-// - InvalidArgument
+// GetUser returns information about user.
 func (s *UsersService) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.GetUserResponce, error) {
 	componentName := "UsersService:GetUser"
 	resp := new(pb.GetUserResponce)
@@ -93,6 +85,7 @@ func (s *UsersService) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb
 	return resp, nil
 }
 
+// GetRevision returns user's revision number.
 func (s *UsersService) GetRevision(ctx context.Context, req *pb.GetRevisionRequest) (*pb.GetRevisionResponce, error) {
 	componentName := "UsersService:GetUserRevision"
 	resp := new(pb.GetRevisionResponce)
@@ -110,11 +103,7 @@ func (s *UsersService) GetRevision(ctx context.Context, req *pb.GetRevisionReque
 	return resp, nil
 }
 
-// UpdateUser updates existing user information.
-//
-// Returns codes:
-// - NotFound
-// - InvalidArgument
+// UpdateUser updates user's information.
 func (s *UsersService) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UpdateUserResponce, error) {
 	componentName := "UsersService:UpdateUser"
 	resp := new(pb.UpdateUserResponce)
@@ -136,11 +125,7 @@ func (s *UsersService) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest
 	return resp, nil
 }
 
-// DeleteUser creates new user.
-//
-// Returns codes:
-// - NotFound
-// - InvalidArgument
+// DeleteUser deletes user and all related items.
 func (s *UsersService) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*pb.DeleteUserResponce, error) {
 	componentName := "UsersService:DeleteUser"
 	resp := new(pb.DeleteUserResponce)
@@ -159,11 +144,13 @@ func (s *UsersService) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest
 	return resp, nil
 }
 
-// DeleteUser creates new user.
+// UserLogin performs user authenticatin and authorization.
 //
-// Returns codes:
-// - NotFound
-// - InvalidArgument
+// When 2-factor authorization is enabled and verification code is not provided returns responce
+// with SecondFactor flag and nil error. Handling this situation should be implemented on
+// client side.
+//
+// After succesfull login responces with Token, encryption key and server's limits.
 func (s *UsersService) UserLogin(ctx context.Context, req *pb.UserLoginRequest) (*pb.UserLoginResponce, error) {
 	componentName := "UsersService:UserLogin"
 	resp := new(pb.UserLoginResponce)

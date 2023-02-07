@@ -110,8 +110,6 @@ func (db *DBPosgtre) Run(ctx context.Context, closeCh CloseChannel) {
 
 	<-ctx.Done()
 
-	//db.Clear(context.Background())
-
 	db.pool.Close()
 	db.logger.Info("DB is stopped", componentName)
 	close(closeCh)

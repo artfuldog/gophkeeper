@@ -481,13 +481,17 @@ func (g *Gtui) drawItemMainForm(item *api.Item, pageName string, newItemFlag boo
 					secret.Authkey = v
 				})
 		} else {
+			curPassword := ""
+			if secret.Password != "" {
+				curPassword = common.MaskAll(8)
+			}
+			curAuthKey := ""
+			if secret.Authkey != "" {
+				curAuthKey = common.MaskAll(8)
+			}
 			form.
-				AddPasswordField("Password", secret.Password, 40, '*', func(v string) {
-					secret.Password = v
-				}).
-				AddPasswordField("Authenticator key", secret.Authkey, 40, '*', func(v string) {
-					secret.Password = v
-				})
+				AddTextView("Password", curPassword, 40, 1, true, false).
+				AddTextView("Authenticator key", curAuthKey, 40, 1, true, false)
 		}
 		if secret.Authkey != "" {
 			code, err := crypt.GenerateVerificationCode(secret.Authkey)
@@ -499,32 +503,34 @@ func (g *Gtui) drawItemMainForm(item *api.Item, pageName string, newItemFlag boo
 	case common.ItemTypeCard:
 		secret := item.GetCard()
 
-		shownNumber := secret.Number
-		shownChName := secret.ChName
-
-		if !showSensitive {
-			shownNumber = common.MaskLeft(secret.Number, 4)
-			shownChName = common.MaskLeft(secret.ChName, 6)
+		if showSensitive {
+			form.
+				AddInputField("Card number", secret.Number, 40, checkFieldInt, func(v string) {
+					secret.Number = v
+				}).
+				AddInputField("Cardholder", secret.ChName, 40, nil, func(v string) {
+					secret.ChName = v
+				}).
+				AddInputField("Expiration Month", fmt.Sprint(secret.ExpMonth), 2, checkFieldInt, func(v string) {
+					valInt, _ := strconv.Atoi(v)
+					secret.ExpMonth = uint8(valInt)
+				}).
+				AddInputField("Expiration Year", fmt.Sprint(secret.ExpYear), 2, checkFieldInt, func(v string) {
+					valInt, _ := strconv.Atoi(v)
+					secret.ExpYear = uint8(valInt)
+				}).
+				AddInputField("Expiration CVV", fmt.Sprint(secret.Cvv), 3, checkFieldInt, func(v string) {
+					valInt, _ := strconv.Atoi(v)
+					secret.Cvv = uint16(valInt)
+				})
+		} else {
+			form.
+				AddTextView("Card number", common.MaskLeft(secret.Number, 4), 40, 1, true, false).
+				AddTextView("Cardholder", common.MaskLeft(secret.ChName, 5), 40, 1, true, false).
+				AddTextView("Expiration Month", common.MaskAll(2), 2, 1, true, false).
+				AddTextView("Expiration Year", common.MaskAll(2), 2, 1, true, false).
+				AddTextView("Expiration CVV", common.MaskAll(3), 3, 1, true, false)
 		}
-
-		form.AddInputField("Card number", shownNumber, 40, checkFieldInt, func(v string) {
-			secret.Number = v
-		})
-		form.AddInputField("Cardholder", shownChName, 40, nil, func(v string) {
-			secret.ChName = v
-		})
-		form.AddInputField("Expiration Month", fmt.Sprint(secret.ExpMonth), 2, checkFieldInt, func(v string) {
-			valInt, _ := strconv.Atoi(v)
-			secret.ExpMonth = uint8(valInt)
-		})
-		form.AddInputField("Expiration Year", fmt.Sprint(secret.ExpYear), 2, checkFieldInt, func(v string) {
-			valInt, _ := strconv.Atoi(v)
-			secret.ExpYear = uint8(valInt)
-		})
-		form.AddInputField("Expiration CVV", fmt.Sprint(secret.Cvv), 3, checkFieldInt, func(v string) {
-			valInt, _ := strconv.Atoi(v)
-			secret.Cvv = uint16(valInt)
-		})
 	case common.ItemTypeSecData:
 		secret := item.GetSecData()
 
