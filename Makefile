@@ -45,16 +45,16 @@ release:
 	@goreleaser build --rm-dist\
 	&& goreleaser release --rm-dist
 
-certs:			## Generate self-signed certificates to encrypt (./certs/)
+cert:			## Generate self-signed certificates to encrypt (./certs/)
 	@mkdir -p certs
 	@openssl genrsa -out certs/ca.key 4096
 	@openssl req -new -x509 -key certs/ca.key -sha256 -subj "/C=RU/ST=MSK/O=GophKeeper" -days 365 -out certs/ca.crt
 	@openssl genrsa -out certs/service.key 4096
 	@openssl req -new -key certs/service.key -out certs/service.csr -config certificate.conf
-	@openssl x509 -req -in certs/service.csr -CA certs/ca.cert -CAkey certs/ca.key -CAcreateserial \
+	@openssl x509 -req -in certs/service.csr -CA certs/ca.crt -CAkey certs/ca.key -CAcreateserial \
 		-out certs/service.pem -days 365 -sha256 -extfile certificate.conf -extensions req_ext
 
-certs-verify:		## Prints certificate for examination
+cert-verify:		## Prints certificate for examination
 	@openssl x509 -in certs/service.pem -text -noout
 
 install-ca-cert:	## Install CA root certificate
@@ -81,4 +81,4 @@ run-client-race-notls:	## Run server with race flag and disaled tls
 help:	## Show this help.
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 
-.PHONY: help, list, proto, tests, tests-all, mocks, certs, certs-verify, install-ca-cert, release
+.PHONY: help, list, proto, tests, tests-all, mocks, cert, cert-verify, install-ca-cert, release

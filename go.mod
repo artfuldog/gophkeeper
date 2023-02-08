@@ -19,7 +19,16 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 )
 
-require github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
+require (
+	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
+	honnef.co/go/tools v0.4.0
+)
+
+require (
+	github.com/favadi/protoc-go-inject-tag v1.4.0 // indirect
+	golang.org/x/exp/typeparams v0.0.0-20221208152030-732eee02a75a // indirect
+	golang.org/x/mod v0.7.0 // indirect
+)
 
 require (
 	github.com/aead/chacha20 v0.0.0-20180709150244-8b13a72661da // indirect
@@ -68,5 +77,6 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.15.0
 	golang.org/x/sys v0.4.0 // indirect
+	golang.org/x/tools v0.5.0
 	google.golang.org/grpc v1.52.0
 )

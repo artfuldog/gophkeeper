@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/go:0-1.18-bullseye
+FROM mcr.microsoft.com/devcontainers/go:0-1.19-bullseye
 
 RUN echo 'deb [trusted=yes] https://repo.goreleaser.com/apt/ /' | tee /etc/apt/sources.list.d/goreleaser.list
 
@@ -16,7 +16,6 @@ RUN mkdir -p /usr/bin/protoc \
     && unzip -o $PROTOCZIP -d /usr/local 'include/*' \
     && sudo chmod 755 -R /usr/local/include/google \
     && rm -f $PROTOCZIP
-RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
 # [Optional] Uncomment the next lines to use go get to install anything else you need
 # USER vscode
@@ -28,4 +27,11 @@ RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
 RUN echo 'vscode ALL=(ALL:ALL) NOPASSWD:ALL' >> /etc/sudoers.d/vscode
 
+USER vscode
 RUN go mod download || echo "Go mod download failed"
+RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest 
+RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+RUN go install github.com/favadi/protoc-go-inject-tag@latest
+RUN go install -v golang.org/x/tools/cmd/godoc@latest
+RUN go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.51.1
+RUN go install github.com/golang/mock/mockgen@v1.6.0
