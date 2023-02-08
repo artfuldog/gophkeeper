@@ -64,7 +64,7 @@ func (c *GRPCClient) Connect(ctx context.Context) error {
 
 	conn, err := grpc.Dial(c.config.GetServer(),
 		grpc.WithTransportCredentials(creds),
-		grpc.WithUnaryInterceptor(AuthInterceptor(*c.config, &c.Token)))
+		grpc.WithUnaryInterceptor(AuthInterceptor(c.config.GetUser(), &c.Token)))
 
 	if err != nil {
 		c.Logger.Error(err, fmt.Sprintf("connect to %s", c.config.GetServer()), componentName)

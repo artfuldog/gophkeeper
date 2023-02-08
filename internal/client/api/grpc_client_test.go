@@ -2,6 +2,9 @@ package api
 
 import (
 	"context"
+	"fmt"
+	"reflect"
+	"sync"
 	"testing"
 
 	"github.com/artfuldog/gophkeeper/internal/client/config"
@@ -33,7 +36,7 @@ type TestSuiteGRPClient struct {
 	ItemsClient *mockgrpc.MockItemsClient
 }
 
-func NewTestSuiteGRPClient(t *testing.T) *TestSuiteGRPClient {
+func NewTestSuiteGRPClient(t gomock.TestReporter) *TestSuiteGRPClient {
 	mockCtrl := gomock.NewController(t)
 
 	testLogger := mocklogger.NewMockLogger()
@@ -65,6 +68,7 @@ func (s *TestSuiteGRPClient) Stop() {
 
 func TestGRPCClient_Connect(t *testing.T) {
 	ts := NewTestSuiteGRPClient(t)
+	defer ts.Stop()
 
 	ts.Client.config.SetCACert("/wrong/file/path/to/ca")
 	t.Run("Creds error", func(t *testing.T) {
@@ -88,6 +92,7 @@ func TestGRPCClient_Connect(t *testing.T) {
 
 func TestGRPCClient_getCredentials(t *testing.T) {
 	ts := NewTestSuiteGRPClient(t)
+	defer ts.Stop()
 
 	ts.Client.config.SetTLSDisable(true)
 	t.Run("TLS disable", func(t *testing.T) {
@@ -99,6 +104,7 @@ func TestGRPCClient_getCredentials(t *testing.T) {
 
 func TestGRPCClient_UserLogin(t *testing.T) {
 	ts := NewTestSuiteGRPClient(t)
+	defer ts.Stop()
 
 	t.Run("Login Error", func(t *testing.T) {
 		ts.UsersClient.EXPECT().UserLogin(testGRPC_Ctx, mockAnyVal).Return(nil, assert.AnError)
@@ -142,6 +148,7 @@ func TestGRPCClient_UserLogin(t *testing.T) {
 
 func TestGRPCClient_UserRegister(t *testing.T) {
 	ts := NewTestSuiteGRPClient(t)
+	defer ts.Stop()
 
 	t.Run("Encryption failed", func(t *testing.T) {
 		ts.UsersClient.EXPECT().CreateUser(testGRPC_Ctx, mockAnyVal).Return(nil, assert.AnError)
@@ -192,6 +199,7 @@ func TestGRPCClient_UserRegister(t *testing.T) {
 
 func TestGRPCClient_GetItemsList(t *testing.T) {
 	ts := NewTestSuiteGRPClient(t)
+	defer ts.Stop()
 
 	t.Run("Server responce error", func(t *testing.T) {
 		ts.ItemsClient.EXPECT().GetItemList(testGRPC_Ctx, mockAnyVal).Return(nil, assert.AnError)
@@ -212,6 +220,7 @@ func TestGRPCClient_GetItemsList(t *testing.T) {
 
 func TestGRPCClient_GetItem(t *testing.T) {
 	ts := NewTestSuiteGRPClient(t)
+	defer ts.Stop()
 
 	itemName := "itemname"
 	itemType := "itemType"
@@ -239,6 +248,7 @@ func TestGRPCClient_GetItem(t *testing.T) {
 		}
 		ts.ItemsClient.EXPECT().GetItem(testGRPC_Ctx, mockAnyVal).Return(resp, nil)
 		item, err := ts.Client.GetItem(testGRPC_Ctx, itemName, itemType)
+		fmt.Println(*item)
 		require.NoError(t, err)
 		assert.NotEmpty(t, item)
 	})
@@ -247,6 +257,7 @@ func TestGRPCClient_GetItem(t *testing.T) {
 
 func TestGRPCClient_SaveItem(t *testing.T) {
 	ts := NewTestSuiteGRPClient(t)
+	defer ts.Stop()
 	ts.Client.MaxSecretSize = 1024 * 1024
 
 	t.Run("Encryption error", func(t *testing.T) {
@@ -298,6 +309,7 @@ func TestGRPCClient_SaveItem(t *testing.T) {
 
 func TestGRPCClient_DeleteItem(t *testing.T) {
 	ts := NewTestSuiteGRPClient(t)
+	defer ts.Stop()
 	ts.Client.config.SetUser("username")
 
 	t.Run("Delete item error", func(t *testing.T) {
@@ -318,6 +330,7 @@ func TestGRPCClient_DeleteItem(t *testing.T) {
 
 func TestGRPCClient_wrapError(t *testing.T) {
 	ts := NewTestSuiteGRPClient(t)
+	defer ts.Stop()
 
 	t.Run("Not status error", func(t *testing.T) {
 		assert.ErrorIs(t, ts.Client.wrapError(assert.AnError), assert.AnError)
@@ -334,6 +347,7 @@ func TestGRPCClient_wrapError(t *testing.T) {
 
 func TestGRPCClient_encryptPbItem(t *testing.T) {
 	ts := NewTestSuiteGRPClient(t)
+	defer ts.Stop()
 
 	t.Run("Secret encryption error", func(t *testing.T) {
 		pbItem := TestingNewPbLoginItem()
@@ -363,6 +377,7 @@ func TestGRPCClient_encryptPbItem(t *testing.T) {
 
 func TestGRPCClient_decryptPbItem(t *testing.T) {
 	ts := NewTestSuiteGRPClient(t)
+	defer ts.Stop()
 
 	t.Run("Secret decryption error", func(t *testing.T) {
 		pbItem := TestingNewPbLoginItem()
@@ -388,4 +403,35 @@ func TestGRPCClient_decryptPbItem(t *testing.T) {
 		pbItem.Additions.Uris = nil
 		assert.Error(t, ts.Client.DecryptPbItem(pbItem))
 	})
+}
+
+func BenchmarkGRPCClient_EncryptDecrypt(b *testing.B) {
+	ts := NewTestSuiteGRPClient(b)
+	defer ts.Stop()
+	ts.Client.encKey = testGRP_EncKey
+
+	var wg sync.WaitGroup
+	for i := 0; i < b.N; i++ {
+		b.StopTimer()
+		wg.Add(1)
+		go func() {
+			item := TestingNewLoginItem()
+			pbItem := item.ToPB()
+
+			b.StartTimer()
+			err := ts.Client.EncryptPbItem(pbItem)
+			assert.NoError(b, err)
+			err = ts.Client.DecryptPbItem(pbItem)
+			assert.NoError(b, err)
+			b.StopTimer()
+
+			gotItem := NewItemFromPB(pbItem)
+			if !reflect.DeepEqual(gotItem, item) {
+				b.Errorf("GRPCClient.EncryptDecrypt() = %v, want %v", gotItem, item)
+			}
+			wg.Done()
+		}()
+	}
+
+	wg.Wait()
 }

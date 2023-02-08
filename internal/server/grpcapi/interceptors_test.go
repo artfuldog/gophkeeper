@@ -20,6 +20,7 @@ func TestIsAuthorized(t *testing.T) {
 	if tsErr != nil {
 		t.Errorf("failed to init test suite: %v", tsErr)
 	}
+	defer ts.Stop()
 
 	t.Run("Unauth method", func(t *testing.T) {
 		req := &pb.CreateUserRequest{

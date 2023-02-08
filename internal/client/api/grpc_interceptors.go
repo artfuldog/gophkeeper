@@ -4,7 +4,6 @@ import (
 	"context"
 	"strings"
 
-	"github.com/artfuldog/gophkeeper/internal/client/config"
 	"github.com/artfuldog/gophkeeper/internal/common"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -25,7 +24,7 @@ const (
 // AuthInterceptor insert into egress requests authorization information - username and token.
 //
 // Methods, for which inserting authorizaion information is not required, described in unAuthMethods slice.
-func AuthInterceptor(config config.Configer, token *string) grpc.UnaryClientInterceptor {
+func AuthInterceptor(username string, token *string) grpc.UnaryClientInterceptor {
 	return func(ctx context.Context,
 		method string,
 		req, reply interface{},
@@ -37,7 +36,7 @@ func AuthInterceptor(config config.Configer, token *string) grpc.UnaryClientInte
 			return invoker(ctx, method, req, reply, cc, opts...)
 		}
 
-		authCtx := metadata.AppendToOutgoingContext(ctx, authUsernameKey, config.GetUser())
+		authCtx := metadata.AppendToOutgoingContext(ctx, authUsernameKey, username)
 		authCtx = metadata.AppendToOutgoingContext(authCtx, authMetadataKey, *token)
 		return invoker(authCtx, method, req, reply, cc, opts...)
 	}

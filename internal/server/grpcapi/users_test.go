@@ -27,6 +27,7 @@ func TestUsersService_CreateUser(t *testing.T) {
 	if tsErr != nil {
 		t.Errorf("failed to init test suite: %v", tsErr)
 	}
+	defer ts.Stop()
 
 	t.Run("Empty user", func(t *testing.T) {
 		req := &pb.CreateUserRequest{}
@@ -77,6 +78,7 @@ func TestUsersService_GetUser(t *testing.T) {
 	if tsErr != nil {
 		t.Errorf("failed to init test suite: %v", tsErr)
 	}
+	defer ts.Stop()
 	authCtx := metadata.AppendToOutgoingContext(testCtx, authUsernameKey, "CorrectUser")
 
 	t.Run("Missed Context", func(t *testing.T) {
@@ -121,6 +123,8 @@ func TestUsersService_GetRevision(t *testing.T) {
 	if tsErr != nil {
 		t.Errorf("failed to init test suite: %v", tsErr)
 	}
+	defer ts.Stop()
+
 	authCtx := metadata.AppendToOutgoingContext(testCtx, authUsernameKey, "CorrectUser")
 
 	t.Run("Missed Context", func(t *testing.T) {
@@ -162,6 +166,7 @@ func TestUsersService_UpdateUser(t *testing.T) {
 	if tsErr != nil {
 		t.Errorf("failed to init test suite: %v", tsErr)
 	}
+	defer ts.Stop()
 	authCtx := metadata.AppendToOutgoingContext(testCtx, authUsernameKey, "CorrectUser")
 
 	t.Run("Empty user", func(t *testing.T) {
@@ -219,6 +224,7 @@ func TestUsersService_DeleteUser(t *testing.T) {
 	if tsErr != nil {
 		t.Errorf("failed to init test suite: %v", tsErr)
 	}
+	defer ts.Stop()
 	authCtx := metadata.AppendToOutgoingContext(testCtx, authUsernameKey, "CorrectUser")
 
 	t.Run("Missed Context", func(t *testing.T) {
@@ -262,6 +268,7 @@ func TestUsersService_UserLogin(t *testing.T) {
 	if tsErr != nil {
 		t.Errorf("failed to init test suite: %v", tsErr)
 	}
+	defer ts.Stop()
 
 	testPassword := "TestPassword!@34"
 	testPwdHash, _ := crypt.CalculatePasswordHash(testPassword)

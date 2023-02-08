@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/artfuldog/gophkeeper/internal/logger"
@@ -12,13 +13,22 @@ import (
 
 // DBPosgtre represents PostgreSQL implemenation of DB.
 type DBPosgtre struct {
-	config        *pgxpool.Config
-	pool          *pgxpool.Pool
-	tables        []PGTable
-	logger        logger.L
-	DSN           string
-	psql          sq.StatementBuilderType
+	// Database connections parameters
+	config *pgxpool.Config
+	// PGX connections pool
+	pool *pgxpool.Pool
+	// DB tables statements (schema)
+	tables []PGTable
+	// Logger
+	logger logger.L
+	// DSN string
+	DSN string
+	//Squirell statement builder for Postgres $ placeholder configuration
+	psql sq.StatementBuilderType
+	// Maximum size of secret in bytes
 	maxSecretSize uint32
+	// Mutex for sync connection and clear operations, which may concrutently use stucture fields
+	mu sync.Mutex
 }
 
 var _ DB = (*DBPosgtre)(nil)
@@ -60,6 +70,9 @@ func newDBPosgtre(params *DBParameters, logger logger.L) (*DBPosgtre, error) {
 
 // Connect is used for connect to database.
 func (db *DBPosgtre) Connect(ctx context.Context) (err error) {
+	db.mu.Lock()
+	defer db.mu.Unlock()
+
 	db.config, err = pgxpool.ParseConfig(db.DSN)
 	if err != nil {
 		return
@@ -75,6 +88,9 @@ func (db *DBPosgtre) Connect(ctx context.Context) (err error) {
 
 // Setup builds required tables in database.
 func (db *DBPosgtre) Setup(ctx context.Context) (err error) {
+	db.mu.Lock()
+	defer db.mu.Unlock()
+
 	componentName := "DBPosgtre:setup"
 
 	for _, t := range db.tables {
@@ -117,6 +133,9 @@ func (db *DBPosgtre) Run(ctx context.Context, closeCh CloseChannel) {
 
 // Clear is used to delete all database's tables and records.
 func (db *DBPosgtre) Clear(ctx context.Context) {
+	db.mu.Lock()
+	defer db.mu.Unlock()
+
 	componentName := "DBPosgtre:clear"
 
 	rTables := make([]PGTable, (len(db.tables)))

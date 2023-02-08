@@ -23,6 +23,7 @@ func TestItemsService_CreateItem(t *testing.T) {
 	if tsErr != nil {
 		t.Errorf("failed to init test suite: %v", tsErr)
 	}
+	defer ts.Stop()
 
 	t.Run("DB returns error", func(t *testing.T) {
 		ts.DB.EXPECT().CreateItem(mockAny, mockAny, mockAny).Return(assert.AnError)
@@ -50,6 +51,7 @@ func TestItemsService_GetItem(t *testing.T) {
 	if tsErr != nil {
 		t.Errorf("failed to init test suite: %v", tsErr)
 	}
+	defer ts.Stop()
 
 	t.Run("DB returns error", func(t *testing.T) {
 		ts.DB.EXPECT().GetItemByNameAndType(mockAny, mockAny, mockAny, mockAny).Return(nil, assert.AnError)
@@ -78,6 +80,7 @@ func TestItemsService_GetItemList(t *testing.T) {
 	if tsErr != nil {
 		t.Errorf("failed to init test suite: %v", tsErr)
 	}
+	defer ts.Stop()
 
 	t.Run("DB returns error", func(t *testing.T) {
 		ts.DB.EXPECT().GetItemList(mockAny, mockAny).Return(nil, assert.AnError)
@@ -105,6 +108,7 @@ func TestItemsService_UpdateItem(t *testing.T) {
 	if tsErr != nil {
 		t.Errorf("failed to init test suite: %v", tsErr)
 	}
+	defer ts.Stop()
 
 	t.Run("DB returns error", func(t *testing.T) {
 		ts.DB.EXPECT().UpdateItem(mockAny, mockAny, mockAny).Return(assert.AnError)
@@ -132,6 +136,7 @@ func TestItemsService_DeleteItem(t *testing.T) {
 	if tsErr != nil {
 		t.Errorf("failed to init test suite: %v", tsErr)
 	}
+	defer ts.Stop()
 
 	t.Run("DB returns error", func(t *testing.T) {
 		ts.DB.EXPECT().DeleteItem(mockAny, mockAny, mockAny).Return(assert.AnError)

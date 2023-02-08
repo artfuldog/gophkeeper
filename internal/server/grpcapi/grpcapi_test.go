@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"net"
-	"testing"
 
 	"github.com/artfuldog/gophkeeper/internal/mocks/mockauth"
 	"github.com/artfuldog/gophkeeper/internal/mocks/mockdb"
@@ -35,7 +34,7 @@ type TestGRCPServices struct {
 	itemsService *ItemsService
 }
 
-func NewTestSuiteGRPCServer(t *testing.T, opt ...grpc.ServerOption) (ts *TestSuiteGRPCServer, err error) {
+func NewTestSuiteGRPCServer(t gomock.TestReporter, opt ...grpc.ServerOption) (ts *TestSuiteGRPCServer, err error) {
 	ts = new(TestSuiteGRPCServer)
 
 	ts.MockCtrl = gomock.NewController(t)

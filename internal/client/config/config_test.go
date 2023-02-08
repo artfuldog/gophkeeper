@@ -117,6 +117,24 @@ func TestConfiger_Validate(t *testing.T) {
 }
 
 func TestConfiger_GettersSetters(t *testing.T) {
+	t.Run("Check user", func(t *testing.T) {
+		c := &Configer{Viper: viper.New()}
+		c.SetUser("testuser")
+		assert.Equal(t, "testuser", c.GetUser())
+	})
+
+	t.Run("Check secret key", func(t *testing.T) {
+		c := &Configer{Viper: viper.New()}
+		c.SetSecretKey("verySecretKey")
+		assert.Equal(t, "verySecretKey", c.GetSecretKey())
+	})
+
+	t.Run("Check server", func(t *testing.T) {
+		c := &Configer{Viper: viper.New()}
+		c.SetServer("myserver.com:3333")
+		assert.Equal(t, "myserver.com:3333", c.GetServer())
+	})
+
 	t.Run("Check mode", func(t *testing.T) {
 		c := &Configer{Viper: viper.New()}
 		c.SetMode(ModeLocal)
@@ -168,4 +186,27 @@ func TestConfiger_CreateAppDir(t *testing.T) {
 func TestConfiger_GetConfigDefaultFilepath(t *testing.T) {
 	c := &Configer{Viper: viper.New()}
 	assert.Equal(t, c.GetConfigDefaultFilepath(), (appConfigDir + appConfigName))
+}
+
+func BenchmarkConfiger(b *testing.B) {
+	c := &Configer{Viper: viper.New()}
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		go func() {
+			c.SetLogLevel(logger.FatalLevel)
+		}()
+		go func() {
+			c.GetLogLevel()
+		}()
+		go func() {
+			c.SetServer("new server value")
+		}()
+		go func() {
+			c.GetServer()
+		}()
+		go func() {
+			c.Validate()
+		}()
+	}
 }

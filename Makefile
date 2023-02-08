@@ -1,3 +1,5 @@
+GO_RUN_TEST_CMD=/usr/local/go/bin/go test
+
 proto:			## Generate protobuf files
 	@rm -f pb/*.go
 	@protoc --go_out=. --go_opt=paths=import \
@@ -8,19 +10,26 @@ proto:			## Generate protobuf files
 tests:			## Make relevent packages tests with clean cache
 	@/usr/local/go/bin/go clean -testcache
 	@echo "=== Package - internal/client ==="
-	@/usr/local/go/bin/go test -cover ./internal/client/...
+	@$(GO_RUN_TEST_CMD) -cover ./internal/client/...
 	@echo "\n=== Package - internal/common ==="
-	@/usr/local/go/bin/go test -cover ./internal/common/...
+	@$(GO_RUN_TEST_CMD) -cover ./internal/common/...
 	@echo "\n=== Package - internal/crypt ==="
-	@/usr/local/go/bin/go test -cover ./internal/crypt/...
+	@$(GO_RUN_TEST_CMD) -cover ./internal/crypt/...
 	@echo "\n=== Package - internal/logger ==="
-	@/usr/local/go/bin/go test -cover ./internal/logger/...
+	@$(GO_RUN_TEST_CMD) -cover ./internal/logger/...
 	@echo "\n=== Package - internal/server ==="
-	@/usr/local/go/bin/go test -cover ./internal/server/...
+	@$(GO_RUN_TEST_CMD) -cover ./internal/server/...
 
 tests-all:		## Make all tests
 	@/usr/local/go/bin/go clean -testcache
-	@/usr/local/go/bin/go test -cover ./internal/...
+	@$(GO_RUN_TEST_CMD) -cover ./internal/...
+
+tests-race:		## Make all tests with racing checking
+	@/usr/local/go/bin/go clean -testcache
+	@$(GO_RUN_TEST_CMD) -race -cover ./internal/...
+
+bench:
+	@$(GO_RUN_TEST_CMD) -run=Bench* ./internal/... -bench=. -benchtime=25000x -count=8 | grep Benchmark
 
 mocks:			## Generate mocks for protobuf and database
 	@mockgen -source=internal/pb/items_grpc.pb.go -destination=internal/mocks/mockgrpc/items.go -package=mockgrpc
@@ -33,7 +42,7 @@ release-dry-run:
 	&& goreleaser release --skip-publish --snapshow --rm-dist
 
 release:
-	@goreleaser build \
+	@goreleaser build --rm-dist\
 	&& goreleaser release --rm-dist
 
 certs:			## Generate self-signed certificates to encrypt (./certs/)

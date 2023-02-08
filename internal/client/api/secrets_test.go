@@ -95,7 +95,6 @@ func TestNewSecret(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			fmt.Println(string(tt.args.b))
 			got := NewSecret(tt.args.b, tt.args.itemType)
 
 			if tt.want != nil {
