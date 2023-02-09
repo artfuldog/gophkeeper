@@ -13,10 +13,14 @@ import (
 )
 
 // Build information
+//
+//nolint:gochecknoglobals
 var (
-	buildVersion string = "N/A"
-	buildDate    string = "N/A"
-	buildCommit  string = "N/A"
+	buildVersion = "N/A"
+	buildDate    = "N/A"
+	buildCommit  = "N/A"
+
+	ErrShowVersion = errors.New("show version directive")
 )
 
 // Client represents client itself.
@@ -35,12 +39,14 @@ func ReadFlags() *config.Flags {
 // NewClient creates new instance of Client.
 func NewClient(flags *config.Flags) (*Client, error) {
 	if flags.ShowVersion {
+		//nolint:forbidigo
 		fmt.Printf("Version: %s\nBuild date: %s\nBuild commit: %s\n",
 			buildVersion, buildDate, buildCommit)
-		return nil, nil
+		return nil, ErrShowVersion
 	}
 
 	var noConfig bool
+
 	configer, err := config.NewConfiger(flags)
 	if err != nil {
 		if errors.Is(err, config.ErrConfigNotFound) {
@@ -55,10 +61,12 @@ func NewClient(flags *config.Flags) (*Client, error) {
 	c := new(Client)
 
 	var clientLogger logger.L
+
 	if clientLogger, err = logger.NewZLoggerConsole(configer.GetLogLevel(),
 		"client", logger.OutputStdoutPretty); err != nil {
 		return nil, err
 	}
+
 	c.Client = api.NewGRPCClient(configer, clientLogger)
 
 	c.UI, _ = ui.New(ui.TypeGtui, c.Client, configer, noConfig)

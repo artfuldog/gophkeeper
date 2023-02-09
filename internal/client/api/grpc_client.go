@@ -19,7 +19,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// GRPCClient respesents client implementaion based on gRPC.
+// GRPCClient respesents client implementation based on gRPC.
 type GRPCClient struct {
 	// gRPC-client for Users service.
 	usersClient pb.UsersClient
@@ -27,7 +27,7 @@ type GRPCClient struct {
 	itemsClient pb.ItemsClient
 
 	config *config.Configer
-	//parameters GRPCParameters
+	// parameters GRPCParameters
 	Logger logger.L
 
 	// Auth token
@@ -38,7 +38,7 @@ type GRPCClient struct {
 	// Encryption key. Used for encrypting/decrypting all sended/received
 	// sensitive information in Items.
 	// encKey stored in encrypted form on server. CLient receives this key
-	// after succesful authentication and authorization, for decrypting this key
+	// after successful authentication and authorization, for decrypting this key
 	// client uses secretkey which stored unecrypted on user's side.
 	encKey []byte
 }
@@ -73,6 +73,7 @@ func (c *GRPCClient) Connect(ctx context.Context) error {
 
 	go func() {
 		<-ctx.Done()
+
 		errConn := conn.Close()
 		if errConn != nil {
 			c.Logger.Error(err, "close connection", componentName)
@@ -102,15 +103,17 @@ func (c *GRPCClient) getCredentials() (credentials.TransportCredentials, error) 
 		if err != nil {
 			return nil, err
 		}
+
 		if !certPool.AppendCertsFromPEM(b) {
 			return nil, fmt.Errorf("failed to append CA certificate: %s", CAcert)
 		}
 	}
 
 	TLSConfig := &tls.Config{
-		//InsecureSkipVerify: false,
-		RootCAs: certPool,
+		RootCAs:    certPool,
+		MinVersion: tls.VersionTLS12,
 	}
+
 	return credentials.NewTLS(TLSConfig), nil
 }
 
@@ -124,10 +127,12 @@ func (c *GRPCClient) UserLogin(ctx context.Context, username, password, verifica
 		Password: password,
 		OtpCode:  verificationCode,
 	}
+
 	resp, err := c.usersClient.UserLogin(ctx, req)
 	if err != nil {
 		return err
 	}
+
 	if resp.SecondFactor {
 		return ErrSecondFactorRequired
 	}
@@ -135,6 +140,7 @@ func (c *GRPCClient) UserLogin(ctx context.Context, username, password, verifica
 	if c.encKey, err = crypt.DecryptAESwithAD([]byte(c.config.GetSecretKey()), resp.Ekey); err != nil {
 		return ErrEKeyDecryptionFailed
 	}
+
 	c.Token = resp.Token
 	c.MaxSecretSize = uint32(resp.ServerLimits.MaxSecretSize)
 
@@ -150,12 +156,14 @@ func (c *GRPCClient) UserRegister(ctx context.Context, user *NewUser) (*TOTPKey,
 	if err != nil {
 		return nil, err
 	}
+
 	var email *string
 	if user.Email != "" {
 		email = common.PtrTo(user.Email)
 	}
 
 	eKey := crypt.GenerateRandomKey32()
+
 	decryptedEKey, err := crypt.EncryptAESwithAD([]byte(user.SecretKey), eKey)
 	if err != nil {
 		return nil, ErrEKeyEncryptionFailed
@@ -180,16 +188,17 @@ func (c *GRPCClient) UserRegister(ctx context.Context, user *NewUser) (*TOTPKey,
 		if resp == nil || resp.Totpkey == nil {
 			return nil, ErrMissedServerResponce
 		}
+
 		return &TOTPKey{
 			SecretKey: resp.Totpkey.Secret,
 			QRCode:    resp.Totpkey.Qrcode,
 		}, nil
 	}
 
-	return nil, nil
+	return &TOTPKey{}, nil
 }
 
-// GetItemsList returns list with short representaion of items.
+// GetItemsList returns list with short representation of items.
 func (c *GRPCClient) GetItemsList(ctx context.Context) ([]*pb.ItemShort, error) {
 	request := &pb.GetItemListRequest{
 		Username: c.config.GetUser(),
@@ -210,6 +219,7 @@ func (c *GRPCClient) GetItem(ctx context.Context, itemName, itemType string) (*I
 		ItemName: itemName,
 		ItemType: itemType,
 	}
+
 	resp, err := c.itemsClient.GetItem(ctx, request)
 	if err != nil {
 		return nil, c.wrapError(err)
@@ -235,13 +245,15 @@ func (c *GRPCClient) SaveItem(ctx context.Context, item *Item) error {
 	if len(pbItem.Secrets.Secret) > int(c.MaxSecretSize) {
 		gotSize := float64(len(pbItem.Secrets.Secret)) / 1024 / 1024
 		maxSize := float64(c.MaxSecretSize) / 1024 / 1024
+
 		return fmt.Errorf("%w: uploaded size %.2f Mb, max supported size %.2f Mb",
 			ErrSecretTooBig, gotSize, maxSize)
 	}
 
-	if item.Id > 0 {
+	if item.ID > 0 {
 		return c.updateItem(ctx, pbItem)
 	}
+
 	return c.createItem(ctx, pbItem)
 }
 
@@ -256,6 +268,7 @@ func (c *GRPCClient) createItem(ctx context.Context, item *pb.Item) error {
 	if err != nil {
 		return c.wrapError(err)
 	}
+
 	return nil
 }
 
@@ -270,6 +283,7 @@ func (c *GRPCClient) updateItem(ctx context.Context, item *pb.Item) error {
 	if err != nil {
 		return c.wrapError(err)
 	}
+
 	return nil
 }
 
@@ -277,18 +291,19 @@ func (c *GRPCClient) updateItem(ctx context.Context, item *pb.Item) error {
 func (c *GRPCClient) DeleteItem(ctx context.Context, item *Item) error {
 	request := &pb.DeleteItemRequest{
 		Username: c.config.GetUser(),
-		Id:       item.Id,
+		Id:       item.ID,
 	}
 
 	_, err := c.itemsClient.DeleteItem(ctx, request)
 	if err != nil {
 		return c.wrapError(err)
 	}
+
 	return nil
 }
 
 // wrapError wraps well-known returned errors:
-//  - server PermissionDenied wraps to ErrSessionExpired, for prompt user to relogin.
+//   - server PermissionDenied wraps to ErrSessionExpired, for prompt user to relogin.
 func (c *GRPCClient) wrapError(err error) error {
 	st, ok := status.FromError(err)
 	if ok {
@@ -296,6 +311,7 @@ func (c *GRPCClient) wrapError(err error) error {
 			return ErrSessionExpired
 		}
 	}
+
 	return err
 }
 
@@ -306,6 +322,7 @@ func (c *GRPCClient) EncryptPbItem(item *pb.Item) error {
 		if err != nil {
 			return err
 		}
+
 		item.Secrets.Secret = encrypted
 	}
 
@@ -314,6 +331,7 @@ func (c *GRPCClient) EncryptPbItem(item *pb.Item) error {
 		if err != nil {
 			return err
 		}
+
 		item.Secrets.Notes = encrypted
 	}
 
@@ -322,6 +340,7 @@ func (c *GRPCClient) EncryptPbItem(item *pb.Item) error {
 		if err != nil {
 			return err
 		}
+
 		item.Additions.Uris = encrypted
 	}
 
@@ -330,6 +349,7 @@ func (c *GRPCClient) EncryptPbItem(item *pb.Item) error {
 		if err != nil {
 			return err
 		}
+
 		item.Additions.CustomFields = encrypted
 	}
 
@@ -347,6 +367,7 @@ func (c *GRPCClient) DecryptPbItem(item *pb.Item) error {
 		if err != nil {
 			return err
 		}
+
 		item.Secrets.Secret = decrypted
 	}
 
@@ -355,6 +376,7 @@ func (c *GRPCClient) DecryptPbItem(item *pb.Item) error {
 		if err != nil {
 			return err
 		}
+
 		item.Secrets.Notes = decrypted
 	}
 
@@ -363,6 +385,7 @@ func (c *GRPCClient) DecryptPbItem(item *pb.Item) error {
 		if err != nil {
 			return err
 		}
+
 		item.Additions.Uris = decrypted
 	}
 
@@ -371,6 +394,7 @@ func (c *GRPCClient) DecryptPbItem(item *pb.Item) error {
 		if err != nil {
 			return err
 		}
+
 		item.Additions.CustomFields = decrypted
 	}
 

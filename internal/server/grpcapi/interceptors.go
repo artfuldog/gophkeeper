@@ -11,13 +11,15 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// List of methods which not required authorization
+// List of methods which not required authorization.
+//
+//nolint:gochecknoglobals
 var unAuthMethods = []string{
 	"CreateUser",
 	"UserLogin",
 }
 
-// Metadata fields
+// Metadata fields.
 const (
 	authMetadataKey = "authorization"
 	authUsernameKey = "username"
@@ -36,10 +38,12 @@ func IsAuthorized(auth authorizer.A) grpc.UnaryServerInterceptor {
 		}
 
 		var username, token string
+
 		username, ok := mdValueFromContext(ctx, authUsernameKey)
 		if !ok {
 			return nil, status.Error(codes.PermissionDenied, "cannot retrieve user name")
 		}
+
 		token, ok = mdValueFromContext(ctx, authMetadataKey)
 		if !ok {
 			return nil, status.Error(codes.PermissionDenied, "cannot retrieve token")

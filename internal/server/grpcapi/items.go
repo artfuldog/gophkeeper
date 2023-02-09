@@ -36,8 +36,9 @@ func (s *ItemsService) CreateItem(ctx context.Context, req *pb.CreateItemRequest
 		return nil, wrapErrorToClient(err)
 	}
 
-	resp.Info = fmt.Sprintf("succesfully create item type %s '%s'",
+	resp.Info = fmt.Sprintf("successfully create item type %s '%s'",
 		common.ItemTypeText(req.Item.Type), req.Item.Name)
+
 	return resp, nil
 }
 
@@ -45,6 +46,7 @@ func (s *ItemsService) CreateItem(ctx context.Context, req *pb.CreateItemRequest
 func (s *ItemsService) GetItem(ctx context.Context, req *pb.GetItemRequest) (*pb.GetItemResponce, error) {
 	componentName := "ItemsService:GetItem"
 	resp := new(pb.GetItemResponce)
+
 	var err error
 
 	resp.Item, err = s.db.GetItemByNameAndType(ctx, req.Username, req.ItemName, req.ItemType)
@@ -60,6 +62,7 @@ func (s *ItemsService) GetItem(ctx context.Context, req *pb.GetItemRequest) (*pb
 func (s *ItemsService) GetItemList(ctx context.Context, req *pb.GetItemListRequest) (*pb.GetItemListResponce, error) {
 	componentName := "ItemsService:GetItemList"
 	resp := new(pb.GetItemListResponce)
+
 	var err error
 
 	resp.Items, err = s.db.GetItemList(ctx, req.Username)
@@ -81,8 +84,9 @@ func (s *ItemsService) UpdateItem(ctx context.Context, req *pb.UpdateItemRequest
 		return nil, wrapErrorToClient(err)
 	}
 
-	resp.Info = fmt.Sprintf("succesfully update item type %s '%s'",
+	resp.Info = fmt.Sprintf("successfully update item type %s '%s'",
 		common.ItemTypeText(req.Item.Type), req.Item.Name)
+
 	return resp, nil
 }
 
@@ -97,5 +101,6 @@ func (s *ItemsService) DeleteItem(ctx context.Context, req *pb.DeleteItemRequest
 	}
 
 	resp.Info = "item deleted"
+
 	return resp, nil
 }

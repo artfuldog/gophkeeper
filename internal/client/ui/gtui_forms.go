@@ -17,6 +17,8 @@ import (
 )
 
 // Primitives styles
+//
+//nolint:gochecknoglobals
 var (
 	styleCtrButtonsInactive = tcell.Style{}.Background(tcell.ColorDarkSalmon).Foreground(tcell.ColorBlack)
 	styleCtrButtonsActive   = tcell.Style{}.Background(tcell.ColorDarkSlateBlue).Foreground(tcell.ColorWhite)
@@ -96,6 +98,7 @@ func (g *Gtui) displayInitSettingsPage(ctx context.Context) {
 
 	modes := []string{config.ModeLocal.String(), config.ModeServer.String()}
 	curModeIndex := 0
+
 	if initMode == config.ModeServer {
 		curModeIndex = 1
 	}
@@ -138,6 +141,7 @@ func (g *Gtui) displayInitSettingsPage(ctx context.Context) {
 			g.setStatus("canceled", 2)
 		})
 	}
+
 	form.AddButton("Save", func() {
 		if err := g.config.Validate(); err != nil {
 			g.setStatus(err.Error(), 3)
@@ -160,8 +164,7 @@ func (g *Gtui) displayInitSettingsPage(ctx context.Context) {
 			g.setStatus(fmt.Sprintf("failed to save settings to '%s': %v", g.config.ConfigFileUsed(), err), 3)
 			return
 		}
-		g.setStatus(fmt.Sprintf("settings succesfully saved to '%s'", g.config.ConfigFileUsed()), 2)
-
+		g.setStatus(fmt.Sprintf("settings successfully saved to '%s'", g.config.ConfigFileUsed()), 2)
 	})
 
 	form.SetBorder(true).SetTitle(" Settings ").SetTitleAlign(tview.AlignLeft)
@@ -183,7 +186,7 @@ func (g *Gtui) displayActiveSettingsPage() {
 
 	form := tview.NewForm().
 		AddTextView("Username", g.config.GetUser(), 40, 1, true, false).
-		//AddTextView("Secret Key", g.config.GetSecretKey(), 40, 1, true, false).
+		// AddTextView("Secret Key", g.config.GetSecretKey(), 40, 1, true, false).
 		AddTextView("Server address", g.config.GetServer(), 40, 1, true, false).
 		AddTextView("Working Mode", fmt.Sprint(g.config.GetMode()), 40, 1, true, false).
 		AddTextView("Show sensitive", fmt.Sprint(g.config.GetShowSensitive()), 5, 1, true, false).
@@ -325,7 +328,7 @@ Supported features:
   - Four types of secret items - Login, Card, Note, Data
   - Full CRUD support
   - Two-factor authentication
-  - Server-client TLS authenticaion and ecryption 
+  - Server-client TLS authentication and ecryption 
   - OTP Authenticator Key (for Login)
   - Client side encryption - all data on server stores encrypted`
 	help := `
@@ -357,12 +360,14 @@ For Navigation use:
 func (g *Gtui) displayItemBrowser(ctx context.Context) {
 	selfPage := pageItemBrowser
 
-	items, err := g.client.GetItemsList(context.Background())
+	items, err := g.client.GetItemsList(ctx)
 	if err != nil {
 		if g.checkClientErrorsAndStop(ctx, err, selfPage) {
 			return
 		}
+
 		g.setStatus(err.Error(), 5)
+
 		return
 	}
 
@@ -407,12 +412,14 @@ func (g *Gtui) displayEditItemPage(ctx context.Context) func(index int, text, se
 	return func(index int, text, secText string, shortcut rune) {
 		selfPage := pageItem
 
-		item, err := g.client.GetItem(context.Background(), text, common.ItemTypeFromText(secText))
+		item, err := g.client.GetItem(ctx, text, common.ItemTypeFromText(secText))
 		if err != nil {
 			if g.checkClientErrorsAndStop(ctx, err, selfPage) {
 				return
 			}
+
 			g.setStatus(err.Error(), 5)
+
 			return
 		}
 
@@ -435,11 +442,13 @@ func (g *Gtui) displayCreateItemPage(ctx context.Context, itemType string) {
 }
 
 // drawItemGrid creates main grid for editing and viewing item.
-func (g *Gtui) drawItemGrid(ctx context.Context, item *api.Item, pageName string, newItemFlag bool, showSensitive bool) *tview.Grid {
+func (g *Gtui) drawItemGrid(ctx context.Context, item *api.Item, pageName string,
+	newItemFlag bool, showSensitive bool) *tview.Grid {
+
 	grid := tview.NewGrid()
 	itemMainForm := g.drawItemMainForm(item, pageName, newItemFlag, showSensitive)
 	itemInfoForm := g.drawItemInfoForm(item, pageName, newItemFlag)
-	itemCFForm := g.drawItemCFForm(item, pageName, newItemFlag, showSensitive)
+	itemCFForm := g.drawItemCFForm(item, pageName, showSensitive)
 	itemButtonsForm := g.drawItemButtonsForm(ctx, item, pageName, newItemFlag, showSensitive)
 
 	grid.SetRows(2, 0, 1).SetColumns(0, 0).
@@ -472,6 +481,7 @@ func (g *Gtui) drawItemMainForm(item *api.Item, pageName string, newItemFlag boo
 		form.AddInputField("Login", secret.Username, 40, nil, func(v string) {
 			secret.Username = v
 		})
+
 		if showSensitive {
 			form.
 				AddInputField("Password", secret.Password, 40, nil, func(v string) {
@@ -493,11 +503,13 @@ func (g *Gtui) drawItemMainForm(item *api.Item, pageName string, newItemFlag boo
 				AddTextView("Password", curPassword, 40, 1, true, false).
 				AddTextView("Authenticator key", curAuthKey, 40, 1, true, false)
 		}
+
 		if secret.Authkey != "" {
 			code, err := crypt.GenerateVerificationCode(secret.Authkey)
 			if err != nil {
 				code = "invalid authenticator key"
 			}
+
 			form.AddTextView("OTP Code", code, 40, 1, true, false)
 		}
 	case common.ItemTypeCard:
@@ -537,6 +549,7 @@ func (g *Gtui) drawItemMainForm(item *api.Item, pageName string, newItemFlag boo
 		form.AddButton("Upload", func() {
 			g.displayUploadFileDialog(&secret.Data)
 		})
+
 		if !newItemFlag {
 			form.AddButton("Download", func() {
 				if len(secret.Data) == 0 {
@@ -577,8 +590,9 @@ func (g *Gtui) drawItemInfoForm(item *api.Item, pageName string, newItemFlag boo
 }
 
 // drawItemCFForm creates form for dispaying item's custom fields.
-func (g Gtui) drawItemCFForm(item *api.Item, pageName string, newItemFlag bool, showSensitive bool) *tview.Form {
+func (g Gtui) drawItemCFForm(item *api.Item, pageName string, showSensitive bool) *tview.Form {
 	form := tview.NewForm()
+
 	for i, cf := range item.CustomFields {
 		index := i
 
@@ -603,6 +617,7 @@ func (g Gtui) drawItemCFForm(item *api.Item, pageName string, newItemFlag bool, 
 			})
 		}
 	}
+
 	form.SetCancelFunc(func() { g.pages.RemovePage(pageName) })
 	form.SetBorderPadding(0, 0, 0, 0)
 
@@ -622,6 +637,7 @@ func (g Gtui) drawItemButtonsForm(ctx context.Context, item *api.Item,
 			g.pages.AddPage(pageName, g.drawItemGrid(ctx, item, pageName, newItemFlag, false), true, true)
 		})
 	}
+
 	if !showSensitive && !newItemFlag {
 		form.AddButton("Show sensitive", func() {
 			g.pages.AddPage(pageName, g.drawItemGrid(ctx, item, pageName, newItemFlag, true), true, true)
@@ -658,7 +674,7 @@ func (g *Gtui) displayUploadFileDialog(itemData *[]byte) {
 				return
 			}
 			g.pages.RemovePage(selfPage)
-			g.setStatus(fmt.Sprintf("File '%s' is succesfully uploaded", filepath), 3)
+			g.setStatus(fmt.Sprintf("File '%s' is successfully uploaded", filepath), 3)
 		}).
 		AddButton("Cancel", func() { g.pages.RemovePage(selfPage) })
 
@@ -687,14 +703,14 @@ func (g *Gtui) displayDownloadFileDialog(itemData []byte, itemName string) {
 			filepath = v
 		}).
 		AddButton("Download", func() {
-			err := os.WriteFile(filepath, itemData, 0644)
+			err := os.WriteFile(filepath, itemData, 06)
 			if err != nil {
 				g.pages.RemovePage(selfPage)
 				g.setStatus(err.Error(), 3)
 				return
 			}
 			g.pages.RemovePage(selfPage)
-			g.setStatus(fmt.Sprintf("File is succesfully downloaded as '%s'", filepath), 3)
+			g.setStatus(fmt.Sprintf("File is successfully downloaded as '%s'", filepath), 3)
 		}).
 		AddButton("Cancel", func() { g.pages.RemovePage(selfPage) })
 

@@ -11,8 +11,8 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-// DBPosgtre represents PostgreSQL implemenation of DB.
-type DBPosgtre struct {
+// Posgtre represents PostgreSQL implemenation of DB.
+type Posgtre struct {
 	// Database connections parameters
 	config *pgxpool.Config
 	// PGX connections pool
@@ -23,33 +23,34 @@ type DBPosgtre struct {
 	logger logger.L
 	// DSN string
 	DSN string
-	//Squirell statement builder for Postgres $ placeholder configuration
+	// Squirell statement builder for Postgres $ placeholder configuration
 	psql sq.StatementBuilderType
 	// Maximum size of secret in bytes
 	maxSecretSize uint32
-	// Mutex for sync connection and clear operations, which may concrutently use stucture fields
+	// Mutex for sync connection and clear operations, which may concrutently use structure fields
 	mu sync.Mutex
 }
 
-var _ DB = (*DBPosgtre)(nil)
+var _ DB = (*Posgtre)(nil)
 
-// newDBPosgtre is used to create new DBPostres instance.
+// newPosgtre is used to create new DBPostres instance.
 //
 // Supported DSN formats:
-//  - postgres://address/db
-//  - postgres://user@address/db
-//  - postgres://user:secret@address/db
-func newDBPosgtre(params *DBParameters, logger logger.L) (*DBPosgtre, error) {
+//   - postgres://address/db
+//   - postgres://user@address/db
+//   - postgres://user:secret@address/db
+func newPosgtre(params *Parameters, logger logger.L) (*Posgtre, error) {
 	if params.address == "" {
 		return nil, errors.New("missed database address")
 	}
 
 	componentName := "newDBPosgtre"
 
-	db := new(DBPosgtre)
+	db := new(Posgtre)
 
 	db.logger = logger
 
+	//nolint:gocritic
 	if params.user == "" {
 		db.DSN = fmt.Sprintf("postgres://%s", params.address)
 		db.logger.Warn(nil, "used anonymous access to db", componentName)
@@ -69,7 +70,7 @@ func newDBPosgtre(params *DBParameters, logger logger.L) (*DBPosgtre, error) {
 }
 
 // Connect is used for connect to database.
-func (db *DBPosgtre) Connect(ctx context.Context) (err error) {
+func (db *Posgtre) Connect(ctx context.Context) (err error) {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 
@@ -87,7 +88,7 @@ func (db *DBPosgtre) Connect(ctx context.Context) (err error) {
 }
 
 // Setup builds required tables in database.
-func (db *DBPosgtre) Setup(ctx context.Context) (err error) {
+func (db *Posgtre) Setup(ctx context.Context) (err error) {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 
@@ -98,6 +99,7 @@ func (db *DBPosgtre) Setup(ctx context.Context) (err error) {
 		if execErr != nil {
 			return execErr
 		}
+
 		db.logger.Info(fmt.Sprintf("table '%s': %s", t.Name, ct.String()), componentName)
 	}
 
@@ -105,13 +107,15 @@ func (db *DBPosgtre) Setup(ctx context.Context) (err error) {
 }
 
 // ConnectAndSetup does same as sequentially calling Connect and Setup function.
-func (db *DBPosgtre) ConnectAndSetup(ctx context.Context) (err error) {
+func (db *Posgtre) ConnectAndSetup(ctx context.Context) (err error) {
 	if err := db.Connect(ctx); err != nil {
 		return err
 	}
+
 	if err := db.Setup(ctx); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -120,7 +124,7 @@ func (db *DBPosgtre) ConnectAndSetup(ctx context.Context) (err error) {
 // Run uses context and closing channel for gracefully shutdown database's connections.
 // After context expired or cancel function Run will close opened connections
 // and close channel.
-func (db *DBPosgtre) Run(ctx context.Context, closeCh CloseChannel) {
+func (db *Posgtre) Run(ctx context.Context, closeCh CloseChannel) {
 	componentName := "DBPosgtre:run"
 	db.logger.Info("DB is running", componentName)
 
@@ -132,7 +136,7 @@ func (db *DBPosgtre) Run(ctx context.Context, closeCh CloseChannel) {
 }
 
 // Clear is used to delete all database's tables and records.
-func (db *DBPosgtre) Clear(ctx context.Context) {
+func (db *Posgtre) Clear(ctx context.Context) {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 
@@ -147,12 +151,14 @@ func (db *DBPosgtre) Clear(ctx context.Context) {
 		ct, err := db.pool.Exec(ctx, fmt.Sprintf("drop table if exists %s cascade", t.Name))
 		if err != nil {
 			db.logger.Error(err, fmt.Sprintf("table '%s': %s", t.Name, ct.String()), componentName)
+
 			continue
 		}
+
 		db.logger.Info(fmt.Sprintf("table '%s': %s", t.Name, ct.String()), "componentName")
 	}
 }
 
-func (db *DBPosgtre) GetMaxSecretSize() uint32 {
+func (db *Posgtre) GetMaxSecretSize() uint32 {
 	return db.maxSecretSize
 }

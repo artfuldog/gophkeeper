@@ -20,7 +20,7 @@ func TestNewClient(t *testing.T) {
 			ShowVersion: true,
 		}
 		agent, err := NewClient(flags)
-		assert.NoError(t, err)
+		assert.ErrorIs(t, err, ErrShowVersion)
 		assert.Empty(t, agent)
 	})
 }

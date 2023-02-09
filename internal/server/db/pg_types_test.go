@@ -37,7 +37,7 @@ func TestUser_toPB(t *testing.T) {
 	gotPbUser := user.toPB()
 
 	if !reflect.DeepEqual(pbUser, gotPbUser) {
-		t.Errorf("Responce not equal - got:  %v, want %v", gotPbUser, pbUser)
+		t.Errorf("Response not equal - got:  %v, want %v", gotPbUser, pbUser)
 	}
 }
 
@@ -59,6 +59,6 @@ func TestItemShort_toPB(t *testing.T) {
 	gotPbItem := itemShort.toPB()
 
 	if !reflect.DeepEqual(pbItem, gotPbItem) {
-		t.Errorf("Responce not equal - got:  %v, want %v", gotPbItem, pbItem)
+		t.Errorf("Response not equal - got:  %v, want %v", gotPbItem, pbItem)
 	}
 }

@@ -39,10 +39,11 @@ func (a *PasetoAuthorizer) CreateToken(fields AuthFields) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return a.paseto.Encrypt(a.key, payload, nil)
 }
 
-// VerifyToken checks if the token is valid or not
+// VerifyToken checks if the token is valid or not.
 func (a *PasetoAuthorizer) VerifyToken(token string, fields AuthFields) error {
 	payload := new(Payload)
 

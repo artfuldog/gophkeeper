@@ -11,7 +11,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-// Page names
+// Page names.
 const (
 	pageMainMenu         = "Main menu"
 	pageUserLogin        = "User login"
@@ -87,7 +87,8 @@ func (g *Gtui) Start(ctx context.Context) error {
 }
 
 // checkClientErrors checks returned from client errors:
-//  - Session Expiration Error
+//   - Session Expiration Error
+//
 // And defines following actions for known errors.
 // Returns true if found known erros and calling function should stops.
 func (g *Gtui) checkClientErrorsAndStop(ctx context.Context, err error, parentPage string) bool {
@@ -95,8 +96,10 @@ func (g *Gtui) checkClientErrorsAndStop(ctx context.Context, err error, parentPa
 		g.pages.RemovePage(parentPage)
 		g.displayUserLoginPage(ctx)
 		g.setStatus("session was expired, please log in again...", 5)
+
 		return true
 	}
+
 	return false
 }
 
@@ -105,6 +108,7 @@ func (g *Gtui) checkClientErrorsAndStop(ctx context.Context, err error, parentPa
 // Status text is optional. If interval is 0 or less sets text status permanently.
 func (g *Gtui) toPageWithStatus(pageName string, statusText string, statusInterval int) {
 	g.pages.SwitchToPage(pageName)
+
 	if statusText != "" {
 		g.setStatus(statusText, statusInterval)
 	}
@@ -115,6 +119,7 @@ func (g *Gtui) toPageWithStatus(pageName string, statusText string, statusInterv
 // If interval is 0 or less sets text status permanently.
 func (g *Gtui) setStatus(text string, interval int) {
 	g.status.SetText(text)
+
 	if interval > 0 {
 		g.clearStatus(time.Duration(interval))
 	}
@@ -122,7 +127,8 @@ func (g *Gtui) setStatus(text string, interval int) {
 
 // clearStatus clears text in status string.
 func (g *Gtui) clearStatus(interval time.Duration) {
-	timer := time.NewTimer(interval * time.Second)
+	timer := time.NewTimer(interval)
+
 	go func() {
 		<-timer.C
 		g.status.Clear()
@@ -134,17 +140,19 @@ func (g *Gtui) clearStatus(interval time.Duration) {
 //
 // Intended for use with SetInputCapture method of tview.Primitive.
 func (g *Gtui) captureAndSetFocus(next tview.Primitive, prev tview.Primitive,
-	nextKey tcell.Key, prevKey tcell.Key) func(event *tcell.EventKey) *tcell.EventKey {
+	nextKey tcell.Key, prevKey tcell.Key) func(event *tcell.EventKey) *tcell.EventKey { //nolint:unparam
 
 	return func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == nextKey {
 			g.app.SetFocus(next)
 			return nil
 		}
+
 		if event.Key() == prevKey {
 			g.app.SetFocus(prev)
 			return nil
 		}
+
 		return event
 	}
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
 
 	"github.com/artfuldog/gophkeeper/internal/client"
@@ -10,14 +11,16 @@ import (
 func main() {
 	flags := client.ReadFlags()
 
-	client, err := client.NewClient(flags)
+	app, err := client.NewClient(flags)
 	if err != nil {
+		if errors.Is(err, client.ErrShowVersion) {
+			return
+		}
+
 		log.Fatal(err)
 	}
-	if client == nil {
-		return
-	}
-	if err := client.Start(context.Background()); err != nil {
+
+	if err := app.Start(context.Background()); err != nil {
 		log.Fatal(err)
 	}
 }

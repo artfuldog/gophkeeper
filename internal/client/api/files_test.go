@@ -46,6 +46,6 @@ func TestMarshallYamlFromFile(t *testing.T) {
 
 	assert.NoError(t, UnmarshallYamlFromFile(obj, "./test_data/unmarshallfile.yaml"))
 	if !reflect.DeepEqual(wantObj, *obj) {
-		t.Errorf("Responce not equal - got:  %v, want %v", obj, wantObj)
+		t.Errorf("Response not equal - got:  %v, want %v", obj, wantObj)
 	}
 }

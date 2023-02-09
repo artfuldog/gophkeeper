@@ -36,7 +36,7 @@ func (u User) toPB() *pb.User {
 	}
 }
 
-// ItemShort represents short message information from database
+// ItemShort represents short message information from database.
 type ItemShort struct {
 	Name    string    `db:"name"`
 	Type    string    `db:"type"`

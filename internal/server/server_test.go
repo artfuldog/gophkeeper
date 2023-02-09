@@ -28,7 +28,7 @@ func TestNewServer(t *testing.T) {
 }
 
 func TestNewServer_WithDB(t *testing.T) {
-	testDBConnParams := db.NewDBParameters("localhost:5432/gophkeeper_db_tests",
+	testDBConnParams := db.NewParameters("localhost:5432/gophkeeper_db_tests",
 		"gksa", "", uint32(50*1024*1024))
 	logger := mocklogger.NewMockLogger()
 	if _, err := db.New(db.TypePostgres, testDBConnParams, logger); err != nil {

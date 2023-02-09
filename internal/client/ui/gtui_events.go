@@ -15,16 +15,20 @@ func (g *Gtui) userLogin(ctx context.Context, username, password, code string) {
 
 	if err := g.client.Connect(ctx); err != nil {
 		g.setStatus(fmt.Sprintf("failed connect to server: %s", err.Error()), 5)
+
 		return
 	}
 
-	if err := g.client.UserLogin(context.Background(), username, password, code); err != nil {
+	if err := g.client.UserLogin(ctx, username, password, code); err != nil {
 		if errors.Is(err, api.ErrSecondFactorRequired) {
 			g.setStatus("two-factor authentication requested", 0)
 			g.displayUserVerificationPage(ctx, username, password)
+
 			return
 		}
+
 		g.setStatus(err.Error(), 5)
+
 		return
 	}
 
@@ -45,10 +49,12 @@ func (g *Gtui) userRegister(ctx context.Context, user *api.NewUser, parentPage s
 		g.setStatus("password can not be empty", 5)
 		return
 	}
+
 	if user.Password != user.PasswordConfirm {
 		g.setStatus("passwords do not match", 5)
 		return
 	}
+
 	if user.SecretKey == "" {
 		g.setStatus("secret key can not be empty", 5)
 		return
@@ -64,6 +70,7 @@ func (g *Gtui) userRegister(ctx context.Context, user *api.NewUser, parentPage s
 		g.config.SetUser(user.Username)
 		g.config.SetSecretKey(user.SecretKey)
 		g.displayQRcode(otpOpts, parentPage)
+
 		return
 	}
 
@@ -79,9 +86,12 @@ func (g *Gtui) saveItem(ctx context.Context, item *api.Item, pageName string) {
 		if g.checkClientErrorsAndStop(ctx, err, pageName) {
 			return
 		}
+
 		g.setStatus(err.Error(), 3)
+
 		return
 	}
+
 	g.pages.RemovePage(pageName)
 	g.displayItemBrowser(ctx)
 }
@@ -92,9 +102,12 @@ func (g *Gtui) deleteItem(ctx context.Context, item *api.Item, pageName string) 
 		if g.checkClientErrorsAndStop(ctx, err, pageName) {
 			return
 		}
+
 		g.setStatus(err.Error(), 5)
+
 		return
 	}
+
 	g.pages.RemovePage(pageName)
 	g.displayItemBrowser(ctx)
 	g.setStatus(fmt.Sprintf("item '%s' (%s) was deleted", item.Name, common.ItemTypeText(item.Type)), 5)

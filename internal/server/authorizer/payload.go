@@ -13,7 +13,7 @@ type Payload struct {
 	ExpiredAt time.Time `json:"expired_at"`
 }
 
-// NewPayload creates a new token payload with a specific username and duration
+// NewPayload creates a new token payload with a specific username and duration.
 func NewPayload(username string, duration time.Duration) (*Payload, error) {
 	tokenID, err := uuid.NewRandom()
 	if err != nil {
@@ -26,10 +26,11 @@ func NewPayload(username string, duration time.Duration) (*Payload, error) {
 		IssuedAt:  time.Now(),
 		ExpiredAt: time.Now().Add(duration),
 	}
+
 	return payload, nil
 }
 
-// Valid checks if the token payload is valid or not
+// Valid checks if the token payload is valid or not.
 func (p *Payload) Valid(fields AuthFields) error {
 	if fields.Username != p.Username {
 		return ErrInvalidToken
@@ -38,5 +39,6 @@ func (p *Payload) Valid(fields AuthFields) error {
 	if time.Now().After(p.ExpiredAt) {
 		return ErrExpiredToken
 	}
+
 	return nil
 }

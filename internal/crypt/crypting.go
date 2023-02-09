@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	// 32 bytes for AES-256
+	// 32 bytes for AES-256.
 	AESKeyLength = 32
 )
 
@@ -71,6 +71,7 @@ func DecryptAES(key, encrypted []byte) ([]byte, error) {
 	}
 
 	nonce, ciphertext := encrypted[:nonceSize], encrypted[nonceSize:]
+
 	decrypted, err := gcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
 		return nil, err
@@ -88,6 +89,7 @@ func DecryptAESwithAD(key, encrypted []byte) ([]byte, error) {
 	}
 
 	salt, encrypted := encrypted[len(encrypted)-AESKeyLength:], encrypted[:len(encrypted)-AESKeyLength]
+
 	key, _, err := deriveKey(key, salt)
 	if err != nil {
 		return nil, err
@@ -100,6 +102,7 @@ func DecryptAESwithAD(key, encrypted []byte) ([]byte, error) {
 
 	nonceSize := gcm.NonceSize()
 	nonce, ciphertext := encrypted[:nonceSize], encrypted[nonceSize:]
+
 	decrypted, err := gcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
 		return nil, err
@@ -113,7 +116,7 @@ func DecryptAESwithAD(key, encrypted []byte) ([]byte, error) {
 func deriveKey(password, salt []byte) ([]byte, []byte, error) {
 	if salt == nil {
 		salt = make([]byte, AESKeyLength)
-		rand.Read(salt)
+		rand.Read(salt) //nolint:errcheck
 	}
 
 	key, err := scrypt.Key(password, salt, 32768, 8, 1, AESKeyLength)
@@ -143,6 +146,7 @@ func getGCM(key []byte) (cipher.AEAD, error) {
 // GenerateRandomKey32 generates random 32-bytes length key.
 func GenerateRandomKey32() []byte {
 	key := make([]byte, AESKeyLength)
-	rand.Read(key)
+	rand.Read(key) //nolint:errcheck
+
 	return key
 }

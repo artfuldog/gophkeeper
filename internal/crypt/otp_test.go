@@ -33,7 +33,6 @@ func TestGenerateValidateTOTP(t *testing.T) {
 		_, errGenVerCode := GenerateVerificationCode("asd123")
 		assert.Error(t, errGenVerCode)
 	})
-
 }
 
 func TestPrintQRCodeToTerminal(t *testing.T) {

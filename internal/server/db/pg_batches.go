@@ -12,7 +12,7 @@ import (
 )
 
 // newCreateItemBatch is a helper function for construct pgx.Batch, used in item creation.
-func (db *DBPosgtre) newCreateItemBatch(username string, item *pb.Item) (*pgx.Batch, error) {
+func (db *Posgtre) newCreateItemBatch(username string, item *pb.Item) (*pgx.Batch, error) {
 	componentName := "DBPosgtre:newCreateItemBatch"
 
 	b := new(pgx.Batch)
@@ -91,6 +91,7 @@ func (db *DBPosgtre) newCreateItemBatch(username string, item *pb.Item) (*pgx.Ba
 	newRevision := crypt.GetSHA256hash(username + item.Name + item.Type + item.Updated.String())
 	stmtRevision, argsRevision, err := psql.
 		Update("users").Set("revision", newRevision).Where(sq.Eq{"username": username}).ToSql()
+
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +103,7 @@ func (db *DBPosgtre) newCreateItemBatch(username string, item *pb.Item) (*pgx.Ba
 }
 
 // newUpdateItemBatch is a helper function for construct pgx.Batch, used for update item.
-func (db *DBPosgtre) newUpdateItemBatch(username string, item *pb.Item) (*pgx.Batch, error) {
+func (db *Posgtre) newUpdateItemBatch(username string, item *pb.Item) (*pgx.Batch, error) {
 	componentName := "DBPosgtre:newUpdateItemBatch"
 
 	b := new(pgx.Batch)
@@ -164,6 +165,7 @@ func (db *DBPosgtre) newUpdateItemBatch(username string, item *pb.Item) (*pgx.Ba
 	newRevision := crypt.GetSHA256hash(username + item.Name + item.Type + item.Updated.String())
 	stmtRevision, argsRevision, err := psql.
 		Update("users").Set("revision", newRevision).Where(sq.Eq{"username": username}).ToSql()
+
 	if err != nil {
 		return nil, err
 	}
@@ -175,7 +177,7 @@ func (db *DBPosgtre) newUpdateItemBatch(username string, item *pb.Item) (*pgx.Ba
 }
 
 // newDeleteItemBatch is a helper function for construct pgx.Batch, used for deleteitem.
-func (db *DBPosgtre) newDeleteItemBatch(username string, itemID int64) (*pgx.Batch, error) {
+func (db *Posgtre) newDeleteItemBatch(username string, itemID int64) (*pgx.Batch, error) {
 	componentName := "DBPosgtre:newDeleteItemBatch"
 
 	b := new(pgx.Batch)

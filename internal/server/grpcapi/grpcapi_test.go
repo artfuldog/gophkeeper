@@ -1,3 +1,4 @@
+//nolint:gochecknoglobals
 package grpcapi
 
 import (
@@ -85,7 +86,9 @@ func testGRPCdialer(s *TestGRCPServices, opt ...grpc.ServerOption) func(context.
 	}
 }
 
-func createTestGRPCBufConn(ctx context.Context, s *TestGRCPServices, opt ...grpc.ServerOption) (*grpc.ClientConn, error) {
+func createTestGRPCBufConn(ctx context.Context, s *TestGRCPServices,
+	opt ...grpc.ServerOption) (*grpc.ClientConn, error) {
+
 	return grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithContextDialer(testGRPCdialer(s, opt...)))
 }

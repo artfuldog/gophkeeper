@@ -11,12 +11,14 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Errors
-var ErrWrongItemType = errors.New(`wrong item type`)
+// Errors.
+var (
+	ErrWrongItemType = errors.New(`wrong item type`)
+)
 
 // Item represents secured dataitem.
 type Item struct {
-	Id           int64        `yaml:"id,omitempty"`
+	ID           int64        `yaml:"id,omitempty"`
 	Name         string       `yaml:"name"`
 	Type         string       `yaml:"type"`
 	Reprompt     bool         `yaml:"reprompt"`
@@ -31,7 +33,7 @@ type Item struct {
 // NewItemFromPB creates new Item based on protobuf format.
 func NewItemFromPB(pbItem *pb.Item) *Item {
 	return &Item{
-		Id:           pbItem.Id,
+		ID:           pbItem.Id,
 		Name:         pbItem.Name,
 		Type:         pbItem.Type,
 		Reprompt:     *pbItem.Reprompt,
@@ -48,7 +50,7 @@ func NewItemFromPB(pbItem *pb.Item) *Item {
 func (i Item) ToPB() *pb.Item {
 	item := new(pb.Item)
 
-	item.Id = i.Id
+	item.Id = i.ID
 	item.Name = i.Name
 	item.Type = i.Type
 	item.Reprompt = &i.Reprompt
@@ -56,15 +58,19 @@ func (i Item) ToPB() *pb.Item {
 
 	secrets := new(pb.Secrets)
 	secrets.Notes = []byte(i.Notes)
+
 	if i.Secret != nil {
 		secrets.Secret = i.Secret.ToBytes()
 	}
+
 	item.Secrets = secrets
 
 	additions := new(pb.Additions)
+
 	if item.Type == common.ItemTypeLogin {
 		additions.Uris = i.URIs.ToBytes()
 	}
+
 	additions.CustomFields = i.CustomFields.ToBytes()
 	item.Additions = additions
 
@@ -75,6 +81,8 @@ func (i Item) ToPB() *pb.Item {
 //
 // This is unsafe function, which means there is no errors checks.
 // If you want this please use NewItemFromBytesSafe function.
+//
+//nolint:wsl
 func NewItemFromBytes(b []byte) *Item {
 	i := new(Item)
 	serializeUnsafe(i, b)
@@ -89,6 +97,7 @@ func NewItemFromBytesSafe(b []byte) (*Item, error) {
 	if err := serializeSafe(i, b); err != nil {
 		return nil, err
 	}
+
 	return i, nil
 }
 
@@ -123,12 +132,14 @@ func (i Item) MarshalYAML() (interface{}, error) {
 	if err := node.Encode(alias); err != nil {
 		return nil, err
 	}
+
 	return node, nil
 }
 
 // UnmarshalYAML implements yaml.Unmarshaler interface and used for decoding YAML to Item structure.
 func (i *Item) UnmarshalYAML(value *yaml.Node) (err error) {
 	type ItemAlias Item
+
 	alias := &struct {
 		*ItemAlias `yaml:",inline"`
 		Secret     yaml.Node `yaml:"secret"`
@@ -175,7 +186,8 @@ func (i Item) GetLogin() *SecretLogin {
 	if i.Type != common.ItemTypeLogin || i.Secret == nil {
 		return nil
 	}
-	return i.Secret.(*SecretLogin)
+
+	return i.Secret.(*SecretLogin) //nolint:forcetypeassert //unsafe function
 }
 
 // GetLoginSafe performs type assertion and return field Secret of Item as SecretLogin.
@@ -186,6 +198,7 @@ func (i Item) GetLoginSafe() (*SecretLogin, error) {
 	if i.Type != common.ItemTypeLogin || i.Secret == nil {
 		return nil, ErrWrongItemType
 	}
+
 	s, ok := i.Secret.(*SecretLogin)
 	if !ok {
 		return nil, ErrWrongItemType
@@ -202,7 +215,8 @@ func (i Item) GetCard() *SecretCard {
 	if i.Type != common.ItemTypeCard || i.Secret == nil {
 		return nil
 	}
-	return i.Secret.(*SecretCard)
+
+	return i.Secret.(*SecretCard) //nolint:forcetypeassert //unsafe function
 }
 
 // GetCardSafe performs type assertion and return field Secret of Item as SecretCard.
@@ -213,6 +227,7 @@ func (i Item) GetCardSafe() (*SecretCard, error) {
 	if i.Type != common.ItemTypeCard || i.Secret == nil {
 		return nil, ErrWrongItemType
 	}
+
 	s, ok := i.Secret.(*SecretCard)
 	if !ok {
 		return nil, ErrWrongItemType
@@ -229,7 +244,8 @@ func (i Item) GetSecData() *SecretData {
 	if i.Type != common.ItemTypeSecData || i.Secret == nil {
 		return nil
 	}
-	return i.Secret.(*SecretData)
+
+	return i.Secret.(*SecretData) //nolint:forcetypeassert //unsafe function
 }
 
 // GetSecDataSafe performs type assertion and return field Secret of Item as SecData.
@@ -240,6 +256,7 @@ func (i Item) GetSecDataSafe() (*SecretData, error) {
 	if i.Type != common.ItemTypeSecData || i.Secret == nil {
 		return nil, ErrWrongItemType
 	}
+
 	s, ok := i.Secret.(*SecretData)
 	if !ok {
 		return nil, ErrWrongItemType
@@ -281,6 +298,8 @@ func (c *CustomFields) ToBytesSafe() ([]byte, error) {
 //
 // This is unsafe function, which means there is no errors checks.
 // If you want this please use NewSecretLoginSafe function.
+//
+//nolint:wsl
 func NewCustomFields(b []byte) CustomFields {
 	var c CustomFields
 	serializeUnsafe(&c, b)
@@ -295,6 +314,7 @@ func NewCustomFieldsSafe(b []byte) (CustomFields, error) {
 	if err := serializeSafe(&c, b); err != nil {
 		return nil, err
 	}
+
 	return c, nil
 }
 
@@ -302,8 +322,9 @@ func NewCustomFieldsSafe(b []byte) (CustomFields, error) {
 func (c CustomFields) String() string {
 	output := "["
 	for _, cf := range c {
-		output = output + fmt.Sprint(cf)
+		output += fmt.Sprint(cf)
 	}
+
 	return output + "]"
 }
 
@@ -320,9 +341,11 @@ type URIs []URI
 //
 // This is unsafe function, which means there is no errors checks.
 // If you want this please use NewSecretLoginSafe function.
+//
+//nolint:wsl
 func NewURIs(b []byte) URIs {
 	var u URIs
-	serializeUnsafe(&u, b)
+	serializeUnsafe(&u, b) //nolint:wsl
 	return u
 }
 
@@ -334,6 +357,7 @@ func NewURIsSafe(b []byte) (URIs, error) {
 	if err := serializeSafe(&u, b); err != nil {
 		return nil, err
 	}
+
 	return u, nil
 }
 
@@ -356,7 +380,8 @@ func (u *URIs) ToBytesSafe() ([]byte, error) {
 func (u URIs) String() string {
 	output := "["
 	for _, uri := range u {
-		output = output + fmt.Sprint(uri)
+		output += output + fmt.Sprint(uri)
 	}
+
 	return output + "]"
 }

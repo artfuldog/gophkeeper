@@ -9,10 +9,6 @@ const (
 	ItemTypeSecData = "d"
 )
 
-var (
-	ItemTypes = []string{"l", "c", "n", "d"}
-)
-
 // Custom field types.
 const (
 	CfTypeText   = "t"
@@ -50,4 +46,9 @@ func ItemTypeFromText(itemType string) string {
 	default:
 		return ""
 	}
+}
+
+// ListItemTypes return available item type.
+func ListItemTypes() []string {
+	return []string{"l", "c", "n", "d"}
 }

@@ -11,7 +11,7 @@ var (
 	// Indicated that session expired, most often because of toke expiration.
 	// Used as an indicator for UI to request password/OTP from user.
 	ErrSessionExpired       = errors.New("session expired")
-	ErrMissedServerResponce = errors.New("missed server responce")
+	ErrMissedServerResponce = errors.New("missed server response")
 	ErrSecondFactorRequired = errors.New("second factor is required")
 	ErrEKeyEncryptionFailed = errors.New("failed to encrypt self encryption key")
 	ErrEKeyDecryptionFailed = errors.New("failed to decrypt received from server encryption key")
@@ -24,7 +24,7 @@ type Client interface {
 	Connect(context.Context) error
 
 	// Performs user login with password-based and OTP(optional) authentication and authorization.
-	// Returns ErrSecondFactorRequired if OTP-auth is enabled and requred.
+	// Returns ErrSecondFactorRequired if OTP-auth is enabled and required.
 	UserLogin(ctx context.Context, username, password, optCode string) error
 	// Registers new user.
 	UserRegister(ctx context.Context, user *NewUser) (*TOTPKey, error)

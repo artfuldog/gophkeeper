@@ -23,7 +23,7 @@ const (
 	appConfigDir  = ".gophkeeper/"
 )
 
-// Errors
+// Errors.
 var (
 	ErrConfigNotFound     = errors.New("config file missed")
 	ErrCreateAppDirFailed = errors.New("failed to create working directory")
@@ -33,15 +33,15 @@ var (
 	ErrEmptyAgentMode     = errors.New("agent mode is not set")
 )
 
-// Agent's modes
+// Agent's modes.
 type AgentMode int8
 
 const (
-	// Unknown mode
+	// Unknown mode.
 	ModeUnknown AgentMode = iota
 	// Server stores all items.
 	ModeServer
-	// Agent use local storage and peridically sync with Server (not implemented yet)
+	// Agent use local storage and peridically sync with Server (not implemented yet).
 	ModeLocal
 )
 
@@ -97,14 +97,14 @@ func ReadFlags() *Flags {
 // Based on Viper package.
 //
 // Supported configuration parameters
-//  - User - username
-//  - SecretKey - secret key, used for decrypt encription key from server
-//  - Server - server address in format <ip-address/fqdn/hostname>:<port>, ex. 10.20.30.40:3200, my.host.com:3333
-//  - Mode - agent working mode - local / server(not implemented yet)
-//  - ShowSensitive - show by default sensitive information in UI
-//  - LogLevel - agent log level, currently useless, ignore it
-//  - CAcert - path to CA root certificate. Recommended way - not use this optioin and install CA into system.
-//  - Disable TLS - disables TLS encryption. Should be used only for testing/lab environments.
+//   - User - username
+//   - SecretKey - secret key, used for decrypt encryption key from server
+//   - Server - server address in format <ip-address/fqdn/hostname>:<port>, ex. 10.20.30.40:3200, my.host.com:3333
+//   - Mode - agent working mode - local / server(not implemented yet)
+//   - ShowSensitive - show by default sensitive information in UI
+//   - LogLevel - agent log level, currently useless, ignore it
+//   - CAcert - path to CA root certificate. Recommended way - not use this optioin and install CA into system.
+//   - Disable TLS - disables TLS encryption. Should be used only for testing/lab environments.
 type Configer struct {
 	*viper.Viper
 	mu sync.RWMutex
@@ -126,6 +126,7 @@ func NewConfiger(flags *Flags) (*Configer, error) {
 		cfg.AddConfigPath("./" + appConfigDir)
 		cfg.AddConfigPath("$HOME/" + appConfigDir)
 	}
+
 	cfg.SetConfigType("yaml")
 
 	if flags != nil {
@@ -133,12 +134,14 @@ func NewConfiger(flags *Flags) (*Configer, error) {
 	}
 
 	if err := cfg.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+		if errors.As(err, &viper.ConfigFileNotFoundError{}) {
 			return cfg, ErrConfigNotFound
 		}
-		if _, ok := err.(*fs.PathError); ok {
+
+		if errors.Is(err, fs.ErrNotExist) {
 			return cfg, ErrConfigNotFound
 		}
+
 		return nil, err
 	}
 
@@ -155,15 +158,19 @@ func (c *Configer) Validate() error {
 	if !c.IsSet("user") || c.GetString("user") == "" {
 		return ErrEmptyUser
 	}
+
 	if !c.IsSet("secretkey") || c.GetString("secretkey") == "" {
 		return ErrEmptySecretKey
 	}
+
 	if !c.IsSet("server") || c.GetString("server") == "" {
 		return ErrEmptyServer
 	}
+
 	if !c.IsSet("mode") || c.unmarshallAgentMode() == ModeUnknown {
 		return ErrEmptyAgentMode
 	}
+
 	return nil
 }
 
@@ -221,12 +228,13 @@ func (c *Configer) unmarshallAgentMode() AgentMode {
 	var mode AgentMode
 	if err := c.UnmarshalKey("mode", &mode,
 		viper.DecodeHook(mapstructure.TextUnmarshallerHookFunc())); err != nil {
-
 		return ModeUnknown
 	}
+
 	if mode < 1 || mode > 2 {
 		return ModeUnknown
 	}
+
 	return mode
 }
 
@@ -260,10 +268,12 @@ func (c *Configer) GetLogLevel() logger.Level {
 	if !ok {
 		return logger.NoLevel
 	}
+
 	level, err := logger.GetLevelFromString(val)
 	if err != nil {
 		return logger.NoLevel
 	}
+
 	return level
 }
 
@@ -312,6 +322,7 @@ func (c *Configer) CreateAppDir() error {
 			return fmt.Errorf("%w: %v", ErrCreateAppDirFailed, err)
 		}
 	}
+
 	return nil
 }
 

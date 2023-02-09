@@ -40,7 +40,7 @@ func TestItem_Bytes(t *testing.T) {
 			gotItem := NewItemFromBytes(itemBytes)
 
 			if !reflect.DeepEqual(item, gotItem) {
-				t.Errorf("Responce not equal - got:  %v, want %v", gotItem, item)
+				t.Errorf("Response not equal - got:  %v, want %v", gotItem, item)
 			}
 		})
 		t.Run(name+"_UnSafe", func(t *testing.T) {
@@ -50,7 +50,7 @@ func TestItem_Bytes(t *testing.T) {
 			require.NoError(t, err)
 
 			if !reflect.DeepEqual(item, gotItem) {
-				t.Errorf("Responce not equal - got:  %v, want %v", gotItem, item)
+				t.Errorf("Response not equal - got:  %v, want %v", gotItem, item)
 			}
 		})
 	}
@@ -82,7 +82,7 @@ func TestItem_MarshallUnmarshallYAML(t *testing.T) {
 			err := yaml.Unmarshal([]byte(gotYaml), &gotItem)
 			require.NoError(t, err)
 			if !reflect.DeepEqual(gotItem, item) {
-				t.Errorf("Responce not equal - got:  %v, want %v", gotItem, item)
+				t.Errorf("Response not equal - got:  %v, want %v", gotItem, item)
 			}
 
 			gotYamlSafe, err := item.ToYamlSafe()
@@ -91,7 +91,7 @@ func TestItem_MarshallUnmarshallYAML(t *testing.T) {
 			err = yaml.Unmarshal([]byte(gotYamlSafe), &gotItem)
 			require.NoError(t, err)
 			if !reflect.DeepEqual(gotItem, item) {
-				t.Errorf("Responce not equal - got:  %v, want %v", gotItem, item)
+				t.Errorf("Response not equal - got:  %v, want %v", gotItem, item)
 			}
 		})
 	}
@@ -103,13 +103,13 @@ func TestItem_GetSecrets(t *testing.T) {
 
 		secret := item.GetLogin()
 		if !reflect.DeepEqual(item.Secret, secret) {
-			t.Errorf("Responce not equal - got:  %v, want %v", secret, item.Secret)
+			t.Errorf("Response not equal - got:  %v, want %v", secret, item.Secret)
 		}
 
 		secret, err := item.GetLoginSafe()
 		require.NoError(t, err)
 		if !reflect.DeepEqual(item.Secret, secret) {
-			t.Errorf("Responce not equal - got:  %v, want %v", secret, item.Secret)
+			t.Errorf("Response not equal - got:  %v, want %v", secret, item.Secret)
 		}
 	})
 
@@ -137,13 +137,13 @@ func TestItem_GetSecrets(t *testing.T) {
 
 		secret := item.GetCard()
 		if !reflect.DeepEqual(item.Secret, secret) {
-			t.Errorf("Responce not equal - got:  %v, want %v", secret, item.Secret)
+			t.Errorf("Response not equal - got:  %v, want %v", secret, item.Secret)
 		}
 
 		secret, err := item.GetCardSafe()
 		require.NoError(t, err)
 		if !reflect.DeepEqual(item.Secret, secret) {
-			t.Errorf("Responce not equal - got:  %v, want %v", secret, item.Secret)
+			t.Errorf("Response not equal - got:  %v, want %v", secret, item.Secret)
 		}
 	})
 
@@ -171,13 +171,13 @@ func TestItem_GetSecrets(t *testing.T) {
 
 		secret := item.GetSecData()
 		if !reflect.DeepEqual(item.Secret, secret) {
-			t.Errorf("Responce not equal - got:  %v, want %v", secret, item.Secret)
+			t.Errorf("Response not equal - got:  %v, want %v", secret, item.Secret)
 		}
 
 		secret, err := item.GetSecDataSafe()
 		require.NoError(t, err)
 		if !reflect.DeepEqual(item.Secret, secret) {
-			t.Errorf("Responce not equal - got:  %v, want %v", secret, item.Secret)
+			t.Errorf("Response not equal - got:  %v, want %v", secret, item.Secret)
 		}
 	})
 
@@ -209,7 +209,7 @@ func TestCustomFields_Bytes(t *testing.T) {
 		gotCf := NewCustomFields(gotBytes)
 
 		if !reflect.DeepEqual(cf, gotCf) {
-			t.Errorf("Responce not equal - got:  %v, want %v", gotCf, cf)
+			t.Errorf("Response not equal - got:  %v, want %v", gotCf, cf)
 		}
 	})
 	t.Run("_UnSafe", func(t *testing.T) {
@@ -221,7 +221,7 @@ func TestCustomFields_Bytes(t *testing.T) {
 		require.NoError(t, err)
 
 		if !reflect.DeepEqual(cf, gotCf) {
-			t.Errorf("Responce not equal - got:  %v, want %v", gotCf, cf)
+			t.Errorf("Response not equal - got:  %v, want %v", gotCf, cf)
 		}
 	})
 
@@ -230,6 +230,7 @@ func TestCustomFields_Bytes(t *testing.T) {
 		assert.Error(t, err)
 	})
 }
+
 func TestURIs_Bytes(t *testing.T) {
 	t.Run("Safe", func(t *testing.T) {
 		uris := TestingNewURIs()
@@ -238,7 +239,7 @@ func TestURIs_Bytes(t *testing.T) {
 		gotUris := NewURIs(gotBytes)
 
 		if !reflect.DeepEqual(uris, gotUris) {
-			t.Errorf("Responce not equal - got:  %v, want %v", gotUris, uris)
+			t.Errorf("Response not equal - got:  %v, want %v", gotUris, uris)
 		}
 	})
 	t.Run("_UnSafe", func(t *testing.T) {
@@ -250,7 +251,7 @@ func TestURIs_Bytes(t *testing.T) {
 		require.NoError(t, err)
 
 		if !reflect.DeepEqual(uris, gotUris) {
-			t.Errorf("Responce not equal - got:  %v, want %v", gotUris, uris)
+			t.Errorf("Response not equal - got:  %v, want %v", gotUris, uris)
 		}
 	})
 

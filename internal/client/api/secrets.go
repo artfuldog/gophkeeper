@@ -57,6 +57,8 @@ var _ Secret = (*SecretLogin)(nil)
 //
 // This is unsafe function, which means there is no errors checks.
 // If you want this please use NewSecretLoginSafe function.
+//
+//nolint:wsl
 func NewSecretLogin(b []byte) *SecretLogin {
 	s := new(SecretLogin)
 	serializeUnsafe(s, b)
@@ -71,6 +73,7 @@ func NewSecretLoginSafe(b []byte) (*SecretLogin, error) {
 	if err := serializeSafe(s, b); err != nil {
 		return nil, err
 	}
+
 	return s, nil
 }
 
@@ -110,6 +113,8 @@ var _ Secret = (*SecretCard)(nil)
 //
 // This is unsafe function, which means there is no errors checks.
 // If you want this please use NewSecretLoginSafe function.
+//
+//nolint:wsl
 func NewSecretCard(b []byte) *SecretCard {
 	s := new(SecretCard)
 	serializeUnsafe(s, b)
@@ -124,6 +129,7 @@ func NewSecretCardSafe(b []byte) (*SecretCard, error) {
 	if err := serializeSafe(s, b); err != nil {
 		return nil, err
 	}
+
 	return s, nil
 }
 
@@ -159,6 +165,8 @@ var _ Secret = (*SecretData)(nil)
 //
 // This is unsafe function, which means there is no errors checks.
 // If you want this please use NewSecretLoginSafe function.
+//
+//nolint:wsl
 func NewSecretData(b []byte) *SecretData {
 	s := new(SecretData)
 	serializeUnsafe(s, b)
@@ -173,6 +181,7 @@ func NewSecretDataSafe(b []byte) (*SecretData, error) {
 	if err := serializeSafe(s, b); err != nil {
 		return nil, err
 	}
+
 	return s, nil
 }
 

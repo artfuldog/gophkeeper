@@ -58,7 +58,6 @@ func Test_wrapErrorToClient(t *testing.T) {
 
 			err := wrapErrorToClient(tt.err)
 			assert.ErrorIs(t, err, want)
-
 		})
 	}
 }

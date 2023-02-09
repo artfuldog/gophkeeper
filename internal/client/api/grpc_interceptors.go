@@ -9,13 +9,15 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-// List of methods which not required authorization
+// List of methods which not required authorization.
+//
+//nolint:gochecknoglobals
 var unAuthMethods = []string{
 	"UserLogin",
 	"UserRegister",
 }
 
-// Metadata keys
+// Metadata keys.
 const (
 	authMetadataKey = "authorization"
 	authUsernameKey = "username"
@@ -38,6 +40,7 @@ func AuthInterceptor(username string, token *string) grpc.UnaryClientInterceptor
 
 		authCtx := metadata.AppendToOutgoingContext(ctx, authUsernameKey, username)
 		authCtx = metadata.AppendToOutgoingContext(authCtx, authMetadataKey, *token)
+
 		return invoker(authCtx, method, req, reply, cc, opts...)
 	}
 }

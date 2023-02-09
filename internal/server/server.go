@@ -11,7 +11,7 @@ import (
 	"github.com/artfuldog/gophkeeper/internal/server/authorizer"
 	"github.com/artfuldog/gophkeeper/internal/server/db"
 	"github.com/artfuldog/gophkeeper/internal/server/grpcapi"
-	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
+	grpcrecovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -27,13 +27,14 @@ type Server struct {
 	LogLevel   logger.Level
 }
 
-//  NewSrv is a constructor used to initialize server and set up all parameters and components.
+// NewSrv is a constructor used to initialize server and set up all parameters and components.
 func NewServer(cfg *Config) (*Server, error) {
 	s := new(Server)
 
 	s.Address = cfg.Address
 
 	var err error
+
 	s.LogLevel, err = logger.GetLevelFromString(cfg.LogLevel)
 	if err != nil {
 		return nil, err
@@ -48,6 +49,7 @@ func NewServer(cfg *Config) (*Server, error) {
 	if err := s.createDB(cfg); err != nil {
 		return nil, err
 	}
+
 	if err := s.createGRPCServer(cfg); err != nil {
 		return nil, err
 	}
@@ -65,14 +67,16 @@ func (s *Server) Run(ctx context.Context, statusChan chan error) {
 	}
 
 	dbControlCh := make(db.CloseChannel)
-	dbCtx, dbCancel := context.WithCancel(context.Background())
+	dbCtx, dbCancel := context.WithCancel(ctx)
+
 	go s.DB.Run(dbCtx, dbControlCh)
 	defer dbCancel()
 
 	grpcControlCh := make(db.CloseChannel)
-	grpcCtx, grpcCancel := context.WithCancel(context.Background())
+	grpcCtx, grpcCancel := context.WithCancel(ctx)
+
 	go s.startGRPCServer(grpcCtx, grpcControlCh)
-	defer grpcCancel()
+	defer grpcCancel() //nolint:wsl
 
 	s.Logger.Info("server is started", componentName)
 
@@ -94,9 +98,10 @@ func (s *Server) Run(ctx context.Context, statusChan chan error) {
 	close(statusChan)
 }
 
-// createAuthorizer is a helper function for initialization and configuration authorizer
+// createAuthorizer is a helper function for initialization and configuration authorizer.
 func (s *Server) createAuthorizer(cfg *Config) (a authorizer.A, err error) {
 	var authLogger logger.L
+
 	if authLogger, err = logger.NewZLoggerConsole(s.LogLevel, "authenticator",
 		logger.OutputStdoutPretty); err != nil {
 		return
@@ -113,11 +118,12 @@ func (s *Server) createAuthorizer(cfg *Config) (a authorizer.A, err error) {
 // createDB is a helper function for initialization and configuration database.
 func (s *Server) createDB(cfg *Config) (err error) {
 	var dbLogger logger.L
+
 	if dbLogger, err = logger.NewZLoggerConsole(s.LogLevel, "db", logger.OutputStdoutPretty); err != nil {
 		return
 	}
 
-	dbParams := db.NewDBParameters(cfg.DBDSN, cfg.DBUser, cfg.DBPassword, cfg.MaxSecretSize)
+	dbParams := db.NewParameters(cfg.DBDSN, cfg.DBUser, cfg.DBPassword, cfg.MaxSecretSize)
 
 	if s.DB, err = db.New(cfg.DBType, dbParams, dbLogger); err != nil {
 		return
@@ -135,7 +141,7 @@ func (s *Server) createGRPCServer(cfg *Config) (err error) {
 
 	grpcUnaryInterceptors := []grpc.UnaryServerInterceptor{
 		grpcapi.IsAuthorized(authorizer),
-		grpc_recovery.UnaryServerInterceptor(),
+		grpcrecovery.UnaryServerInterceptor(),
 	}
 
 	creds, err := s.getGRPCCredentials(cfg)
@@ -149,6 +155,7 @@ func (s *Server) createGRPCServer(cfg *Config) (err error) {
 		grpc.ChainUnaryInterceptor(grpcUnaryInterceptors...))
 
 	var grpcLogger logger.L
+
 	if grpcLogger, err = logger.NewZLoggerConsole(s.LogLevel, "grpc", logger.OutputStdoutPretty); err != nil {
 		return
 	}
@@ -159,20 +166,23 @@ func (s *Server) createGRPCServer(cfg *Config) (err error) {
 	usersService := grpcapi.NewUsersService(s.DB, grpcLogger, authorizer)
 	pb.RegisterUsersServer(s.grpcServer, usersService)
 
-	return
+	return nil
 }
 
 // getGRPCCredentials is a helper function used to configure transport credentials for
 // GRPC-server.
 func (s *Server) getGRPCCredentials(cfg *Config) (credentials.TransportCredentials, error) {
 	if cfg.TLSDisable {
-		s.Logger.Warn(nil, "TLS is disabled, all comunications between client and server are insecured", "Server:getGRPCCredentials")
+		s.Logger.Warn(nil, "TLS is disabled, all comunications between client and server are insecured",
+			"Server:getGRPCCredentials")
 		return insecure.NewCredentials(), nil
 	}
+
 	creds, err := credentials.NewServerTLSFromFile(cfg.TLSCertFilepath, cfg.TLSKeyFilepath)
 	if err != nil {
 		return nil, err
 	}
+
 	return creds, nil
 }
 
@@ -187,10 +197,12 @@ func (s *Server) startGRPCServer(ctx context.Context, controlCh chan struct{}) {
 	if err != nil {
 		s.Logger.Error(err, "", componentName)
 		close(controlCh)
+
 		return
 	}
 
 	serverStatusCh := make(chan error)
+
 	go func() {
 		if err := s.grpcServer.Serve(grpcListener); err != nil {
 			serverStatusCh <- err
@@ -207,6 +219,7 @@ func (s *Server) startGRPCServer(ctx context.Context, controlCh chan struct{}) {
 	case err := <-serverStatusCh:
 		s.Logger.Error(err, "", componentName)
 		close(controlCh)
+
 		return
 	}
 }

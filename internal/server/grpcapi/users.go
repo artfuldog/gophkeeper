@@ -43,6 +43,7 @@ func (s *UsersService) CreateUser(ctx context.Context, req *pb.CreateUserRequest
 	}
 
 	var err error
+
 	TOTPKey := new(crypt.TOTPKey)
 	if req.Twofactor {
 		TOTPKey, err = crypt.GenerateTOTP(req.User.Username, "gophKeeper", 100, 100)
@@ -63,7 +64,8 @@ func (s *UsersService) CreateUser(ctx context.Context, req *pb.CreateUserRequest
 		resp.Totpkey.Qrcode = TOTPKey.QRCode
 	}
 
-	resp.Info = fmt.Sprintf("succesfully create user '%s'", req.User.Username)
+	resp.Info = fmt.Sprintf("successfully create user '%s'", req.User.Username)
+
 	return resp, nil
 }
 
@@ -121,7 +123,8 @@ func (s *UsersService) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest
 		return nil, wrapErrorToClient(err)
 	}
 
-	resp.Info = fmt.Sprintf("succesfully update user '%s'", req.User.Username)
+	resp.Info = fmt.Sprintf("successfully update user '%s'", req.User.Username)
+
 	return resp, nil
 }
 
@@ -140,17 +143,18 @@ func (s *UsersService) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest
 	}
 
 	s.logger.Info(fmt.Sprintf("user '%s' is deleted", req.Username), componentName)
-	resp.Info = fmt.Sprintf("succesfully delete user '%s'", req.Username)
+	resp.Info = fmt.Sprintf("successfully delete user '%s'", req.Username)
+
 	return resp, nil
 }
 
 // UserLogin performs user authenticatin and authorization.
 //
-// When 2-factor authorization is enabled and verification code is not provided returns responce
+// When 2-factor authorization is enabled and verification code is not provided returns response
 // with SecondFactor flag and nil error. Handling this situation should be implemented on
 // client side.
 //
-// After succesfull login responces with Token, encryption key and server's limits.
+// After succesfull login responses with Token, encryption key and server's limits.
 func (s *UsersService) UserLogin(ctx context.Context, req *pb.UserLoginRequest) (*pb.UserLoginResponce, error) {
 	componentName := "UsersService:UserLogin"
 	resp := new(pb.UserLoginResponce)
@@ -170,6 +174,7 @@ func (s *UsersService) UserLogin(ctx context.Context, req *pb.UserLoginRequest) 
 			resp.SecondFactor = true
 			return resp, nil
 		}
+
 		if !crypt.ValidateTOTP(req.OtpCode, optKey) {
 			return nil, ErrWrongVerificationCode
 		}
@@ -199,5 +204,6 @@ func userPerformSelfOperation(ctx context.Context, reqUserName string) bool {
 	if ok {
 		return reqUserName == ctxUsername
 	}
+
 	return false
 }

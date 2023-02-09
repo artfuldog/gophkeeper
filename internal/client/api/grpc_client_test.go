@@ -1,8 +1,8 @@
+//nolint:gochecknoglobals
 package api
 
 import (
 	"context"
-	"fmt"
 	"reflect"
 	"sync"
 	"testing"
@@ -25,8 +25,8 @@ import (
 var (
 	mockAnyVal        = gomock.Any()
 	testGRPCSecretKey = "secretkey"
-	testGRPC_Ctx      = context.Background()
-	testGRP_EncKey    = []byte("123456789a123456789b123456789abc")
+	testGRPCctx       = context.Background()
+	testGRPCencKey    = []byte("123456789a123456789b123456789abc")
 )
 
 type TestSuiteGRPClient struct {
@@ -48,7 +48,6 @@ func NewTestSuiteGRPClient(t gomock.TestReporter) *TestSuiteGRPClient {
 	testItemsService := mockgrpc.NewMockItemsClient(mockCtrl)
 
 	testClient := NewGRPCClient(testConfig, testLogger)
-	//testClient.encKey = testGRP_EncKey
 	testClient.itemsClient = testItemsService
 	testClient.usersClient = testUsersService
 
@@ -72,13 +71,13 @@ func TestGRPCClient_Connect(t *testing.T) {
 
 	ts.Client.config.SetCACert("/wrong/file/path/to/ca")
 	t.Run("Creds error", func(t *testing.T) {
-		assert.Error(t, ts.Client.Connect(testGRPC_Ctx))
+		assert.Error(t, ts.Client.Connect(testGRPCctx))
 	})
 
 	ts.Client.config.SetCACert("")
 	ts.Client.config.SetServer("")
 	t.Run("Connection error", func(t *testing.T) {
-		assert.Error(t, ts.Client.Connect(testGRPC_Ctx))
+		assert.Error(t, ts.Client.Connect(testGRPCctx))
 	})
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -107,16 +106,16 @@ func TestGRPCClient_UserLogin(t *testing.T) {
 	defer ts.Stop()
 
 	t.Run("Login Error", func(t *testing.T) {
-		ts.UsersClient.EXPECT().UserLogin(testGRPC_Ctx, mockAnyVal).Return(nil, assert.AnError)
-		assert.Error(t, ts.Client.UserLogin(testGRPC_Ctx, "", "", ""))
+		ts.UsersClient.EXPECT().UserLogin(testGRPCctx, mockAnyVal).Return(nil, assert.AnError)
+		assert.Error(t, ts.Client.UserLogin(testGRPCctx, "", "", ""))
 	})
 
 	t.Run("Second factor", func(t *testing.T) {
 		resp := &pb.UserLoginResponce{
 			SecondFactor: true,
 		}
-		ts.UsersClient.EXPECT().UserLogin(testGRPC_Ctx, mockAnyVal).Return(resp, nil)
-		assert.ErrorIs(t, ts.Client.UserLogin(testGRPC_Ctx, "", "", ""), ErrSecondFactorRequired)
+		ts.UsersClient.EXPECT().UserLogin(testGRPCctx, mockAnyVal).Return(resp, nil)
+		assert.ErrorIs(t, ts.Client.UserLogin(testGRPCctx, "", "", ""), ErrSecondFactorRequired)
 	})
 
 	t.Run("Encryption error", func(t *testing.T) {
@@ -125,8 +124,8 @@ func TestGRPCClient_UserLogin(t *testing.T) {
 			Ekey:         []byte("asdasd"),
 		}
 
-		ts.UsersClient.EXPECT().UserLogin(testGRPC_Ctx, mockAnyVal).Return(resp, nil)
-		assert.ErrorIs(t, ts.Client.UserLogin(testGRPC_Ctx, "", "", ""), ErrEKeyDecryptionFailed)
+		ts.UsersClient.EXPECT().UserLogin(testGRPCctx, mockAnyVal).Return(resp, nil)
+		assert.ErrorIs(t, ts.Client.UserLogin(testGRPCctx, "", "", ""), ErrEKeyDecryptionFailed)
 	})
 
 	t.Run("User logged in", func(t *testing.T) {
@@ -141,8 +140,8 @@ func TestGRPCClient_UserLogin(t *testing.T) {
 			},
 		}
 
-		ts.UsersClient.EXPECT().UserLogin(testGRPC_Ctx, mockAnyVal).Return(resp, nil)
-		assert.NoError(t, ts.Client.UserLogin(testGRPC_Ctx, "", "", ""))
+		ts.UsersClient.EXPECT().UserLogin(testGRPCctx, mockAnyVal).Return(resp, nil)
+		assert.NoError(t, ts.Client.UserLogin(testGRPCctx, "", "", ""))
 	})
 }
 
@@ -151,19 +150,19 @@ func TestGRPCClient_UserRegister(t *testing.T) {
 	defer ts.Stop()
 
 	t.Run("Encryption failed", func(t *testing.T) {
-		ts.UsersClient.EXPECT().CreateUser(testGRPC_Ctx, mockAnyVal).Return(nil, assert.AnError)
+		ts.UsersClient.EXPECT().CreateUser(testGRPCctx, mockAnyVal).Return(nil, assert.AnError)
 		user := &NewUser{}
-		_, err := ts.Client.UserRegister(testGRPC_Ctx, user)
+		_, err := ts.Client.UserRegister(testGRPCctx, user)
 		assert.Error(t, err)
 	})
 
-	t.Run("Two-factor enabled with nil responce", func(t *testing.T) {
-		ts.UsersClient.EXPECT().CreateUser(testGRPC_Ctx, mockAnyVal).Return(nil, nil)
+	t.Run("Two-factor enabled with nil response", func(t *testing.T) {
+		ts.UsersClient.EXPECT().CreateUser(testGRPCctx, mockAnyVal).Return(nil, nil)
 		user := &NewUser{
 			Email:           "someone@example.com",
 			TwoFactorEnable: true,
 		}
-		_, err := ts.Client.UserRegister(testGRPC_Ctx, user)
+		_, err := ts.Client.UserRegister(testGRPCctx, user)
 		assert.ErrorIs(t, err, ErrMissedServerResponce)
 	})
 
@@ -174,24 +173,24 @@ func TestGRPCClient_UserRegister(t *testing.T) {
 				Qrcode: []byte("qrcode"),
 			},
 		}
-		ts.UsersClient.EXPECT().CreateUser(testGRPC_Ctx, mockAnyVal).Return(resp, nil)
+		ts.UsersClient.EXPECT().CreateUser(testGRPCctx, mockAnyVal).Return(resp, nil)
 		user := &NewUser{
 			Email:           "someone@example.com",
 			TwoFactorEnable: true,
 		}
-		totpkey, err := ts.Client.UserRegister(testGRPC_Ctx, user)
+		totpkey, err := ts.Client.UserRegister(testGRPCctx, user)
 		require.NoError(t, err)
 		assert.NotEmpty(t, totpkey)
 	})
 
 	t.Run("Two-factor disabled", func(t *testing.T) {
 		resp := &pb.CreateUserResponce{}
-		ts.UsersClient.EXPECT().CreateUser(testGRPC_Ctx, mockAnyVal).Return(resp, nil)
+		ts.UsersClient.EXPECT().CreateUser(testGRPCctx, mockAnyVal).Return(resp, nil)
 		user := &NewUser{
 			Email:           "someone@example.com",
 			TwoFactorEnable: false,
 		}
-		totpkey, err := ts.Client.UserRegister(testGRPC_Ctx, user)
+		totpkey, err := ts.Client.UserRegister(testGRPCctx, user)
 		require.NoError(t, err)
 		assert.Empty(t, totpkey)
 	})
@@ -201,18 +200,18 @@ func TestGRPCClient_GetItemsList(t *testing.T) {
 	ts := NewTestSuiteGRPClient(t)
 	defer ts.Stop()
 
-	t.Run("Server responce error", func(t *testing.T) {
-		ts.ItemsClient.EXPECT().GetItemList(testGRPC_Ctx, mockAnyVal).Return(nil, assert.AnError)
-		_, err := ts.Client.GetItemsList(testGRPC_Ctx)
+	t.Run("Server response error", func(t *testing.T) {
+		ts.ItemsClient.EXPECT().GetItemList(testGRPCctx, mockAnyVal).Return(nil, assert.AnError)
+		_, err := ts.Client.GetItemsList(testGRPCctx)
 		assert.Error(t, err)
 	})
 
-	t.Run("Server responce PK", func(t *testing.T) {
+	t.Run("Server response PK", func(t *testing.T) {
 		resp := &pb.GetItemListResponce{
 			Items: []*pb.ItemShort{{Name: "123"}},
 		}
-		ts.ItemsClient.EXPECT().GetItemList(testGRPC_Ctx, mockAnyVal).Return(resp, nil)
-		items, err := ts.Client.GetItemsList(testGRPC_Ctx)
+		ts.ItemsClient.EXPECT().GetItemList(testGRPCctx, mockAnyVal).Return(resp, nil)
+		items, err := ts.Client.GetItemsList(testGRPCctx)
 		require.NoError(t, err)
 		assert.NotEmpty(t, items)
 	})
@@ -225,34 +224,32 @@ func TestGRPCClient_GetItem(t *testing.T) {
 	itemName := "itemname"
 	itemType := "itemType"
 
-	t.Run("Server responce error", func(t *testing.T) {
-		ts.ItemsClient.EXPECT().GetItem(testGRPC_Ctx, mockAnyVal).Return(nil, assert.AnError)
-		_, err := ts.Client.GetItem(testGRPC_Ctx, itemName, itemType)
+	t.Run("Server response error", func(t *testing.T) {
+		ts.ItemsClient.EXPECT().GetItem(testGRPCctx, mockAnyVal).Return(nil, assert.AnError)
+		_, err := ts.Client.GetItem(testGRPCctx, itemName, itemType)
 		assert.Error(t, err)
 	})
 
 	t.Run("Decryption error", func(t *testing.T) {
 		resp := &pb.GetItemResponce{}
-		ts.ItemsClient.EXPECT().GetItem(testGRPC_Ctx, mockAnyVal).Return(resp, nil)
-		_, err := ts.Client.GetItem(testGRPC_Ctx, itemName, itemType)
+		ts.ItemsClient.EXPECT().GetItem(testGRPCctx, mockAnyVal).Return(resp, nil)
+		_, err := ts.Client.GetItem(testGRPCctx, itemName, itemType)
 		assert.Error(t, err)
 	})
 
-	t.Run("Succesfully get item", func(t *testing.T) {
-		ts.Client.encKey = testGRP_EncKey
+	t.Run("Successfully get item", func(t *testing.T) {
+		ts.Client.encKey = testGRPCencKey
 		pbItem := TestingNewPbLoginItem()
 		ts.Client.EncryptPbItem(pbItem)
 
 		resp := &pb.GetItemResponce{
 			Item: pbItem,
 		}
-		ts.ItemsClient.EXPECT().GetItem(testGRPC_Ctx, mockAnyVal).Return(resp, nil)
-		item, err := ts.Client.GetItem(testGRPC_Ctx, itemName, itemType)
-		fmt.Println(*item)
+		ts.ItemsClient.EXPECT().GetItem(testGRPCctx, mockAnyVal).Return(resp, nil)
+		item, err := ts.Client.GetItem(testGRPCctx, itemName, itemType)
 		require.NoError(t, err)
 		assert.NotEmpty(t, item)
 	})
-
 }
 
 func TestGRPCClient_SaveItem(t *testing.T) {
@@ -262,48 +259,48 @@ func TestGRPCClient_SaveItem(t *testing.T) {
 
 	t.Run("Encryption error", func(t *testing.T) {
 		item := TestingNewLoginItem()
-		assert.Error(t, ts.Client.SaveItem(testGRPC_Ctx, item))
+		assert.Error(t, ts.Client.SaveItem(testGRPCctx, item))
 	})
 
-	ts.Client.encKey = testGRP_EncKey
+	ts.Client.encKey = testGRPCencKey
 
 	t.Run("Secret too big", func(t *testing.T) {
 		item := TestingNewSecDataItem()
 		ts.Client.MaxSecretSize = 100
-		assert.ErrorIs(t, ts.Client.SaveItem(testGRPC_Ctx, item), ErrSecretTooBig)
+		assert.ErrorIs(t, ts.Client.SaveItem(testGRPCctx, item), ErrSecretTooBig)
 		ts.Client.MaxSecretSize = 50 * 1024 * 1024
 	})
 
 	t.Run("Create item error", func(t *testing.T) {
 		item := TestingNewLoginItem()
 
-		ts.ItemsClient.EXPECT().CreateItem(testGRPC_Ctx, mockAnyVal).Return(nil, assert.AnError)
-		assert.Error(t, ts.Client.SaveItem(testGRPC_Ctx, item))
+		ts.ItemsClient.EXPECT().CreateItem(testGRPCctx, mockAnyVal).Return(nil, assert.AnError)
+		assert.Error(t, ts.Client.SaveItem(testGRPCctx, item))
 	})
 
 	t.Run("Create item", func(t *testing.T) {
 		item := TestingNewLoginItem()
 		resp := &pb.CreateItemResponce{}
 
-		ts.ItemsClient.EXPECT().CreateItem(testGRPC_Ctx, mockAnyVal).Return(resp, nil)
-		require.NoError(t, ts.Client.SaveItem(testGRPC_Ctx, item))
+		ts.ItemsClient.EXPECT().CreateItem(testGRPCctx, mockAnyVal).Return(resp, nil)
+		require.NoError(t, ts.Client.SaveItem(testGRPCctx, item))
 	})
 
 	t.Run("Update item error", func(t *testing.T) {
 		item := TestingNewLoginItem()
-		item.Id = 100
+		item.ID = 100
 
-		ts.ItemsClient.EXPECT().UpdateItem(testGRPC_Ctx, mockAnyVal).Return(nil, assert.AnError)
-		assert.Error(t, ts.Client.SaveItem(testGRPC_Ctx, item))
+		ts.ItemsClient.EXPECT().UpdateItem(testGRPCctx, mockAnyVal).Return(nil, assert.AnError)
+		assert.Error(t, ts.Client.SaveItem(testGRPCctx, item))
 	})
 
 	t.Run("Update item", func(t *testing.T) {
 		item := TestingNewLoginItem()
-		item.Id = 100
+		item.ID = 100
 		resp := &pb.UpdateItemResponce{}
 
-		ts.ItemsClient.EXPECT().UpdateItem(testGRPC_Ctx, mockAnyVal).Return(resp, nil)
-		require.NoError(t, ts.Client.SaveItem(testGRPC_Ctx, item))
+		ts.ItemsClient.EXPECT().UpdateItem(testGRPCctx, mockAnyVal).Return(resp, nil)
+		require.NoError(t, ts.Client.SaveItem(testGRPCctx, item))
 	})
 }
 
@@ -315,16 +312,16 @@ func TestGRPCClient_DeleteItem(t *testing.T) {
 	t.Run("Delete item error", func(t *testing.T) {
 		item := TestingNewLoginItem()
 
-		ts.ItemsClient.EXPECT().DeleteItem(testGRPC_Ctx, mockAnyVal).Return(nil, assert.AnError)
-		assert.Error(t, ts.Client.DeleteItem(testGRPC_Ctx, item))
+		ts.ItemsClient.EXPECT().DeleteItem(testGRPCctx, mockAnyVal).Return(nil, assert.AnError)
+		assert.Error(t, ts.Client.DeleteItem(testGRPCctx, item))
 	})
 
 	t.Run("Delete item", func(t *testing.T) {
 		item := TestingNewLoginItem()
 		resp := &pb.DeleteItemResponce{}
 
-		ts.ItemsClient.EXPECT().DeleteItem(testGRPC_Ctx, mockAnyVal).Return(resp, nil)
-		require.NoError(t, ts.Client.DeleteItem(testGRPC_Ctx, item))
+		ts.ItemsClient.EXPECT().DeleteItem(testGRPCctx, mockAnyVal).Return(resp, nil)
+		require.NoError(t, ts.Client.DeleteItem(testGRPCctx, item))
 	})
 }
 
@@ -345,25 +342,55 @@ func TestGRPCClient_wrapError(t *testing.T) {
 	})
 }
 
-func TestGRPCClient_encryptPbItem(t *testing.T) {
+func TestGRPCClient_encrypt_decryptPbItem(t *testing.T) {
 	ts := NewTestSuiteGRPClient(t)
 	defer ts.Stop()
 
-	t.Run("Secret encryption error", func(t *testing.T) {
+	t.Run("Secret encryption/decryption error", func(t *testing.T) {
 		pbItem := TestingNewPbLoginItem()
-		assert.Error(t, ts.Client.EncryptPbItem(pbItem))
+		err := ts.Client.EncryptPbItem(pbItem)
+		assert.Error(t, err)
+		err = ts.Client.DecryptPbItem(pbItem)
+		assert.Error(t, err)
+
+		wantItem := TestingNewPbLoginItem()
+		pbItem.Updated = wantItem.Updated
+		if !reflect.DeepEqual(pbItem, wantItem) {
+			t.Errorf("Encrypt/decrypt err: got %v, want %v", pbItem, wantItem)
+		}
 	})
 
-	t.Run("Notes encryption error", func(t *testing.T) {
+	t.Run("Notes encryption/decryption error", func(t *testing.T) {
 		pbItem := TestingNewPbSecNoteItem()
-		assert.Error(t, ts.Client.EncryptPbItem(pbItem))
+		err := ts.Client.EncryptPbItem(pbItem)
+		assert.Error(t, err)
+		err = ts.Client.DecryptPbItem(pbItem)
+		assert.Error(t, err)
+
+		wantItem := TestingNewPbSecNoteItem()
+		pbItem.Updated = wantItem.Updated
+		if !reflect.DeepEqual(pbItem, wantItem) {
+			t.Errorf("Encrypt/decrypt err: got %v, want %v", pbItem, wantItem)
+		}
 	})
 
-	t.Run("URIs encryption error", func(t *testing.T) {
+	t.Run("URIs encryption/decryption error", func(t *testing.T) {
 		pbItem := TestingNewPbLoginItem()
 		pbItem.Secrets.Secret = nil
 		pbItem.Secrets.Notes = nil
-		assert.Error(t, ts.Client.EncryptPbItem(pbItem))
+
+		err := ts.Client.EncryptPbItem(pbItem)
+		assert.Error(t, err)
+		err = ts.Client.DecryptPbItem(pbItem)
+		assert.Error(t, err)
+
+		wantItem := TestingNewPbLoginItem()
+		wantItem.Secrets.Secret = nil
+		wantItem.Secrets.Notes = nil
+		pbItem.Updated = wantItem.Updated
+		if !reflect.DeepEqual(pbItem, wantItem) {
+			t.Errorf("Encrypt/decrypt err: got %v, want %v", pbItem, wantItem)
+		}
 	})
 
 	t.Run("Custom field encryption error", func(t *testing.T) {
@@ -371,44 +398,27 @@ func TestGRPCClient_encryptPbItem(t *testing.T) {
 		pbItem.Secrets.Secret = nil
 		pbItem.Secrets.Notes = nil
 		pbItem.Additions.Uris = nil
-		assert.Error(t, ts.Client.EncryptPbItem(pbItem))
-	})
-}
 
-func TestGRPCClient_decryptPbItem(t *testing.T) {
-	ts := NewTestSuiteGRPClient(t)
-	defer ts.Stop()
+		err := ts.Client.EncryptPbItem(pbItem)
+		assert.Error(t, err)
+		err = ts.Client.DecryptPbItem(pbItem)
+		assert.Error(t, err)
 
-	t.Run("Secret decryption error", func(t *testing.T) {
-		pbItem := TestingNewPbLoginItem()
-		assert.Error(t, ts.Client.DecryptPbItem(pbItem))
-	})
-
-	t.Run("Notes decryption error", func(t *testing.T) {
-		pbItem := TestingNewPbSecNoteItem()
-		assert.Error(t, ts.Client.DecryptPbItem(pbItem))
-	})
-
-	t.Run("URIs decryption error", func(t *testing.T) {
-		pbItem := TestingNewPbLoginItem()
-		pbItem.Secrets.Secret = nil
-		pbItem.Secrets.Notes = nil
-		assert.Error(t, ts.Client.DecryptPbItem(pbItem))
-	})
-
-	t.Run("Custom field decryption error", func(t *testing.T) {
-		pbItem := TestingNewPbLoginItem()
-		pbItem.Secrets.Secret = nil
-		pbItem.Secrets.Notes = nil
-		pbItem.Additions.Uris = nil
-		assert.Error(t, ts.Client.DecryptPbItem(pbItem))
+		wantItem := TestingNewPbLoginItem()
+		wantItem.Secrets.Secret = nil
+		wantItem.Secrets.Notes = nil
+		wantItem.Additions.Uris = nil
+		pbItem.Updated = wantItem.Updated
+		if !reflect.DeepEqual(pbItem, wantItem) {
+			t.Errorf("Encrypt/decrypt err: got %v, want %v", pbItem, wantItem)
+		}
 	})
 }
 
 func BenchmarkGRPCClient_EncryptDecrypt(b *testing.B) {
 	ts := NewTestSuiteGRPClient(b)
 	defer ts.Stop()
-	ts.Client.encKey = testGRP_EncKey
+	ts.Client.encKey = testGRPCencKey
 
 	var wg sync.WaitGroup
 	for i := 0; i < b.N; i++ {

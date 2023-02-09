@@ -21,5 +21,4 @@ func TestNew(t *testing.T) {
 		_, err := New("wrong type", &testDBConnParams, logger)
 		assert.Error(t, err)
 	})
-
 }

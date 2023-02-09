@@ -31,6 +31,9 @@ tests-race:		## Make all tests with racing checking
 bench:
 	@$(GO_RUN_TEST_CMD) -run=Bench* ./internal/... -bench=. -benchtime=25000x -count=8 | grep Benchmark
 
+lint:
+	@golangci-lint run ./...
+
 mocks:			## Generate mocks for protobuf and database
 	@mockgen -source=internal/pb/items_grpc.pb.go -destination=internal/mocks/mockgrpc/items.go -package=mockgrpc
 	@mockgen -source=internal/pb/users_grpc.pb.go -destination=internal/mocks/mockgrpc/users.go -package=mockgrpc
@@ -81,4 +84,5 @@ run-client-race-notls:	## Run server with race flag and disaled tls
 help:	## Show this help.
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 
-.PHONY: help, list, proto, tests, tests-all, mocks, cert, cert-verify, install-ca-cert, release
+.PHONY: help, list, proto, tests, tests-all, bench, list, mocks, \
+		cert, cert-verify, install-ca-cert, release

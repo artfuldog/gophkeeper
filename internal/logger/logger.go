@@ -1,11 +1,11 @@
 // Logger package provides simple way to live logging events and error during app execution.
 //
 // Package have two implementation of logger:
-//  - zlogger wrapping zerolog package
-//  - nologger - dummy implemetation which implements all methods but nothing does (useful for testing)
+//   - zlogger wrapping zerolog package
+//   - nologger - dummy implemetation which implements all methods but nothing does (useful for testing)
 //
 // Logger provides seven level of events and two output formats in Stdout (console) -
-// raw JSON or pretty colored ouput
+// raw JSON or pretty colored output.
 package logger
 
 import (
@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-// L represents general Logger inteface
+// L represents general Logger inteface.
 //
 // L contains all methods, which particular implemenation of logger must implement.
 type L interface {
@@ -27,7 +27,7 @@ type L interface {
 	Panic(err error, message string, component string)
 }
 
-// Log levels
+// Log levels.
 type Level int8
 
 // String implements Stringer interface.
@@ -55,6 +55,7 @@ func (l Level) String() string {
 // UnmarshalText implements encoding.TextUnmarshaler interface.
 func (l *Level) UnmarshalText(text []byte) (err error) {
 	*l, err = GetLevelFromString(string(text))
+
 	return
 }
 
@@ -70,7 +71,7 @@ const (
 	NoLevel    Level = -10
 )
 
-// Logger output formats
+// Logger output formats.
 type OutputFormat int8
 
 const (

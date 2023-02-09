@@ -10,16 +10,17 @@ import (
 	flag "github.com/spf13/pflag"
 )
 
-// Default configuration parameters
+// Default configuration parameters.
 const (
 	defAddress  = "127.0.0.1:3200"
 	defDBType   = db.TypePostgres
 	defSyncType = "postgres"
 )
 
+//nolint:gochecknoglobals
 var (
 	defLogLevel         = fmt.Sprint(logger.WarnLevel)
-	defMaxSecretSize    = uint32(50 * 1024 * 1024) //50 Mb
+	defMaxSecretSize    = uint32(50 * 1024 * 1024) // 50 Mb
 	defTokenValidPeriod = uint32(30 * 60)          // 30 minutes
 )
 
@@ -31,27 +32,27 @@ type Config struct {
 
 	// Database type (postrgres).
 	DBType string `env:"GK_DB_TYPE"`
-	// Database dsn in format address:port/db_name
+	// Database dsn in format address:port/db_name.
 	DBDSN string `env:"GK_DB_DSN"`
-	// Database user
+	// Database user.
 	DBUser string `env:"GK_DB_USER"`
-	// Database user
+	// Database user.
 	DBPassword string `env:"GK_DB_PASSWORD"`
 
-	// TLS Certificate file (.pem)
+	// TLS Certificate file (.pem).
 	TLSCertFilepath string `env:"GK_TLS_CERT"`
-	// TLS Certificate key file (.key)
+	// TLS Certificate key file (.key).
 	TLSKeyFilepath string `env:"GK_TLS_KEY"`
-	// Disable TLS encryption
+	// Disable TLS encryption.
 	TLSDisable bool
 
-	// Log level (debug/info/warn/error/fatal/panic)
+	// Log level (debug/info/warn/error/fatal/panic).
 	LogLevel string `env:"GK_LOG_LEVEL"`
-	// Maximum secret size in bytes
+	// Maximum secret size in bytes.
 	MaxSecretSize uint32 `env:"GK_MAX_SECRET"`
 	// Server key. Used for generated tokens. Must be 32-byte length.
 	ServerKey string `env:"GK_SERVER_KEY"`
-	// Token valid period in seconds
+	// Token valid period in seconds.
 	TokenValidPeriod uint32 `env:"GK_TOKEN_EXP"`
 }
 

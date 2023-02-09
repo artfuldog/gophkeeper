@@ -1,3 +1,4 @@
+//nolint:gochecknoglobals
 package db
 
 import (
@@ -15,10 +16,10 @@ import (
 
 // Testing helpers vars and functions
 
-var testDB *DBPosgtre
+var testDB *Posgtre
 
 var (
-	testDBConnParams = DBParameters{
+	testDBConnParams = Parameters{
 		address:       "localhost:5432/gophkeeper_db_tests",
 		user:          "gksa",
 		maxSecretSize: uint32(50 * 1024 * 1024),
@@ -113,14 +114,14 @@ var (
 )
 
 // TestMain initializes testing database before test will start,
-// clears all records and closes database's connections after all tests have finished
+// clears all records and closes database's connections after all tests have finished.
 func TestMain(m *testing.M) {
 	var err error
 	ctx := context.Background()
 
 	testLogger := mocklogger.NewMockLogger()
 
-	if testDB, err = newDBPosgtre(&testDBConnParams, testLogger); err != nil {
+	if testDB, err = newPosgtre(&testDBConnParams, testLogger); err != nil {
 		log.Printf("No testing database is available: %v\nSkikipping DB tests", err)
 		os.Exit(0)
 	}
@@ -142,8 +143,8 @@ func TestMain(m *testing.M) {
 	for i, item := range testItems {
 		testDB.CreateItem(ctx, testUser1.Username, item)
 		newItem, _ := testDB.GetItemByNameAndType(ctx, testUser1.Username, item.Name, item.Type)
-		testItems[i].Id = newItem.Id
 		testItems[i].Updated = newItem.Updated
+		testItems[i].Id = newItem.Id
 	}
 
 	for i, user := range testUsers {
@@ -159,40 +160,40 @@ func TestMain(m *testing.M) {
 	os.Exit(exitCode)
 }
 
-// Tests
+// Tests.
 
-func TestNewDBPostgre(t *testing.T) {
+func TestNewPostgre(t *testing.T) {
 	logger := mocklogger.NewMockLogger()
 	t.Run("No DB address", func(t *testing.T) {
-		dbParams := NewDBParameters("", "", "", 10000000)
-		_, err := newDBPosgtre(dbParams, logger)
+		dbParams := NewParameters("", "", "", 10000000)
+		_, err := newPosgtre(dbParams, logger)
 		assert.Error(t, err)
 	})
 	t.Run("Empty username and password", func(t *testing.T) {
-		dbParams := NewDBParameters("localhost", "", "", 10000000)
-		db, err := newDBPosgtre(dbParams, logger)
+		dbParams := NewParameters("localhost", "", "", 10000000)
+		db, err := newPosgtre(dbParams, logger)
 		require.NoError(t, err)
 		assert.NotEmpty(t, db)
 	})
 
 	t.Run("Empty password", func(t *testing.T) {
-		dbParams := NewDBParameters("localhost", "user", "", 10000000)
-		db, err := newDBPosgtre(dbParams, logger)
+		dbParams := NewParameters("localhost", "user", "", 10000000)
+		db, err := newPosgtre(dbParams, logger)
 		require.NoError(t, err)
 		assert.NotEmpty(t, db)
 	})
 	t.Run("New postgres DB", func(t *testing.T) {
-		dbParams := NewDBParameters("localhost", "user", "password", 10000000)
-		db, err := newDBPosgtre(dbParams, logger)
+		dbParams := NewParameters("localhost", "user", "password", 10000000)
+		db, err := newPosgtre(dbParams, logger)
 		require.NoError(t, err)
 		assert.NotEmpty(t, db)
 	})
 }
 
-func TestDBPostgre_Connect(t *testing.T) {
+func TestPostgre_Connect(t *testing.T) {
 	logger := mocklogger.NewMockLogger()
-	dbParams := NewDBParameters("wrong dsn", "", "", 10000000)
-	db, err := newDBPosgtre(dbParams, logger)
+	dbParams := NewParameters("wrong dsn", "", "", 10000000)
+	db, err := newPosgtre(dbParams, logger)
 	require.NoError(t, err)
 	assert.NotEmpty(t, db)
 
@@ -200,9 +201,9 @@ func TestDBPostgre_Connect(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestDBPostgre_ConnectAndSetupRun(t *testing.T) {
+func TestPostgre_ConnectAndSetupRun(t *testing.T) {
 	logger := mocklogger.NewMockLogger()
-	db, err := newDBPosgtre(&testDBConnParams, logger)
+	db, err := newPosgtre(&testDBConnParams, logger)
 	require.NoError(t, err)
 	assert.NotEmpty(t, db)
 
@@ -220,9 +221,9 @@ func TestDBPostgre_ConnectAndSetupRun(t *testing.T) {
 	db.Clear(testCtx)
 }
 
-func TestDBPostgre_GetMaxSecretSize(t *testing.T) {
+func TestPostgre_GetMaxSecretSize(t *testing.T) {
 	logger := mocklogger.NewMockLogger()
-	db, err := newDBPosgtre(&testDBConnParams, logger)
+	db, err := newPosgtre(&testDBConnParams, logger)
 	require.NoError(t, err)
 	assert.NotEmpty(t, db)
 

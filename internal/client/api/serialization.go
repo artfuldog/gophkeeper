@@ -14,7 +14,8 @@ import (
 func toBytesUnsafe(val any) []byte {
 	buf := bytes.Buffer{}
 	enc := gob.NewEncoder(&buf)
-	enc.Encode(val)
+	enc.Encode(val) //nolint:errcheck //don'r check by design
+
 	return buf.Bytes()
 }
 
@@ -63,7 +64,7 @@ func marshalYamlSafe(data any) (string, error) {
 // If you want this please use ToBytesSafe function.
 func serializeUnsafe(data any, b []byte) {
 	dec := gob.NewDecoder(bytes.NewReader(b))
-	dec.Decode(data)
+	dec.Decode(data) //nolint:errcheck // don't check by design
 }
 
 // serializeUnsafe is a helper function to serilaize byte array to data type.
@@ -77,6 +78,7 @@ func serializeSafe(data any, b []byte) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 

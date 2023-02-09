@@ -22,7 +22,7 @@ func permissionDeniedErr(message string) error {
 // wrapErrorToClient wraps known type of Database' errors for sending to client.
 //
 // If wrapErrorToClient receives already wrapped error, it extracts original error message and
-// wraps it to new error with defined status code, i.e. substracts from error all internal details.
+// wraps it to new error with defined status code, i.e. subtracts from error all internal details.
 // If received error is not wrapped wrapErrorToClient leaves error's text description as is in message.
 func wrapErrorToClient(err error) error {
 	message := err.Error()
@@ -34,12 +34,15 @@ func wrapErrorToClient(err error) error {
 	if errors.Is(err, db.ErrNotFound) {
 		return status.Error(codes.NotFound, message)
 	}
+
 	if errors.Is(err, db.ErrDuplicateEntry) {
 		return status.Error(codes.InvalidArgument, message)
 	}
+
 	if errors.Is(err, db.ErrTransactionFailed) {
 		return status.Error(codes.Internal, message)
 	}
+
 	if errors.Is(err, db.ErrBadSQLQuery) {
 		return status.Error(codes.InvalidArgument, message)
 	}

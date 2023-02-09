@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -11,10 +10,11 @@ import (
 	"github.com/artfuldog/gophkeeper/internal/server"
 )
 
+//nolint:gochecknoglobals
 var (
-	buildVersion string = "N/A"
-	buildDate    string = "N/A"
-	buildCommit  string = "N/A"
+	buildVersion = "N/A"
+	buildDate    = "N/A"
+	buildCommit  = "N/A"
 )
 
 func main() {
@@ -36,7 +36,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("Version: %s\nBuild date: %s\nBuild commit: %s\n",
+	log.Printf("Version: %s\nBuild date: %s\nBuild commit: %s\n",
 		buildVersion, buildDate, buildCommit)
 
 	go server.Run(ctx, statusCh)
@@ -44,12 +44,15 @@ func main() {
 	select {
 	case sig := <-sigs:
 		cancel()
+
 		err := <-statusCh
 		if err != nil {
 			log.Printf("Server is terminated unproperly: %v, signal %s triggered", err, sig)
 			return
 		}
+
 		log.Printf("Server is terminated, signal %s triggered", sig)
+
 		return
 	case err := <-statusCh:
 		cancel()

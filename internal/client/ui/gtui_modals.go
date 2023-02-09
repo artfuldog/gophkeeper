@@ -24,11 +24,12 @@ func (g *Gtui) displayQuitModal() {
 				g.setStatus("Canceled", 2)
 			}
 		})
+
 	g.setStatus("Wait for user confirmation...", 0)
 	g.pages.AddPage(selfPage, modal, true, true)
 }
 
-// displayItemCreateModal displays modal window whith available item's types,
+// displayItemCreateModal displays modal window with available item's types,
 // reads user input, creates and switches to item create page.
 func (g *Gtui) displayItemCreateModal(ctx context.Context) {
 	selfPage := modalItemType
@@ -58,6 +59,7 @@ func (g *Gtui) displayItemCreateModal(ctx context.Context) {
 			g.setStatus(fmt.Sprintf("creating new %s item", common.ItemTypeText(itemType)), 2)
 			g.displayCreateItemPage(ctx, itemType)
 		})
+
 	g.setStatus("Wait for user input...", 0)
 	g.pages.AddPage(selfPage, modal, true, true)
 }

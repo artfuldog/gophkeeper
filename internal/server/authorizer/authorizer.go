@@ -9,14 +9,14 @@ import (
 	"github.com/artfuldog/gophkeeper/internal/logger"
 )
 
-// Supported authorization methods
+// Supported authorization methods.
 const (
 	TypeJWT    = "jwt"
 	TypePaseto = "paseto"
 	TypeYesMan = "yesman"
 )
 
-// Errors
+// Errors.
 var (
 	ErrInvalidToken = errors.New("invalid token")
 	ErrExpiredToken = errors.New("expired token")

@@ -24,6 +24,10 @@ func TestItemTypeFromText(t *testing.T) {
 		assert.Equal(t, ItemTypeFromText("secured note"), ItemTypeSecNote)
 		assert.Equal(t, ItemTypeFromText("secured data"), ItemTypeSecData)
 		assert.Equal(t, ItemTypeFromText("asdasdadasdasd"), "")
-
 	})
+}
+
+func TestListItemTypes(t *testing.T) {
+	itemTypes := ListItemTypes()
+	assert.Equal(t, itemTypes, []string{"l", "c", "n", "d"})
 }

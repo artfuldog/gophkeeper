@@ -16,5 +16,6 @@ func mdValueFromContext(ctx context.Context, field string) (string, bool) {
 			return values[0], true
 		}
 	}
+
 	return none, false
 }

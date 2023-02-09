@@ -13,11 +13,12 @@ import (
 // CreateItem creates new item for particular user.
 //
 // CreateItem generates updated time field in RFC3339 format during creation.
-// Returns nil error only on succesfully creation.
-func (db *DBPosgtre) CreateItem(ctx context.Context, username string, item *pb.Item) error {
+// Returns nil error only on successfully creation.
+func (db *Posgtre) CreateItem(ctx context.Context, username string, item *pb.Item) error {
 	if username == "" {
 		return ErrNotFound
 	}
+
 	componentName := "DBPosgtre:CreateItem"
 
 	b, err := db.newCreateItemBatch(username, item)
@@ -29,7 +30,7 @@ func (db *DBPosgtre) CreateItem(ctx context.Context, username string, item *pb.I
 }
 
 // GetItemByNameAndType gets item's information from DB.
-func (db *DBPosgtre) GetItemByNameAndType(ctx context.Context, username Username,
+func (db *Posgtre) GetItemByNameAndType(ctx context.Context, username Username,
 	itemName string, itemType string) (*pb.Item, error) {
 
 	componentName := "DBPosgtre:GetItemByNameAndType"
@@ -38,7 +39,7 @@ func (db *DBPosgtre) GetItemByNameAndType(ctx context.Context, username Username
 	if err != nil {
 		return nil, err
 	}
-	defer db.deferTxRollback(ctx, tx)
+	defer db.deferTxRollback(ctx, tx) //nolint:wsl
 
 	stmtItem, argsItem, err := db.psql.
 		Select("items.id, name, type, reprompt, hash").
@@ -54,12 +55,14 @@ func (db *DBPosgtre) GetItemByNameAndType(ctx context.Context, username Username
 		return nil, stackErrors(ErrInternalDBError, err)
 	}
 
-	item := new(pb.Item)
 	db.logger.Debug(fmt.Sprintf("run SQL: %s , args: %v", stmtItem, argsItem), componentName)
+
+	item := new(pb.Item)
 	if err := pgxscan.Get(ctx, tx, item, stmtItem, argsItem...); err != nil {
 		if pgxscan.NotFound(err) {
 			return nil, stackErrors(ErrNotFound, err)
 		}
+
 		return nil, wrapPgError(err)
 	}
 
@@ -72,11 +75,13 @@ func (db *DBPosgtre) GetItemByNameAndType(ctx context.Context, username Username
 		return nil, stackErrors(ErrInternalDBError, err)
 	}
 
-	var updated pgtype.Timestamptz
 	db.logger.Debug(fmt.Sprintf("run SQL: %s , args: %v", stmtUpdated, argsUpdated), componentName)
+
+	var updated pgtype.Timestamptz
 	if err := tx.QueryRow(ctx, stmtUpdated, argsUpdated...).Scan(&updated); err != nil {
 		return nil, wrapPgError(err)
 	}
+
 	if updated.Status == pgtype.Present {
 		item.Updated = timestamppb.New(updated.Time)
 	}
@@ -84,15 +89,15 @@ func (db *DBPosgtre) GetItemByNameAndType(ctx context.Context, username Username
 	return item, nil
 }
 
-// GetItemList returns short representationg of all user's items
-func (db *DBPosgtre) GetItemList(ctx context.Context, username Username) ([]*pb.ItemShort, error) {
+// GetItemList returns short representationg of all user's items.
+func (db *Posgtre) GetItemList(ctx context.Context, username Username) ([]*pb.ItemShort, error) {
 	componentName := "DBPosgtre:GetItemList"
 
 	tx, err := db.beginTxRO(ctx, componentName)
 	if err != nil {
 		return nil, err
 	}
-	defer db.deferTxRollback(ctx, tx)
+	defer db.deferTxRollback(ctx, tx) //nolint:wsl
 
 	stmtItems, argsItems, err := db.psql.
 		Select("name, type, items.updated, hash").
@@ -106,22 +111,26 @@ func (db *DBPosgtre) GetItemList(ctx context.Context, username Username) ([]*pb.
 	}
 
 	db.logger.Debug(fmt.Sprintf("run SQL: %s , args: %v", stmtItems, argsItems), componentName)
+
 	rows, err := tx.Query(ctx, stmtItems, argsItems...)
 	if err != nil {
 		return nil, wrapPgError(err)
 	}
 	defer rows.Close()
 
-	rs := pgxscan.NewRowScanner(rows)
 	var items []*pb.ItemShort
+
+	rs := pgxscan.NewRowScanner(rows)
 
 	for rows.Next() {
 		var item ItemShort
 		if err := rs.Scan(&item); err != nil {
 			return nil, stackErrors(ErrInternalDBError, err)
 		}
+
 		items = append(items, item.toPB())
 	}
+
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -133,7 +142,7 @@ func (db *DBPosgtre) GetItemList(ctx context.Context, username Username) ([]*pb.
 //
 // UpdateItem generates updated time field in RFC3339 format during creation.
 // Returns nil error only on succesfull update.
-func (db *DBPosgtre) UpdateItem(ctx context.Context, username string, item *pb.Item) error {
+func (db *Posgtre) UpdateItem(ctx context.Context, username string, item *pb.Item) error {
 	if username == "" {
 		return ErrNotFound
 	}
@@ -147,8 +156,8 @@ func (db *DBPosgtre) UpdateItem(ctx context.Context, username string, item *pb.I
 	return db.runBatch(ctx, b, componentName)
 }
 
-// GetItemList returns short representationg of all user's items
-func (db *DBPosgtre) DeleteItem(ctx context.Context, username Username, itemID int64) error {
+// GetItemList returns short representationg of all user's items.
+func (db *Posgtre) DeleteItem(ctx context.Context, username Username, itemID int64) error {
 	if username == "" {
 		return ErrNotFound
 	}

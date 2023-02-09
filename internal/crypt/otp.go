@@ -11,7 +11,7 @@ import (
 )
 
 // Error detection/recovery capacity.
-// According to RecoveryLevel in "github.com/skip2/go-qrcode"
+// According to RecoveryLevel in "github.com/skip2/go-qrcode".
 const (
 	QRRecoveryLow = iota
 	QRRecoveryMid
@@ -22,7 +22,7 @@ const (
 // TOTPKey TOTP's key secret, url and QR Code (as []byte) for the user.
 type TOTPKey struct {
 	Secret string
-	Url    string
+	URL    string
 	QRCode []byte
 }
 
@@ -32,12 +32,14 @@ func GenerateTOTP(username string, issuer string, qrWidth int, qrHeight int) (*T
 		Issuer:      issuer,
 		AccountName: username,
 	}
+
 	key, err := totp.Generate(opts)
 	if err != nil {
 		return nil, err
 	}
 
 	var imageBuffer bytes.Buffer
+
 	image, err := key.Image(qrWidth, qrHeight)
 	if err != nil {
 		return nil, err
@@ -49,7 +51,7 @@ func GenerateTOTP(username string, issuer string, qrWidth int, qrHeight int) (*T
 
 	return &TOTPKey{
 		Secret: key.Secret(),
-		Url:    key.URL(),
+		URL:    key.URL(),
 		QRCode: imageBuffer.Bytes(),
 	}, nil
 }
@@ -65,6 +67,8 @@ func GenerateVerificationCode(secret string) (string, error) {
 }
 
 // PrintQRCodeToTerminal prints QR code to terminal.
+//
+//nolint:all
 func PrintQRCodeToTerminal(url string, level int) {
 	var qrcodeLevel qrcode.RecoveryLevel
 	switch level {

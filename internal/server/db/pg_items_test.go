@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDBPosgtre_CreateItem(t *testing.T) {
+func TestPosgtre_CreateItem(t *testing.T) {
 	canceledCtx, cancel := context.WithCancel(context.Background())
 	cancel()
 
@@ -131,11 +131,11 @@ func TestDBPosgtre_CreateItem(t *testing.T) {
 				testUser2.Username, item.Name, item.Type)
 
 			if !reflect.DeepEqual(newItem.Secrets, item.Secrets) {
-				t.Errorf("Responce not equal - got:  %v, want %v", newItem.Secrets, item.Secrets)
+				t.Errorf("Response not equal - got:  %v, want %v", newItem.Secrets, item.Secrets)
 			}
 
 			if !reflect.DeepEqual(newItem.Additions, item.Additions) {
-				t.Errorf("Responce not equal - got:  %v, want %v", newItem.Additions, item.Additions)
+				t.Errorf("Response not equal - got:  %v, want %v", newItem.Additions, item.Additions)
 			}
 
 			if err := testDB.DeleteItem(context.Background(), testUser2.Username, newItem.Id); err != nil {
@@ -145,7 +145,7 @@ func TestDBPosgtre_CreateItem(t *testing.T) {
 	}
 }
 
-func TestDBPosgtre_GetItemByNameAndType(t *testing.T) {
+func TestPosgtre_GetItemByNameAndType(t *testing.T) {
 	canceledCtx, cancel := context.WithCancel(context.Background())
 	cancel()
 	itemUsername := testUser1.Username
@@ -300,7 +300,7 @@ func TestDBPosgtre_GetItemByNameAndType(t *testing.T) {
 	}
 }
 
-func TestDBPosgtre_GetItemList(t *testing.T) {
+func TestPosgtre_GetItemList(t *testing.T) {
 	canceledCtx, cancel := context.WithCancel(context.Background())
 	cancel()
 
@@ -373,7 +373,7 @@ func TestDBPosgtre_GetItemList(t *testing.T) {
 	}
 }
 
-func TestDBPosgtre_UpdateItem(t *testing.T) {
+func TestPosgtre_UpdateItem(t *testing.T) {
 	err := testDB.CreateItem(context.Background(), testUser2.Username, testItemEmptyNotesSecrets)
 	if err != nil {
 		t.Errorf("Failed to create test item: %v", err)
@@ -503,7 +503,7 @@ func TestDBPosgtre_UpdateItem(t *testing.T) {
 	}
 }
 
-func TestDBPosgtre_DeleteItem(t *testing.T) {
+func TestPosgtre_DeleteItem(t *testing.T) {
 	err := testDB.CreateItem(context.Background(), testUser2.Username, testItemEmptyNotesSecrets)
 	if err != nil {
 		t.Errorf("Failed to create test item: %v", err)

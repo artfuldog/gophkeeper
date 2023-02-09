@@ -6,7 +6,7 @@ import (
 
 // YesManAuthorizer represents test implementation of Authorizer.
 //
-// Should be used only for tested purposes. Always succesfully authorizes user.
+// Should be used only for tested purposes. Always successfully authorizes user.
 type YesManAuthorizer struct {
 	logger logger.L
 }

@@ -7,7 +7,9 @@ import (
 	"github.com/jackc/pgconn"
 )
 
-// pgErrorsMap is a map listed SQL Erros and correspondes DB Errors
+// pgErrorsMap is a map listed SQL Erros and corresponds DB Errors.
+//
+//nolint:gochecknoglobals
 var pgErrorsMap = map[string]error{
 	"23505": ErrDuplicateEntry,
 	"23502": ErrConstraintViolation,
@@ -30,5 +32,6 @@ func wrapPgError(err error) error {
 			return fmt.Errorf("%w::%v", dbErr, err)
 		}
 	}
+
 	return stackErrors(ErrUndefinedError, err)
 }

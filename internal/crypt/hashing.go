@@ -1,7 +1,7 @@
 package crypt
 
 import (
-	"crypto/md5"
+	"crypto/md5" //nolint:gosec
 	"crypto/sha256"
 
 	"golang.org/x/crypto/bcrypt"
@@ -13,8 +13,9 @@ const (
 
 // GetMD5hash is a helper function for generate MD5 hash.
 func GetMD5hash(data string) []byte {
-	h := md5.New()
+	h := md5.New() //nolint:gosec
 	h.Write([]byte(data))
+
 	return h.Sum(nil)
 }
 
@@ -22,12 +23,14 @@ func GetMD5hash(data string) []byte {
 func GetSHA256hash(data string) []byte {
 	h := sha256.New()
 	h.Write([]byte(data))
+
 	return h.Sum(nil)
 }
 
 // CalculatePasswordHash is a helper function for generate hash from password.
 func CalculatePasswordHash(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), pwdCost)
+
 	return string(bytes), err
 }
 
@@ -35,5 +38,6 @@ func CalculatePasswordHash(password string) (string, error) {
 // Returns nil on success, or an error on failure.
 func CheckPasswordHashStr(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+
 	return err == nil
 }

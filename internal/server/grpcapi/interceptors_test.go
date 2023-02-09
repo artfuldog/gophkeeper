@@ -36,7 +36,6 @@ func TestIsAuthorized(t *testing.T) {
 	})
 
 	t.Run("Missed context", func(t *testing.T) {
-		//ts.DB.EXPECT().DeleteItem(mockAny, mockAny, mockAny).Return(nil)
 		req := &pb.DeleteItemRequest{}
 		_, err := ts.ItemsClient.DeleteItem(testCtx, req)
 		assert.Error(t, err)
@@ -44,7 +43,6 @@ func TestIsAuthorized(t *testing.T) {
 
 	authCtx := metadata.AppendToOutgoingContext(testCtx, authUsernameKey, "CorrectUser")
 	t.Run("Missed authorization field", func(t *testing.T) {
-		//ts.DB.EXPECT().DeleteItem(mockAny, mockAny, mockAny).Return(nil)
 		req := &pb.DeleteItemRequest{}
 		_, err := ts.ItemsClient.DeleteItem(authCtx, req)
 		assert.Error(t, err)
@@ -59,7 +57,7 @@ func TestIsAuthorized(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("Succesfully authorized", func(t *testing.T) {
+	t.Run("Successfully authorized", func(t *testing.T) {
 		authorizer.EXPECT().VerifyToken(mockAny, mockAny).Return(nil)
 		ts.DB.EXPECT().DeleteItem(mockAny, mockAny, mockAny).Return(nil)
 		req := &pb.DeleteItemRequest{}

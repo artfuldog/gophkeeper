@@ -1,3 +1,4 @@
+//nolint:goconst
 package api
 
 import (
@@ -107,6 +108,7 @@ func TestNewSecret(t *testing.T) {
 	}
 }
 
+//nolint:cyclop
 func TestSecrets_Bytes(t *testing.T) {
 	secrets := map[string]Secret{
 		"Login":   TestingNewLoginItem().Secret,
@@ -132,7 +134,7 @@ func TestSecrets_Bytes(t *testing.T) {
 
 			require.NotEmpty(t, gotSecret)
 			if !reflect.DeepEqual(secret, gotSecret) {
-				t.Errorf("Responce not equal - got:  %v, want %v", gotSecret, secret)
+				t.Errorf("Response not equal - got:  %v, want %v", gotSecret, secret)
 			}
 		})
 		t.Run(name+"_UnSafe", func(t *testing.T) {
@@ -154,7 +156,7 @@ func TestSecrets_Bytes(t *testing.T) {
 
 			require.NotEmpty(t, gotSecret)
 			if !reflect.DeepEqual(secret, gotSecret) {
-				t.Errorf("Responce not equal - got:  %v, want %v", gotSecret, secret)
+				t.Errorf("Response not equal - got:  %v, want %v", gotSecret, secret)
 			}
 		})
 

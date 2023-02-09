@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDBPosgtre_CreateUser(t *testing.T) {
+func TestPosgtre_CreateUser(t *testing.T) {
 	newUser1 := &pb.User{
 		Username: "newuser1",
 		Pwdhash:  common.PtrTo("newuser1pwdhash"),
@@ -153,7 +153,7 @@ func TestDBPosgtre_CreateUser(t *testing.T) {
 	})
 }
 
-func TestDBPosgtre_GetUserByName(t *testing.T) {
+func TestPosgtre_GetUserByName(t *testing.T) {
 	canceledCtx, cancel := context.WithCancel(context.Background())
 	cancel()
 
@@ -223,12 +223,11 @@ func TestDBPosgtre_GetUserByName(t *testing.T) {
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("DBPosgtre.GetUserByName() - \ngot = %v \nwant = %v", got, tt.want)
 			}
-
 		})
 	}
 }
 
-func TestDBPosgtre_GetUserAuthData(t *testing.T) {
+func TestPosgtre_GetUserAuthData(t *testing.T) {
 	canceledCtx, cancel := context.WithCancel(context.Background())
 	cancel()
 
@@ -309,7 +308,7 @@ func TestDBPosgtre_GetUserAuthData(t *testing.T) {
 	}
 }
 
-func TestDBPosgtre_GetUserEKey(t *testing.T) {
+func TestPosgtre_GetUserEKey(t *testing.T) {
 	canceledCtx, cancel := context.WithCancel(context.Background())
 	cancel()
 
@@ -378,7 +377,7 @@ func TestDBPosgtre_GetUserEKey(t *testing.T) {
 	}
 }
 
-func TestDBPosgtre_GetUserRevision(t *testing.T) {
+func TestPosgtre_GetUserRevision(t *testing.T) {
 	canceledCtx, cancel := context.WithCancel(context.Background())
 	cancel()
 
@@ -447,7 +446,7 @@ func TestDBPosgtre_GetUserRevision(t *testing.T) {
 	}
 }
 
-func TestDBPosgtre_UpdateUser(t *testing.T) {
+func TestPosgtre_UpdateUser(t *testing.T) {
 	newEmail := common.PtrTo("newemail@mail.com")
 	newPwdHash := common.PtrTo("newupdatepwdhash")
 	newOtpKey := common.PtrTo("neasda123")
@@ -552,11 +551,11 @@ func TestDBPosgtre_UpdateUser(t *testing.T) {
 }
 
 // TODO UpdateUserSecrets updates user's password and encryption key.
-func TestDBPosgtre_UpdateUserSecrets(t *testing.T) {
+func TestPosgtre_UpdateUserSecrets(t *testing.T) {
 	testDB.UpdateUserSecrets(context.Background(), nil)
 }
 
-func TestDBPosgtre_DeleteUserByName(t *testing.T) {
+func TestPosgtre_DeleteUserByName(t *testing.T) {
 	newUserUsername := "newuser1fordelete"
 
 	canceledCtx, cancel := context.WithCancel(context.Background())

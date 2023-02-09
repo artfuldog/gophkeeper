@@ -1,0 +1,124 @@
+run:
+  skip-dirs:
+    - internal/pb
+    - internal/mocks
+output:
+  #format: github-actions
+  format: tab
+linters-settings:
+  cyclop:
+    max-complexity: 12
+  nlreturn:
+    block-size: 5
+  staticcheck:
+    # SAxxxx checks in https://staticcheck.io/docs/configuration/options/#checks
+    checks: ["all"]
+  stylecheck:
+    # STxxxx checks in https://staticcheck.io/docs/configuration/options/#checks
+    checks: ["all"]
+  whitespace:
+    multi-func: true
+  wsl:
+    allow-cuddle-with-calls: ["Lock", "RLock", "Unlock", "RUnlock", "Run"]
+    force-err-cuddling: true
+    allow-assign-and-anything: true
+linters:
+  enable:
+    - asasalint
+    - bidichk
+    - bodyclose
+    - contextcheck
+    - cyclop
+    - dogsled
+    - dupl
+    - dupword
+    - durationcheck
+    - errcheck
+    - errchkjson
+    - errname
+    - errorlint
+    - execinquery
+    # - exhaustive
+    # - exhaustruct
+    - exportloopref
+    - forbidigo
+    - forcetypeassert
+    - gochecknoglobals
+    - gocognit
+    - goconst
+    - gocritic
+    # - gocyclo
+    - godot
+    #- godox
+    #- goerr113
+    - gofmt  # fix with gofmt -s -w <path to file>
+    - goheader
+    - goimports
+    # - gomnd
+    - gomoddirectives
+    - gomodguard
+    - goprintffuncname
+    - gosec
+    - gosimple
+    - govet
+    - grouper
+    - ineffassign
+    # - ireturn
+    - lll
+    - loggercheck
+    - maintidx
+    - makezero
+    - misspell
+    - musttag
+    - nakedret
+    - nestif
+    # - nilerr
+    - nilnil
+    - nlreturn
+    # - noctx
+    - nolintlint
+    # - nonamedreturns
+    - nosprintfhostport
+    # - paralleltest
+    - prealloc
+    - predeclared
+    # - promlinter
+    - reassign
+    - revive
+    # - rowserrcheck
+    - sqlclosecheck
+    - staticcheck
+    - stylecheck
+    - testableexamples
+    - thelper
+    # - tparallel
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - usestdlibvars
+    # - varnamelen
+    # - wastedassign
+    - whitespace
+    # - wrapcheck
+    - wsl
+issues:
+  exclude:
+    - "block should not start with a whitespace"
+    #- "return statements should not be cuddled if block has more*"
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - gocyclo
+        - errcheck
+        - dupl
+        - gosec
+        - wsl
+  max-issues-per-linter: 50
+  max-same-issues: 10
+severity:
+  default-severity: error
+  rules:
+    - linters:
+        - wsl
+      severity: notice

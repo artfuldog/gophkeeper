@@ -58,7 +58,7 @@ func TestUsersService_CreateUser(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("Succesfully created", func(t *testing.T) {
+	t.Run("Successfully created", func(t *testing.T) {
 		req := &pb.CreateUserRequest{
 			User: &pb.User{
 				Username: "newuser",
@@ -70,7 +70,6 @@ func TestUsersService_CreateUser(t *testing.T) {
 		require.NoError(t, err)
 		assert.NotEmpty(t, resp)
 	})
-
 }
 
 func TestUsersService_GetUser(t *testing.T) {
@@ -104,7 +103,7 @@ func TestUsersService_GetUser(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("Succesfully get user", func(t *testing.T) {
+	t.Run("Successfully get user", func(t *testing.T) {
 		req := &pb.GetUserRequest{
 			Username: "CorrectUser",
 		}
@@ -150,7 +149,7 @@ func TestUsersService_GetRevision(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("Succesfully get user", func(t *testing.T) {
+	t.Run("Successfully get user", func(t *testing.T) {
 		req := &pb.GetRevisionRequest{
 			Username: "CorrectUser",
 		}
@@ -185,7 +184,7 @@ func TestUsersService_UpdateUser(t *testing.T) {
 		assert.ErrorIs(t, err, permissionDeniedErr("access denied"))
 	})
 
-	t.Run("Wrong user user", func(t *testing.T) {
+	t.Run("Wrong user", func(t *testing.T) {
 		req := &pb.UpdateUserRequest{
 			User: &pb.User{
 				Username: "Wrong username",
@@ -206,7 +205,7 @@ func TestUsersService_UpdateUser(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("Succesfully update user", func(t *testing.T) {
+	t.Run("Successfully update user", func(t *testing.T) {
 		req := &pb.UpdateUserRequest{
 			User: &pb.User{
 				Username: "CorrectUser",
@@ -235,7 +234,7 @@ func TestUsersService_DeleteUser(t *testing.T) {
 		assert.ErrorIs(t, err, permissionDeniedErr("access denied"))
 	})
 
-	t.Run("Wrong user user", func(t *testing.T) {
+	t.Run("Wrong user", func(t *testing.T) {
 		req := &pb.DeleteUserRequest{
 			Username: "Wrong user",
 		}
@@ -252,7 +251,7 @@ func TestUsersService_DeleteUser(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("Succesfully delete user", func(t *testing.T) {
+	t.Run("Successfully delete user", func(t *testing.T) {
 		req := &pb.DeleteUserRequest{
 			Username: "CorrectUser",
 		}

@@ -2,7 +2,7 @@ package db
 
 import "fmt"
 
-// PGTable represents desctiption of PosgreSQL' table
+// PGTable represents desctiption of PosgreSQL' table.
 type PGTable struct {
 	Name      string       // table name
 	Statement SQLStatement // SQL statement for creating table
@@ -11,15 +11,16 @@ type PGTable struct {
 // createDBSchema returns description of required PostgreSQL tables.
 //
 // item_types constrains:
-//  - l - login item
-//  - c - card item
-//  - n - secured note item
-//  - d - secured data item
+//   - l - login item
+//   - c - card item
+//   - n - secured note item
+//   - d - secured data item
+//
 // cutsom_fields_types constrains:
-//  - t - plain-text key-value
-//  - h - key with hidden value
-//  - b - boolean
-func createDBSchema(params *DBParameters) []PGTable {
+//   - t - plain-text key-value
+//   - h - key with hidden value
+//   - b - boolean
+func createDBSchema(params *Parameters) []PGTable {
 	PGTableUsers := PGTable{
 		Name: "users",
 		Statement: `

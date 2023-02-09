@@ -17,6 +17,7 @@ func Last[V any](s []V) V {
 		var none V
 		return none
 	}
+
 	return s[len(s)-1]
 }
 
@@ -27,6 +28,7 @@ func Contains[V comparable](val V, s []V) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -38,6 +40,7 @@ func IndexOf[V comparable](val V, s []V) int {
 			return i
 		}
 	}
+
 	return -1
 }
 
@@ -46,15 +49,16 @@ func MaskAll(masked int) string {
 	return strings.Repeat("*", masked)
 }
 
-// MaskLeft masks with asterisk all string exept last N symbols.
-func MaskLeft(input string, N int) string {
-	if len(input) <= N {
+// MaskLeft masks with asterisk all string except last N symbols.
+func MaskLeft(input string, n int) string {
+	if len(input) <= n {
 		return MaskAll(len(input))
 	}
 
-	head := input[:len(input)-N]
-	tail := input[len(input)-N:]
+	head := input[:len(input)-n]
+	tail := input[len(input)-n:]
 
 	mask := strings.Repeat("*", len(head))
+
 	return fmt.Sprintf("%s%s", mask, tail)
 }

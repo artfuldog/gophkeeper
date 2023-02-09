@@ -47,7 +47,7 @@ func NewZLoggerConsole(lvl Level, moduleName string, output OutputFormat) (*ZLog
 	return l, nil
 }
 
-// Trace logs message with Trace level, provided message and component
+// Trace logs message with Trace level, provided message and component.
 func (l ZLogger) Trace(message string, component string) {
 	l.Logger.Trace().
 		Str("module", l.ModuleName).
@@ -55,7 +55,7 @@ func (l ZLogger) Trace(message string, component string) {
 		Msg(message)
 }
 
-// Debug logs message with debug level, provided message and component
+// Debug logs message with debug level, provided message and component.
 func (l ZLogger) Debug(message string, component string) {
 	l.Logger.Debug().
 		Str("module", l.ModuleName).
@@ -63,7 +63,7 @@ func (l ZLogger) Debug(message string, component string) {
 		Msg(message)
 }
 
-// Info logs message with info level, provided message and component
+// Info logs message with info level, provided message and component.
 func (l ZLogger) Info(message string, component string) {
 	l.Logger.Info().
 		Str("module", l.ModuleName).
@@ -71,7 +71,7 @@ func (l ZLogger) Info(message string, component string) {
 		Msg(message)
 }
 
-// Warn logs message with warning level, provided error (optional), message and component
+// Warn logs message with warning level, provided error (optional), message and component.
 func (l ZLogger) Warn(err error, message string, component string) {
 	l.Logger.Warn().
 		Str("module", l.ModuleName).
@@ -80,7 +80,7 @@ func (l ZLogger) Warn(err error, message string, component string) {
 		Msg(message)
 }
 
-// Error logs message with error level, provided error (optional), message and component
+// Error logs message with error level, provided error (optional), message and component.
 func (l ZLogger) Error(err error, message string, component string) {
 	l.Logger.Error().
 		Str("module", l.ModuleName).
@@ -99,7 +99,7 @@ func (l ZLogger) Fatal(err error, message string, component string) {
 		Msg(message)
 }
 
-// Panic is similiar with Fatal, but instead of os.Exit called panic()
+// Panic is similar with Fatal, but instead of os.Exit called panic().
 func (l ZLogger) Panic(err error, message string, component string) {
 	l.Logger.Panic().
 		Str("module", l.ModuleName).
@@ -108,7 +108,7 @@ func (l ZLogger) Panic(err error, message string, component string) {
 		Msg(message)
 }
 
-// Debug logs message with provided level, error (optional), message and component
+// Debug logs message with provided level, error (optional), message and component.
 func (l ZLogger) Log(level Level, err error, message string, component string) {
 	switch level {
 	case TraceLevel:
@@ -125,11 +125,12 @@ func (l ZLogger) Log(level Level, err error, message string, component string) {
 		l.Fatal(err, message, component)
 	case PanicLevel:
 		l.Panic(err, message, component)
+	case NoLevel:
+		return
 	}
-
 }
 
-// GetZeroLogLevel convert logger levels into zerolog levels
+// GetZeroLogLevel convert logger levels into zerolog levels.
 func (l ZLogger) GetZeroLogLevel(lvl Level) (zerolog.Level, error) {
 	switch lvl {
 	case TraceLevel:

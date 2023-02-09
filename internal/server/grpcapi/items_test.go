@@ -32,7 +32,7 @@ func TestItemsService_CreateItem(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("Succesfully create", func(t *testing.T) {
+	t.Run("Successfully create", func(t *testing.T) {
 		ts.DB.EXPECT().CreateItem(mockAny, mockAny, mockAny).Return(nil)
 		req := &pb.CreateItemRequest{
 			Item: &pb.Item{
@@ -60,7 +60,7 @@ func TestItemsService_GetItem(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("Succesfully get", func(t *testing.T) {
+	t.Run("Successfully get", func(t *testing.T) {
 		respItem := &pb.Item{
 			Name: "name",
 		}
@@ -89,7 +89,7 @@ func TestItemsService_GetItemList(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("Succesfully get list", func(t *testing.T) {
+	t.Run("Successfully get list", func(t *testing.T) {
 		respItems := []*pb.ItemShort{
 			{
 				Name: "name",
@@ -117,7 +117,7 @@ func TestItemsService_UpdateItem(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("Succesfully updated", func(t *testing.T) {
+	t.Run("Successfully updated", func(t *testing.T) {
 		ts.DB.EXPECT().UpdateItem(mockAny, mockAny, mockAny).Return(nil)
 		req := &pb.UpdateItemRequest{
 			Item: &pb.Item{
@@ -145,7 +145,7 @@ func TestItemsService_DeleteItem(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("Succesfully deleted", func(t *testing.T) {
+	t.Run("Successfully deleted", func(t *testing.T) {
 		ts.DB.EXPECT().DeleteItem(mockAny, mockAny, mockAny).Return(nil)
 		req := &pb.DeleteItemRequest{}
 		resp, err := ts.ItemsClient.DeleteItem(testCtx, req)

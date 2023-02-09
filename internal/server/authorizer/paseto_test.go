@@ -14,6 +14,7 @@ func TestNewPasetoAuthorizer(t *testing.T) {
 		key           string
 		tokenDuration time.Duration
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -42,6 +43,7 @@ func TestNewPasetoAuthorizer(t *testing.T) {
 			wantErr: true,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := NewPasetoAuthorizer(tt.args.key, tt.args.tokenDuration)

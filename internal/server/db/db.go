@@ -1,6 +1,6 @@
 // Package db represents interface for iteracting with database.
 //
-// Package provides functions for neccessary CRUD operations and control db connections.
+// Package provides functions for necessary CRUD operations and control db connections.
 package db
 
 import (
@@ -12,18 +12,18 @@ import (
 	"github.com/artfuldog/gophkeeper/internal/pb"
 )
 
-// Supported databases
+// Supported databases.
 const (
 	TypePostgres = "postgres"
 )
 
-// Database fields' constraints
+// Database fields' constraints.
 const (
 	FRegexUsername = `^[a-zA-Z0-9_\-\.]+$`
 	FRegexEmail    = `^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+[.][A-Za-z]+$`
 )
 
-// Custom types' definitions
+// Custom types' definitions.
 type (
 	SQLStatement = string
 	Username     = string
@@ -34,7 +34,7 @@ type (
 	CloseChannel = chan struct{}
 )
 
-// Errors
+// Errors.
 var (
 	ErrDuplicateEntry      = errors.New(`duplicate entry`)
 	ErrNotFound            = errors.New("entry not found")
@@ -92,27 +92,27 @@ type DB interface {
 	DeleteItem(ctx context.Context, username Username, itemID int64) error
 }
 
-// New is a fabric method for create DB with provided type
-func New(dbType string, params *DBParameters, logger logger.L) (DB, error) {
+// New is a fabric method for create DB with provided type.
+func New(dbType string, params *Parameters, logger logger.L) (DB, error) {
 	switch dbType {
 	case TypePostgres:
-		return newDBPosgtre(params, logger)
+		return newPosgtre(params, logger)
 	default:
 		return nil, fmt.Errorf("undefined database type: %s", dbType)
 	}
 }
 
-// DBParameters contains parameters for connection to database.
-type DBParameters struct {
+// Parameters contains parameters for connection to database.
+type Parameters struct {
 	address       string
 	user          string
 	password      string
 	maxSecretSize uint32
 }
 
-// NewDBParameters creates new database connection parameters.
-func NewDBParameters(address string, user string, password string, maxSecret uint32) *DBParameters {
-	return &DBParameters{
+// NewParameters creates new database connection parameters.
+func NewParameters(address string, user string, password string, maxSecret uint32) *Parameters {
+	return &Parameters{
 		address:       address,
 		user:          user,
 		password:      password,
