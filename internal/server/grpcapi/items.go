@@ -27,9 +27,9 @@ func NewItemsService(db db.DB, l logger.L) *ItemsService {
 }
 
 // CreateItem creates new item.
-func (s *ItemsService) CreateItem(ctx context.Context, req *pb.CreateItemRequest) (*pb.CreateItemResponce, error) {
+func (s *ItemsService) CreateItem(ctx context.Context, req *pb.CreateItemRequest) (*pb.CreateItemResponse, error) {
 	componentName := "ItemsService:CreateItem"
-	resp := new(pb.CreateItemResponce)
+	resp := new(pb.CreateItemResponse)
 
 	if err := s.db.CreateItem(ctx, req.Username, req.Item); err != nil {
 		s.logger.Warn(err, "db error", componentName)
@@ -43,9 +43,9 @@ func (s *ItemsService) CreateItem(ctx context.Context, req *pb.CreateItemRequest
 }
 
 // GetItem returns item's information.
-func (s *ItemsService) GetItem(ctx context.Context, req *pb.GetItemRequest) (*pb.GetItemResponce, error) {
+func (s *ItemsService) GetItem(ctx context.Context, req *pb.GetItemRequest) (*pb.GetItemResponse, error) {
 	componentName := "ItemsService:GetItem"
-	resp := new(pb.GetItemResponce)
+	resp := new(pb.GetItemResponse)
 
 	var err error
 
@@ -59,9 +59,9 @@ func (s *ItemsService) GetItem(ctx context.Context, req *pb.GetItemRequest) (*pb
 }
 
 // GetItemList returns list with items' short representation.
-func (s *ItemsService) GetItemList(ctx context.Context, req *pb.GetItemListRequest) (*pb.GetItemListResponce, error) {
+func (s *ItemsService) GetItemList(ctx context.Context, req *pb.GetItemListRequest) (*pb.GetItemListResponse, error) {
 	componentName := "ItemsService:GetItemList"
-	resp := new(pb.GetItemListResponce)
+	resp := new(pb.GetItemListResponse)
 
 	var err error
 
@@ -75,9 +75,9 @@ func (s *ItemsService) GetItemList(ctx context.Context, req *pb.GetItemListReque
 }
 
 // UpdateItem updates existing item.
-func (s *ItemsService) UpdateItem(ctx context.Context, req *pb.UpdateItemRequest) (*pb.UpdateItemResponce, error) {
+func (s *ItemsService) UpdateItem(ctx context.Context, req *pb.UpdateItemRequest) (*pb.UpdateItemResponse, error) {
 	componentName := "ItemsService:UpdateItem"
-	resp := new(pb.UpdateItemResponce)
+	resp := new(pb.UpdateItemResponse)
 
 	if err := s.db.UpdateItem(ctx, req.Username, req.Item); err != nil {
 		s.logger.Warn(err, "db error", componentName)
@@ -91,9 +91,9 @@ func (s *ItemsService) UpdateItem(ctx context.Context, req *pb.UpdateItemRequest
 }
 
 // DeleteItem deletes item.
-func (s *ItemsService) DeleteItem(ctx context.Context, req *pb.DeleteItemRequest) (*pb.DeleteItemResponce, error) {
+func (s *ItemsService) DeleteItem(ctx context.Context, req *pb.DeleteItemRequest) (*pb.DeleteItemResponse, error) {
 	componentName := "ItemsService:DeleteItem"
-	resp := new(pb.DeleteItemResponce)
+	resp := new(pb.DeleteItemResponse)
 
 	if err := s.db.DeleteItem(ctx, req.Username, req.Id); err != nil {
 		s.logger.Warn(err, "db error", componentName)

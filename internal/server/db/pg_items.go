@@ -19,7 +19,7 @@ func (db *Posgtre) CreateItem(ctx context.Context, username string, item *pb.Ite
 		return ErrNotFound
 	}
 
-	componentName := "DBPosgtre:CreateItem"
+	componentName := "Postgre:CreateItem"
 
 	b, err := db.newCreateItemBatch(username, item)
 	if err != nil {
@@ -33,7 +33,7 @@ func (db *Posgtre) CreateItem(ctx context.Context, username string, item *pb.Ite
 func (db *Posgtre) GetItemByNameAndType(ctx context.Context, username Username,
 	itemName string, itemType string) (*pb.Item, error) {
 
-	componentName := "DBPosgtre:GetItemByNameAndType"
+	componentName := "Postgre:GetItemByNameAndType"
 
 	tx, err := db.beginTxRO(ctx, componentName)
 	if err != nil {
@@ -89,9 +89,9 @@ func (db *Posgtre) GetItemByNameAndType(ctx context.Context, username Username,
 	return item, nil
 }
 
-// GetItemList returns short representationg of all user's items.
+// GetItemList returns short representation of all user's items.
 func (db *Posgtre) GetItemList(ctx context.Context, username Username) ([]*pb.ItemShort, error) {
-	componentName := "DBPosgtre:GetItemList"
+	componentName := "Postgre:GetItemList"
 
 	tx, err := db.beginTxRO(ctx, componentName)
 	if err != nil {
@@ -141,12 +141,12 @@ func (db *Posgtre) GetItemList(ctx context.Context, username Username) ([]*pb.It
 // UpdateItem updates existing item.
 //
 // UpdateItem generates updated time field in RFC3339 format during creation.
-// Returns nil error only on succesfull update.
+// Returns nil error only on successful update.
 func (db *Posgtre) UpdateItem(ctx context.Context, username string, item *pb.Item) error {
 	if username == "" {
 		return ErrNotFound
 	}
-	componentName := "DBPosgtre:UpdateItem"
+	componentName := "Postgre:UpdateItem"
 
 	b, err := db.newUpdateItemBatch(username, item)
 	if err != nil {
@@ -156,12 +156,12 @@ func (db *Posgtre) UpdateItem(ctx context.Context, username string, item *pb.Ite
 	return db.runBatch(ctx, b, componentName)
 }
 
-// GetItemList returns short representationg of all user's items.
+// GetItemList returns short representation of all user's items.
 func (db *Posgtre) DeleteItem(ctx context.Context, username Username, itemID int64) error {
 	if username == "" {
 		return ErrNotFound
 	}
-	componentName := "DBPosgtre:DeleteItem"
+	componentName := "Postgre:DeleteItem"
 
 	b, err := db.newDeleteItemBatch(username, itemID)
 	if err != nil {

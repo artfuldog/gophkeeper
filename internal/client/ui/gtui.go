@@ -135,8 +135,8 @@ func (g *Gtui) clearStatus(interval time.Duration) {
 	}()
 }
 
-// captureAndSetFocus is a capcture function which configure switching between
-// next and prevous primitives with provided keys.
+// captureAndSetFocus is a helper function which configure switching between
+// next and previous primitives with provided keys.
 //
 // Intended for use with SetInputCapture method of tview.Primitive.
 func (g *Gtui) captureAndSetFocus(next tview.Primitive, prev tview.Primitive,

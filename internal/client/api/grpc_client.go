@@ -186,7 +186,7 @@ func (c *GRPCClient) UserRegister(ctx context.Context, user *NewUser) (*TOTPKey,
 
 	if user.TwoFactorEnable {
 		if resp == nil || resp.Totpkey == nil {
-			return nil, ErrMissedServerResponce
+			return nil, ErrMissedServerResponse
 		}
 
 		return &TOTPKey{
@@ -359,7 +359,7 @@ func (c *GRPCClient) EncryptPbItem(item *pb.Item) error {
 // DecryptPbItem decrypts received from server item.
 func (c *GRPCClient) DecryptPbItem(item *pb.Item) error {
 	if item == nil || item.Secrets == nil {
-		return ErrMissedServerResponce
+		return ErrMissedServerResponse
 	}
 
 	if len(item.Secrets.Secret) > 0 {

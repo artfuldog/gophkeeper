@@ -46,17 +46,17 @@ var (
 	ErrUndefinedError      = errors.New("undefined error")
 )
 
-// DB represents general Database inteface.
+// DB represents general Database interface.
 //
-// DB contains all methods, which particular implemenation of DB must support.
+// DB contains all methods, which particular implementation of DB must support.
 type DB interface {
-	// Perfrom initial connect to database.
+	// Perform initial connect to database.
 	Connect(context.Context) error
-	// Perfrom initial connect to database.
+	// Perform initial connect to database.
 	Setup(context.Context) error
-	// Perfrom initial connect to database and setup db schema.
+	// Perform initial connect to database and setup db schema.
 	ConnectAndSetup(context.Context) error
-	// Start interactions with database and control connetions.
+	// Start interactions with database and control connections.
 	Run(context.Context, CloseChannel)
 	// Delete all database's tables and records.
 	Clear(context.Context)
@@ -84,7 +84,7 @@ type DB interface {
 	CreateItem(context.Context, Username, *pb.Item) error
 	// Read secured item with provided name and type.
 	GetItemByNameAndType(context.Context, Username, ItemName, ItemType) (*pb.Item, error)
-	// Returns short representationg of all user's items
+	// Returns short representation of all user's items
 	GetItemList(ctx context.Context, username Username) ([]*pb.ItemShort, error)
 	// Updates existing item.
 	UpdateItem(context.Context, Username, *pb.Item) error

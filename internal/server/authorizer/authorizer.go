@@ -1,4 +1,4 @@
-// Package authorizer represents interface for entity performing user authozriation.
+// Package authorizer represents interface for entity performing user authorization.
 package authorizer
 
 import (
@@ -22,7 +22,7 @@ var (
 	ErrExpiredToken = errors.New("expired token")
 )
 
-// A represents general authorizer inteface.
+// A represents general authorizer interface.
 type A interface {
 	// Creates new token
 	CreateToken(fields AuthFields) (string, error)

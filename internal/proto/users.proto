@@ -30,7 +30,7 @@ message CreateUserRequest {
   User user = 1;
   bool twofactor = 2;
 }
-message CreateUserResponce {
+message CreateUserResponse {
   string info = 1;
   TOTPKey totpkey = 2;
 }
@@ -38,7 +38,7 @@ message CreateUserResponce {
 message GetUserRequest {
   string username = 1;
 }
-message GetUserResponce {
+message GetUserResponse {
   User user = 1;
 }
 
@@ -46,14 +46,14 @@ message UpdateUserRequest {
   bool bymask = 1;
   User user = 2;
 }
-message UpdateUserResponce {
+message UpdateUserResponse {
   string info = 1;
 }
 
 message DeleteUserRequest {
   string username = 1;
 }
-message DeleteUserResponce {
+message DeleteUserResponse {
   string info = 1;
 }
 
@@ -63,7 +63,7 @@ message UserLoginRequest {
   string otp_code = 3;
 }
 
-message UserLoginResponce {
+message UserLoginResponse {
   bool secondFactor = 1;
   bytes ekey = 2;
   string token = 3;
@@ -73,17 +73,17 @@ message UserLoginResponce {
 message GetRevisionRequest {
   string username = 1;
 }
-message GetRevisionResponce {
+message GetRevisionResponse {
   bytes revision = 1;
 }
 
 service Users {
-  rpc CreateUser(CreateUserRequest) returns (CreateUserResponce);
-  rpc GetUser(GetUserRequest) returns (GetUserResponce);
-  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponce);
-  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponce);
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
 
-  rpc UserLogin(UserLoginRequest) returns (UserLoginResponce);
+  rpc UserLogin(UserLoginRequest) returns (UserLoginResponse);
 
-  rpc GetRevision(GetRevisionRequest) returns (GetRevisionResponce);
+  rpc GetRevision(GetRevisionRequest) returns (GetRevisionResponse);
 }

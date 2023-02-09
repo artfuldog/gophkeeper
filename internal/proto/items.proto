@@ -32,7 +32,7 @@ message CreateItemRequest {
   Item item = 2;
 }
 
-message CreateItemResponce {
+message CreateItemResponse {
   string info = 1;
 }
 
@@ -42,7 +42,7 @@ message GetItemRequest {
   string item_type = 3;
 }
 
-message GetItemResponce {
+message GetItemResponse {
   string info = 1;
   Item item = 2;
 }
@@ -58,7 +58,7 @@ message GetItemListRequest {
   string username = 1;
 }
 
-message GetItemListResponce {
+message GetItemListResponse {
   repeated ItemShort items = 1;
 }
 
@@ -67,7 +67,7 @@ message UpdateItemRequest {
   Item item = 2;
 }
 
-message UpdateItemResponce {
+message UpdateItemResponse {
   string info = 1;
 }
 
@@ -76,14 +76,14 @@ message DeleteItemRequest {
   int64 id = 2;
 }
 
-message DeleteItemResponce {
+message DeleteItemResponse {
   string info = 1;
 }
 
 service Items {
-  rpc CreateItem(CreateItemRequest) returns (CreateItemResponce);
-  rpc GetItem(GetItemRequest) returns (GetItemResponce);
-  rpc GetItemList(GetItemListRequest) returns (GetItemListResponce);
-  rpc UpdateItem(UpdateItemRequest) returns (UpdateItemResponce);
-  rpc DeleteItem(DeleteItemRequest) returns (DeleteItemResponce);
+  rpc CreateItem(CreateItemRequest) returns (CreateItemResponse);
+  rpc GetItem(GetItemRequest) returns (GetItemResponse);
+  rpc GetItemList(GetItemListRequest) returns (GetItemListResponse);
+  rpc UpdateItem(UpdateItemRequest) returns (UpdateItemResponse);
+  rpc DeleteItem(DeleteItemRequest) returns (DeleteItemResponse);
 }

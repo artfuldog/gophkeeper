@@ -11,7 +11,7 @@ var (
 	// Indicated that session expired, most often because of toke expiration.
 	// Used as an indicator for UI to request password/OTP from user.
 	ErrSessionExpired       = errors.New("session expired")
-	ErrMissedServerResponce = errors.New("missed server response")
+	ErrMissedServerResponse = errors.New("missed server response")
 	ErrSecondFactorRequired = errors.New("second factor is required")
 	ErrEKeyEncryptionFailed = errors.New("failed to encrypt self encryption key")
 	ErrEKeyDecryptionFailed = errors.New("failed to decrypt received from server encryption key")

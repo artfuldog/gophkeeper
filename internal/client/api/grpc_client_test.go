@@ -111,7 +111,7 @@ func TestGRPCClient_UserLogin(t *testing.T) {
 	})
 
 	t.Run("Second factor", func(t *testing.T) {
-		resp := &pb.UserLoginResponce{
+		resp := &pb.UserLoginResponse{
 			SecondFactor: true,
 		}
 		ts.UsersClient.EXPECT().UserLogin(testGRPCctx, mockAnyVal).Return(resp, nil)
@@ -119,7 +119,7 @@ func TestGRPCClient_UserLogin(t *testing.T) {
 	})
 
 	t.Run("Encryption error", func(t *testing.T) {
-		resp := &pb.UserLoginResponce{
+		resp := &pb.UserLoginResponse{
 			SecondFactor: false,
 			Ekey:         []byte("asdasd"),
 		}
@@ -131,7 +131,7 @@ func TestGRPCClient_UserLogin(t *testing.T) {
 	t.Run("User logged in", func(t *testing.T) {
 		encKey, err := crypt.EncryptAESwithAD([]byte(testGRPCSecretKey), []byte("enckey"))
 		require.NoError(t, err)
-		resp := &pb.UserLoginResponce{
+		resp := &pb.UserLoginResponse{
 			SecondFactor: false,
 			Ekey:         encKey,
 			Token:        "123",
@@ -163,11 +163,11 @@ func TestGRPCClient_UserRegister(t *testing.T) {
 			TwoFactorEnable: true,
 		}
 		_, err := ts.Client.UserRegister(testGRPCctx, user)
-		assert.ErrorIs(t, err, ErrMissedServerResponce)
+		assert.ErrorIs(t, err, ErrMissedServerResponse)
 	})
 
 	t.Run("Two-factor enabled", func(t *testing.T) {
-		resp := &pb.CreateUserResponce{
+		resp := &pb.CreateUserResponse{
 			Totpkey: &pb.TOTPKey{
 				Secret: "MNOAWDw",
 				Qrcode: []byte("qrcode"),
@@ -184,7 +184,7 @@ func TestGRPCClient_UserRegister(t *testing.T) {
 	})
 
 	t.Run("Two-factor disabled", func(t *testing.T) {
-		resp := &pb.CreateUserResponce{}
+		resp := &pb.CreateUserResponse{}
 		ts.UsersClient.EXPECT().CreateUser(testGRPCctx, mockAnyVal).Return(resp, nil)
 		user := &NewUser{
 			Email:           "someone@example.com",
@@ -207,7 +207,7 @@ func TestGRPCClient_GetItemsList(t *testing.T) {
 	})
 
 	t.Run("Server response PK", func(t *testing.T) {
-		resp := &pb.GetItemListResponce{
+		resp := &pb.GetItemListResponse{
 			Items: []*pb.ItemShort{{Name: "123"}},
 		}
 		ts.ItemsClient.EXPECT().GetItemList(testGRPCctx, mockAnyVal).Return(resp, nil)
@@ -231,7 +231,7 @@ func TestGRPCClient_GetItem(t *testing.T) {
 	})
 
 	t.Run("Decryption error", func(t *testing.T) {
-		resp := &pb.GetItemResponce{}
+		resp := &pb.GetItemResponse{}
 		ts.ItemsClient.EXPECT().GetItem(testGRPCctx, mockAnyVal).Return(resp, nil)
 		_, err := ts.Client.GetItem(testGRPCctx, itemName, itemType)
 		assert.Error(t, err)
@@ -242,7 +242,7 @@ func TestGRPCClient_GetItem(t *testing.T) {
 		pbItem := TestingNewPbLoginItem()
 		ts.Client.EncryptPbItem(pbItem)
 
-		resp := &pb.GetItemResponce{
+		resp := &pb.GetItemResponse{
 			Item: pbItem,
 		}
 		ts.ItemsClient.EXPECT().GetItem(testGRPCctx, mockAnyVal).Return(resp, nil)
@@ -280,7 +280,7 @@ func TestGRPCClient_SaveItem(t *testing.T) {
 
 	t.Run("Create item", func(t *testing.T) {
 		item := TestingNewLoginItem()
-		resp := &pb.CreateItemResponce{}
+		resp := &pb.CreateItemResponse{}
 
 		ts.ItemsClient.EXPECT().CreateItem(testGRPCctx, mockAnyVal).Return(resp, nil)
 		require.NoError(t, ts.Client.SaveItem(testGRPCctx, item))
@@ -297,7 +297,7 @@ func TestGRPCClient_SaveItem(t *testing.T) {
 	t.Run("Update item", func(t *testing.T) {
 		item := TestingNewLoginItem()
 		item.ID = 100
-		resp := &pb.UpdateItemResponce{}
+		resp := &pb.UpdateItemResponse{}
 
 		ts.ItemsClient.EXPECT().UpdateItem(testGRPCctx, mockAnyVal).Return(resp, nil)
 		require.NoError(t, ts.Client.SaveItem(testGRPCctx, item))
@@ -318,7 +318,7 @@ func TestGRPCClient_DeleteItem(t *testing.T) {
 
 	t.Run("Delete item", func(t *testing.T) {
 		item := TestingNewLoginItem()
-		resp := &pb.DeleteItemResponce{}
+		resp := &pb.DeleteItemResponse{}
 
 		ts.ItemsClient.EXPECT().DeleteItem(testGRPCctx, mockAnyVal).Return(resp, nil)
 		require.NoError(t, ts.Client.DeleteItem(testGRPCctx, item))

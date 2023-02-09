@@ -16,7 +16,7 @@ import (
 // CreateUser generates regdate and updated fields in RFC3339 format during creation.
 // In case of error during creation returns error, returns nil error only on successfully creation.
 func (db *Posgtre) CreateUser(ctx context.Context, user *pb.User) error {
-	componentName := "DBPosgtre:CreateUser"
+	componentName := "Posgtre:CreateUser"
 
 	regdate := time.Now().Format(time.RFC3339)
 
@@ -42,7 +42,7 @@ func (db *Posgtre) CreateUser(ctx context.Context, user *pb.User) error {
 //
 // If no users were found GetUser returns nil and error (ErrUserNotFound).
 func (db *Posgtre) GetUserByName(ctx context.Context, username Username) (*pb.User, error) {
-	componentName := "DBPosgtre:GetUserByName"
+	componentName := "Posgtre:GetUserByName"
 
 	stmtUser, argsUser, err := db.psql.
 		Select("username, email, revision, pwdhash, otpkey, ekey, updated, regdate").
@@ -70,7 +70,7 @@ func (db *Posgtre) GetUserByName(ctx context.Context, username Username) (*pb.Us
 // If no users were found GetUserAuthData returns empty string and error (ErrUserNotFound).
 // In case of processing error returns empty string and original error.
 func (db *Posgtre) GetUserAuthData(ctx context.Context, username Username) (Password, OTPKey, error) {
-	componentName := "DBPosgtre:GetUserPwdHash"
+	componentName := "Posgtre:GetUserPwdHash"
 	none := ""
 
 	sqlStmt := `select pwdhash, coalesce (otpkey, '') from users where username = $1`
@@ -94,7 +94,7 @@ func (db *Posgtre) GetUserAuthData(ctx context.Context, username Username) (Pass
 // If no users were found GetUserEKey returns empty slice and error (ErrUserNotFound).
 // In case of processing error returns empty string and original error.
 func (db *Posgtre) GetUserEKey(ctx context.Context, username Username) ([]byte, error) {
-	componentName := "DBPosgtre:GetUserEKey"
+	componentName := "Posgtre:GetUserEKey"
 
 	sqlStmt := `select ekey from users where username = $1`
 
@@ -117,7 +117,7 @@ func (db *Posgtre) GetUserEKey(ctx context.Context, username Username) ([]byte, 
 // If no users were found GetUserRevision returns empty string and error (ErrUserNotFound).
 // In case of processing error returns empty string and original error.
 func (db *Posgtre) GetUserRevision(ctx context.Context, username Username) ([]byte, error) {
-	componentName := "DBPosgtre:GetUserRevision"
+	componentName := "Posgtre:GetUserRevision"
 
 	sqlStmt := `select revision from users where username = $1`
 
@@ -141,7 +141,7 @@ func (db *Posgtre) GetUserRevision(ctx context.Context, username Username) ([]by
 // In case of error during update returns error, returns nil error only on success.
 // ID, username and regdate cannot be updated.
 func (db *Posgtre) UpdateUser(ctx context.Context, user *pb.User) error {
-	componentName := "DBPosgtre:UpdateUser"
+	componentName := "Posgtre:UpdateUser"
 
 	sqlStmt := `
 		update users SET
@@ -180,7 +180,7 @@ func (db *Posgtre) UpdateUserSecrets(ctx context.Context, user *pb.User) error {
 // In case of error during deletion DeleteUserByLogin returns error,
 // returns nil error only on successfully deletion.
 func (db *Posgtre) DeleteUserByName(ctx context.Context, username Username) error {
-	componentName := "DBPosgtre:DeleteUserByName"
+	componentName := "Posgtre:DeleteUserByName"
 
 	sqlStmt := `delete from users cascade where username=$1`
 

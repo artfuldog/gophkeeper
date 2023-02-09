@@ -37,14 +37,14 @@ func (m *MockItemsClient) EXPECT() *MockItemsClientMockRecorder {
 }
 
 // CreateItem mocks base method.
-func (m *MockItemsClient) CreateItem(ctx context.Context, in *pb.CreateItemRequest, opts ...grpc.CallOption) (*pb.CreateItemResponce, error) {
+func (m *MockItemsClient) CreateItem(ctx context.Context, in *pb.CreateItemRequest, opts ...grpc.CallOption) (*pb.CreateItemResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, in}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "CreateItem", varargs...)
-	ret0, _ := ret[0].(*pb.CreateItemResponce)
+	ret0, _ := ret[0].(*pb.CreateItemResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -57,14 +57,14 @@ func (mr *MockItemsClientMockRecorder) CreateItem(ctx, in interface{}, opts ...i
 }
 
 // DeleteItem mocks base method.
-func (m *MockItemsClient) DeleteItem(ctx context.Context, in *pb.DeleteItemRequest, opts ...grpc.CallOption) (*pb.DeleteItemResponce, error) {
+func (m *MockItemsClient) DeleteItem(ctx context.Context, in *pb.DeleteItemRequest, opts ...grpc.CallOption) (*pb.DeleteItemResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, in}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "DeleteItem", varargs...)
-	ret0, _ := ret[0].(*pb.DeleteItemResponce)
+	ret0, _ := ret[0].(*pb.DeleteItemResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -77,14 +77,14 @@ func (mr *MockItemsClientMockRecorder) DeleteItem(ctx, in interface{}, opts ...i
 }
 
 // GetItem mocks base method.
-func (m *MockItemsClient) GetItem(ctx context.Context, in *pb.GetItemRequest, opts ...grpc.CallOption) (*pb.GetItemResponce, error) {
+func (m *MockItemsClient) GetItem(ctx context.Context, in *pb.GetItemRequest, opts ...grpc.CallOption) (*pb.GetItemResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, in}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "GetItem", varargs...)
-	ret0, _ := ret[0].(*pb.GetItemResponce)
+	ret0, _ := ret[0].(*pb.GetItemResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -97,14 +97,14 @@ func (mr *MockItemsClientMockRecorder) GetItem(ctx, in interface{}, opts ...inte
 }
 
 // GetItemList mocks base method.
-func (m *MockItemsClient) GetItemList(ctx context.Context, in *pb.GetItemListRequest, opts ...grpc.CallOption) (*pb.GetItemListResponce, error) {
+func (m *MockItemsClient) GetItemList(ctx context.Context, in *pb.GetItemListRequest, opts ...grpc.CallOption) (*pb.GetItemListResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, in}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "GetItemList", varargs...)
-	ret0, _ := ret[0].(*pb.GetItemListResponce)
+	ret0, _ := ret[0].(*pb.GetItemListResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -117,14 +117,14 @@ func (mr *MockItemsClientMockRecorder) GetItemList(ctx, in interface{}, opts ...
 }
 
 // UpdateItem mocks base method.
-func (m *MockItemsClient) UpdateItem(ctx context.Context, in *pb.UpdateItemRequest, opts ...grpc.CallOption) (*pb.UpdateItemResponce, error) {
+func (m *MockItemsClient) UpdateItem(ctx context.Context, in *pb.UpdateItemRequest, opts ...grpc.CallOption) (*pb.UpdateItemResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, in}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "UpdateItem", varargs...)
-	ret0, _ := ret[0].(*pb.UpdateItemResponce)
+	ret0, _ := ret[0].(*pb.UpdateItemResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -160,10 +160,10 @@ func (m *MockItemsServer) EXPECT() *MockItemsServerMockRecorder {
 }
 
 // CreateItem mocks base method.
-func (m *MockItemsServer) CreateItem(arg0 context.Context, arg1 *pb.CreateItemRequest) (*pb.CreateItemResponce, error) {
+func (m *MockItemsServer) CreateItem(arg0 context.Context, arg1 *pb.CreateItemRequest) (*pb.CreateItemResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateItem", arg0, arg1)
-	ret0, _ := ret[0].(*pb.CreateItemResponce)
+	ret0, _ := ret[0].(*pb.CreateItemResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -175,10 +175,10 @@ func (mr *MockItemsServerMockRecorder) CreateItem(arg0, arg1 interface{}) *gomoc
 }
 
 // DeleteItem mocks base method.
-func (m *MockItemsServer) DeleteItem(arg0 context.Context, arg1 *pb.DeleteItemRequest) (*pb.DeleteItemResponce, error) {
+func (m *MockItemsServer) DeleteItem(arg0 context.Context, arg1 *pb.DeleteItemRequest) (*pb.DeleteItemResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteItem", arg0, arg1)
-	ret0, _ := ret[0].(*pb.DeleteItemResponce)
+	ret0, _ := ret[0].(*pb.DeleteItemResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -190,10 +190,10 @@ func (mr *MockItemsServerMockRecorder) DeleteItem(arg0, arg1 interface{}) *gomoc
 }
 
 // GetItem mocks base method.
-func (m *MockItemsServer) GetItem(arg0 context.Context, arg1 *pb.GetItemRequest) (*pb.GetItemResponce, error) {
+func (m *MockItemsServer) GetItem(arg0 context.Context, arg1 *pb.GetItemRequest) (*pb.GetItemResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetItem", arg0, arg1)
-	ret0, _ := ret[0].(*pb.GetItemResponce)
+	ret0, _ := ret[0].(*pb.GetItemResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -205,10 +205,10 @@ func (mr *MockItemsServerMockRecorder) GetItem(arg0, arg1 interface{}) *gomock.C
 }
 
 // GetItemList mocks base method.
-func (m *MockItemsServer) GetItemList(arg0 context.Context, arg1 *pb.GetItemListRequest) (*pb.GetItemListResponce, error) {
+func (m *MockItemsServer) GetItemList(arg0 context.Context, arg1 *pb.GetItemListRequest) (*pb.GetItemListResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetItemList", arg0, arg1)
-	ret0, _ := ret[0].(*pb.GetItemListResponce)
+	ret0, _ := ret[0].(*pb.GetItemListResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -220,10 +220,10 @@ func (mr *MockItemsServerMockRecorder) GetItemList(arg0, arg1 interface{}) *gomo
 }
 
 // UpdateItem mocks base method.
-func (m *MockItemsServer) UpdateItem(arg0 context.Context, arg1 *pb.UpdateItemRequest) (*pb.UpdateItemResponce, error) {
+func (m *MockItemsServer) UpdateItem(arg0 context.Context, arg1 *pb.UpdateItemRequest) (*pb.UpdateItemResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateItem", arg0, arg1)
-	ret0, _ := ret[0].(*pb.UpdateItemResponce)
+	ret0, _ := ret[0].(*pb.UpdateItemResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

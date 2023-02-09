@@ -2,9 +2,9 @@
 
 ## About
 
-GophKeeper is private data managment client-server solution.
+GophKeeper is private data management client-server solution.
 
-It was developed as graduation diploma of [Yandex Practicum's "Advanded Go-Developer" course.](https://practicum.yandex.ru/go-advanced/)
+It was developed as graduation diploma of [Yandex Practicum's "Advanced Go-Developer" course.](https://practicum.yandex.ru/go-advanced/)
 
 ## Features:
 
@@ -12,14 +12,14 @@ It was developed as graduation diploma of [Yandex Practicum's "Advanded Go-Devel
 - No pre-requirements for client
 - Graphical terminal user interface (GTUI) for Windows, MacOS, Linux
 - Two-factor authentication
-- Server-client TLS authenticaion and ecryption 
+- Server-client TLS authentication and encryption 
 - Generation TOTP Verification codes
 - Client and server side encryption
 - Server horizontal scaling
 
 ### Secret Items
 
-1) Login - personal login information (username, password, authenticato key)
+1) Login - personal login information (username, password, authenticator key)
 2) Card - credit card information (number, cardholder, month and year expiration, cvv)
 3) Note - text information
 4) Data - binary files
@@ -28,7 +28,7 @@ All items may have notes field for store related to item information.
 
 All items may have custom fields for storing additional information (**currently not supported in GTUI**):
 - Text - key-value in plain text
-- Hidden - same as text, but value is considered as sensitive infomation
+- Hidden - same as text, but value is considered as sensitive information
 - Bool - flag
 
 Login items may have URI fields for storing related web-pages information (**currently not supported in GTUI**).
@@ -37,11 +37,11 @@ Detailed description of items field is provided on DB schema below.
 
 ### Data Safety
 
-Connections between client and server is secured by server-side TLS. All data is encrypted, only server needs to provide its certitcate to client.
+Connections between client and server is secured by server-side TLS. All data is encrypted, only server needs to provide its certificate to client.
 
-All privite data (items), such as notes, secret's information, custom fields and URIs store encrypted with AES256-GCM in server's database. Data is encrypted by user's personal encryption key, which also stores encrypted in server's database. Encryption key in turn encrypted with user's secret key. This secret key is used only on client and is stored in client's config.
+All private data (items), such as notes, secret's information, custom fields and URIs store encrypted with AES256-GCM in server's database. Data is encrypted by user's personal encryption key, which also stores encrypted in server's database. Encryption key in turn encrypted with user's secret key. This secret key is used only on client and is stored in client's config.
 
-In general, to access private data client after succesfull login receives encryption key from server, decrypts this key with it's own secret key, then client is able to decrypt private data with encryption key.
+In general, to access private data client after successful login receives encryption key from server, decrypts this key with it's own secret key, then client is able to decrypt private data with encryption key.
 
 User login process described in following figure:
 
@@ -49,7 +49,7 @@ User login process described in following figure:
 
 Processes with items described in following figure:
 
-![ItemIteraction](./doc/item_iteraction.drawio.svg)
+![ItemInteraction](./doc/item_interaction.drawio.svg)
 
 
 ## Client
@@ -86,7 +86,7 @@ Several server instances can be launched for distribute workload. In such cases 
 
 ### Database
 
-Database driver is based on pgx4 package, so supported database type - PostgesSQL 10 and higher.
+Database driver is based on pgx4 package, so supported database type - PostgresSQL 10 and higher.
 
 General DB Schema:
 ![DBSchema](./doc/db_scheme.drawio.svg)
@@ -95,7 +95,7 @@ General DB Schema:
 
 Currently server supports PASETO tokens for authentication and authorization user's request. Token expiration period is configurable parameter (by default equals 1800 seconds).
 
-For TLS valid certificate and key should be passed via flags or envvars. For testing purposes TLS can be disabled. Also you can generate self-signed with `make certs` command
+For TLS valid certificate and key should be passed via flags or envvars. For testing purposes TLS can be disabled. Also you can generate self-signed with `make cert` command
 
 ### Configuration parameters
 
@@ -103,7 +103,7 @@ Server's configuration parameters is described in documentation and can be viewe
 
 Parameters can be passed via environmental variables and cli arguments (flags). However, general recommendation is pass credentials **only** via envvars.
 
-## **Roadmap, currently not implemeneted**
+## **Roadmap, currently not implemented**
 - Custom fields and URIs (for Login items) support in GUI
 - Reprompt password to show sensitive information for flagged items
 - Client local working mode, with storing data encrypted locally
@@ -124,4 +124,4 @@ Then open in browser - http://localhost:6060/pkg/github.com/artfuldog/gophkeeper
 ## Development
 All repo can be launched in MS VScode devcontainer.
 
-Some of useful commands, such as generate protofiles, mocks, perform test and run client/server, provided in Makefile. To view it run `make help`.
+Some of useful commands, such as generate proto-files, mocks, perform test and run client/server, provided in Makefile. To view it run `make help`.

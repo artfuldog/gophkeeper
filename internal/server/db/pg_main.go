@@ -11,7 +11,7 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-// Posgtre represents PostgreSQL implemenation of DB.
+// Posgtre represents PostgreSQL implementation of DB.
 type Posgtre struct {
 	// Database connections parameters
 	config *pgxpool.Config
@@ -44,7 +44,7 @@ func newPosgtre(params *Parameters, logger logger.L) (*Posgtre, error) {
 		return nil, errors.New("missed database address")
 	}
 
-	componentName := "newDBPosgtre"
+	componentName := "newPostgre"
 
 	db := new(Posgtre)
 
@@ -92,7 +92,7 @@ func (db *Posgtre) Setup(ctx context.Context) (err error) {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 
-	componentName := "DBPosgtre:setup"
+	componentName := "Postgre:setup"
 
 	for _, t := range db.tables {
 		ct, execErr := db.pool.Exec(ctx, t.Statement)
@@ -125,7 +125,7 @@ func (db *Posgtre) ConnectAndSetup(ctx context.Context) (err error) {
 // After context expired or cancel function Run will close opened connections
 // and close channel.
 func (db *Posgtre) Run(ctx context.Context, closeCh CloseChannel) {
-	componentName := "DBPosgtre:run"
+	componentName := "Postgre:run"
 	db.logger.Info("DB is running", componentName)
 
 	<-ctx.Done()
@@ -140,7 +140,7 @@ func (db *Posgtre) Clear(ctx context.Context) {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 
-	componentName := "DBPosgtre:clear"
+	componentName := "Postgre:clear"
 
 	rTables := make([]PGTable, (len(db.tables)))
 	for i := 0; i < len(rTables); i++ {

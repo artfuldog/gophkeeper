@@ -11,7 +11,7 @@ const (
 	LogTimeFormat = "2006-01-02 15:04:05"
 )
 
-// ZLogger represents implemenation of logger bases on famous zerolog package.
+// ZLogger represents implementation of logger bases on famous zerolog package.
 type ZLogger struct {
 	Logger     zerolog.Logger // logger itself
 	LogFile    *os.File       // file for storing logs
@@ -20,7 +20,7 @@ type ZLogger struct {
 
 var _ L = (*ZLogger)(nil)
 
-// NewZLoggerConsole create new ZLogger intstance with console output.
+// NewZLoggerConsole create new ZLogger instance with console output.
 //
 // ZLogger allows log message with provided level (severity) or higher, automatically add to log records
 // module name.

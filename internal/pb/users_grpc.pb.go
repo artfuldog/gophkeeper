@@ -22,12 +22,12 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UsersClient interface {
-	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponce, error)
-	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponce, error)
-	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponce, error)
-	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponce, error)
-	UserLogin(ctx context.Context, in *UserLoginRequest, opts ...grpc.CallOption) (*UserLoginResponce, error)
-	GetRevision(ctx context.Context, in *GetRevisionRequest, opts ...grpc.CallOption) (*GetRevisionResponce, error)
+	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
+	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
+	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error)
+	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error)
+	UserLogin(ctx context.Context, in *UserLoginRequest, opts ...grpc.CallOption) (*UserLoginResponse, error)
+	GetRevision(ctx context.Context, in *GetRevisionRequest, opts ...grpc.CallOption) (*GetRevisionResponse, error)
 }
 
 type usersClient struct {
@@ -38,8 +38,8 @@ func NewUsersClient(cc grpc.ClientConnInterface) UsersClient {
 	return &usersClient{cc}
 }
 
-func (c *usersClient) CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponce, error) {
-	out := new(CreateUserResponce)
+func (c *usersClient) CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error) {
+	out := new(CreateUserResponse)
 	err := c.cc.Invoke(ctx, "/gophkeeper.Users/CreateUser", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -47,8 +47,8 @@ func (c *usersClient) CreateUser(ctx context.Context, in *CreateUserRequest, opt
 	return out, nil
 }
 
-func (c *usersClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponce, error) {
-	out := new(GetUserResponce)
+func (c *usersClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error) {
+	out := new(GetUserResponse)
 	err := c.cc.Invoke(ctx, "/gophkeeper.Users/GetUser", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -56,8 +56,8 @@ func (c *usersClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...g
 	return out, nil
 }
 
-func (c *usersClient) UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponce, error) {
-	out := new(UpdateUserResponce)
+func (c *usersClient) UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error) {
+	out := new(UpdateUserResponse)
 	err := c.cc.Invoke(ctx, "/gophkeeper.Users/UpdateUser", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -65,8 +65,8 @@ func (c *usersClient) UpdateUser(ctx context.Context, in *UpdateUserRequest, opt
 	return out, nil
 }
 
-func (c *usersClient) DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponce, error) {
-	out := new(DeleteUserResponce)
+func (c *usersClient) DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error) {
+	out := new(DeleteUserResponse)
 	err := c.cc.Invoke(ctx, "/gophkeeper.Users/DeleteUser", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -74,8 +74,8 @@ func (c *usersClient) DeleteUser(ctx context.Context, in *DeleteUserRequest, opt
 	return out, nil
 }
 
-func (c *usersClient) UserLogin(ctx context.Context, in *UserLoginRequest, opts ...grpc.CallOption) (*UserLoginResponce, error) {
-	out := new(UserLoginResponce)
+func (c *usersClient) UserLogin(ctx context.Context, in *UserLoginRequest, opts ...grpc.CallOption) (*UserLoginResponse, error) {
+	out := new(UserLoginResponse)
 	err := c.cc.Invoke(ctx, "/gophkeeper.Users/UserLogin", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -83,8 +83,8 @@ func (c *usersClient) UserLogin(ctx context.Context, in *UserLoginRequest, opts 
 	return out, nil
 }
 
-func (c *usersClient) GetRevision(ctx context.Context, in *GetRevisionRequest, opts ...grpc.CallOption) (*GetRevisionResponce, error) {
-	out := new(GetRevisionResponce)
+func (c *usersClient) GetRevision(ctx context.Context, in *GetRevisionRequest, opts ...grpc.CallOption) (*GetRevisionResponse, error) {
+	out := new(GetRevisionResponse)
 	err := c.cc.Invoke(ctx, "/gophkeeper.Users/GetRevision", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -96,12 +96,12 @@ func (c *usersClient) GetRevision(ctx context.Context, in *GetRevisionRequest, o
 // All implementations must embed UnimplementedUsersServer
 // for forward compatibility
 type UsersServer interface {
-	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponce, error)
-	GetUser(context.Context, *GetUserRequest) (*GetUserResponce, error)
-	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponce, error)
-	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponce, error)
-	UserLogin(context.Context, *UserLoginRequest) (*UserLoginResponce, error)
-	GetRevision(context.Context, *GetRevisionRequest) (*GetRevisionResponce, error)
+	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
+	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
+	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error)
+	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error)
+	UserLogin(context.Context, *UserLoginRequest) (*UserLoginResponse, error)
+	GetRevision(context.Context, *GetRevisionRequest) (*GetRevisionResponse, error)
 	mustEmbedUnimplementedUsersServer()
 }
 
@@ -109,22 +109,22 @@ type UsersServer interface {
 type UnimplementedUsersServer struct {
 }
 
-func (UnimplementedUsersServer) CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponce, error) {
+func (UnimplementedUsersServer) CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
 }
-func (UnimplementedUsersServer) GetUser(context.Context, *GetUserRequest) (*GetUserResponce, error) {
+func (UnimplementedUsersServer) GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
 }
-func (UnimplementedUsersServer) UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponce, error) {
+func (UnimplementedUsersServer) UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUser not implemented")
 }
-func (UnimplementedUsersServer) DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponce, error) {
+func (UnimplementedUsersServer) DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
 }
-func (UnimplementedUsersServer) UserLogin(context.Context, *UserLoginRequest) (*UserLoginResponce, error) {
+func (UnimplementedUsersServer) UserLogin(context.Context, *UserLoginRequest) (*UserLoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UserLogin not implemented")
 }
-func (UnimplementedUsersServer) GetRevision(context.Context, *GetRevisionRequest) (*GetRevisionResponce, error) {
+func (UnimplementedUsersServer) GetRevision(context.Context, *GetRevisionRequest) (*GetRevisionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRevision not implemented")
 }
 func (UnimplementedUsersServer) mustEmbedUnimplementedUsersServer() {}

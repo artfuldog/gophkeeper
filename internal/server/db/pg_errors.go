@@ -7,7 +7,7 @@ import (
 	"github.com/jackc/pgconn"
 )
 
-// pgErrorsMap is a map listed SQL Erros and corresponds DB Errors.
+// pgErrorsMap is a map listed SQL Errors and corresponds DB Errors.
 //
 //nolint:gochecknoglobals
 var pgErrorsMap = map[string]error{

@@ -13,7 +13,7 @@ import (
 
 // newCreateItemBatch is a helper function for construct pgx.Batch, used in item creation.
 func (db *Posgtre) newCreateItemBatch(username string, item *pb.Item) (*pgx.Batch, error) {
-	componentName := "DBPosgtre:newCreateItemBatch"
+	componentName := "Postgre:newCreateItemBatch"
 
 	b := new(pgx.Batch)
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
@@ -48,7 +48,7 @@ func (db *Posgtre) newCreateItemBatch(username string, item *pb.Item) (*pgx.Batc
 		Where(sq.Eq{"username": username}).
 		Where(sq.Eq{"items.name": item.Name})
 
-	smtmSecret, argsSecret, err := psql.
+	stmtSecret, argsSecret, err := psql.
 		Insert("secrets").
 		Columns("item_id, notes, secret").
 		Select(secretSQ).ToSql()
@@ -57,8 +57,8 @@ func (db *Posgtre) newCreateItemBatch(username string, item *pb.Item) (*pgx.Batc
 		return nil, err
 	}
 
-	db.logger.Debug(fmt.Sprintf("queue SQL: %s , args: %v", smtmSecret, argsSecret), componentName)
-	b.Queue(smtmSecret, argsSecret...)
+	db.logger.Debug(fmt.Sprintf("queue SQL: %s , args: %v", stmtSecret, argsSecret), componentName)
+	b.Queue(stmtSecret, argsSecret...)
 
 	if item.Additions == nil {
 		item.Additions = new(pb.Additions)
@@ -76,7 +76,7 @@ func (db *Posgtre) newCreateItemBatch(username string, item *pb.Item) (*pgx.Batc
 		Where(sq.Eq{"username": username}).
 		Where(sq.Eq{"items.name": item.Name})
 
-	smtmAdds, argsAdds, err := psql.
+	stmtAdds, argsAdds, err := psql.
 		Insert("additions").
 		Columns("item_id, uris, custom_fields").
 		Select(addsSQ).ToSql()
@@ -85,8 +85,8 @@ func (db *Posgtre) newCreateItemBatch(username string, item *pb.Item) (*pgx.Batc
 		return nil, err
 	}
 
-	db.logger.Debug(fmt.Sprintf("queue SQL: %s , args: %v", smtmAdds, argsAdds), componentName)
-	b.Queue(smtmAdds, argsAdds...)
+	db.logger.Debug(fmt.Sprintf("queue SQL: %s , args: %v", stmtAdds, argsAdds), componentName)
+	b.Queue(stmtAdds, argsAdds...)
 
 	newRevision := crypt.GetSHA256hash(username + item.Name + item.Type + item.Updated.String())
 	stmtRevision, argsRevision, err := psql.
@@ -104,7 +104,7 @@ func (db *Posgtre) newCreateItemBatch(username string, item *pb.Item) (*pgx.Batc
 
 // newUpdateItemBatch is a helper function for construct pgx.Batch, used for update item.
 func (db *Posgtre) newUpdateItemBatch(username string, item *pb.Item) (*pgx.Batch, error) {
-	componentName := "DBPosgtre:newUpdateItemBatch"
+	componentName := "Postgre:newUpdateItemBatch"
 
 	b := new(pgx.Batch)
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
@@ -128,7 +128,7 @@ func (db *Posgtre) newUpdateItemBatch(username string, item *pb.Item) (*pgx.Batc
 	b.Queue(stmtItem, argsItem...)
 
 	if item.Secrets != nil {
-		smtmSecret, argsSecret, err := psql.
+		stmtSecret, argsSecret, err := psql.
 			Update("secrets").
 			Set("notes", sq.Expr("coalesce(?, notes)", item.Secrets.Notes)).
 			Set("secret", sq.Expr("coalesce(?, secret)", item.Secrets.Secret)).
@@ -138,8 +138,8 @@ func (db *Posgtre) newUpdateItemBatch(username string, item *pb.Item) (*pgx.Batc
 			return nil, err
 		}
 
-		db.logger.Debug(fmt.Sprintf("queue SQL: %s , args: %v", smtmSecret, argsSecret), componentName)
-		b.Queue(smtmSecret, argsSecret...)
+		db.logger.Debug(fmt.Sprintf("queue SQL: %s , args: %v", stmtSecret, argsSecret), componentName)
+		b.Queue(stmtSecret, argsSecret...)
 	}
 
 	if item.Additions != nil {
@@ -148,7 +148,7 @@ func (db *Posgtre) newUpdateItemBatch(username string, item *pb.Item) (*pgx.Batc
 			item.Additions.Uris = nil
 		}
 
-		smtmAdds, argsAdds, err := psql.
+		stmtAdds, argsAdds, err := psql.
 			Update("additions").
 			Set("uris", sq.Expr("coalesce(?, uris)", item.Additions.Uris)).
 			Set("custom_fields", sq.Expr("coalesce(?, custom_fields)", item.Additions.CustomFields)).
@@ -158,8 +158,8 @@ func (db *Posgtre) newUpdateItemBatch(username string, item *pb.Item) (*pgx.Batc
 			return nil, err
 		}
 
-		db.logger.Debug(fmt.Sprintf("queue SQL: %s , args: %v", smtmAdds, argsAdds), componentName)
-		b.Queue(smtmAdds, argsAdds...)
+		db.logger.Debug(fmt.Sprintf("queue SQL: %s , args: %v", stmtAdds, argsAdds), componentName)
+		b.Queue(stmtAdds, argsAdds...)
 	}
 
 	newRevision := crypt.GetSHA256hash(username + item.Name + item.Type + item.Updated.String())
@@ -178,7 +178,7 @@ func (db *Posgtre) newUpdateItemBatch(username string, item *pb.Item) (*pgx.Batc
 
 // newDeleteItemBatch is a helper function for construct pgx.Batch, used for deleteitem.
 func (db *Posgtre) newDeleteItemBatch(username string, itemID int64) (*pgx.Batch, error) {
-	componentName := "DBPosgtre:newDeleteItemBatch"
+	componentName := "Postgre:newDeleteItemBatch"
 
 	b := new(pgx.Batch)
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)

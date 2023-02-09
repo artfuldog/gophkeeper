@@ -1,2 +1,2 @@
-// Package crypt contains encryption/decription, hashing and OTP functions
+// Package crypt contains encryption/decryption, hashing and OTP functions
 package crypt

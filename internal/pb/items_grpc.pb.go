@@ -22,11 +22,11 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ItemsClient interface {
-	CreateItem(ctx context.Context, in *CreateItemRequest, opts ...grpc.CallOption) (*CreateItemResponce, error)
-	GetItem(ctx context.Context, in *GetItemRequest, opts ...grpc.CallOption) (*GetItemResponce, error)
-	GetItemList(ctx context.Context, in *GetItemListRequest, opts ...grpc.CallOption) (*GetItemListResponce, error)
-	UpdateItem(ctx context.Context, in *UpdateItemRequest, opts ...grpc.CallOption) (*UpdateItemResponce, error)
-	DeleteItem(ctx context.Context, in *DeleteItemRequest, opts ...grpc.CallOption) (*DeleteItemResponce, error)
+	CreateItem(ctx context.Context, in *CreateItemRequest, opts ...grpc.CallOption) (*CreateItemResponse, error)
+	GetItem(ctx context.Context, in *GetItemRequest, opts ...grpc.CallOption) (*GetItemResponse, error)
+	GetItemList(ctx context.Context, in *GetItemListRequest, opts ...grpc.CallOption) (*GetItemListResponse, error)
+	UpdateItem(ctx context.Context, in *UpdateItemRequest, opts ...grpc.CallOption) (*UpdateItemResponse, error)
+	DeleteItem(ctx context.Context, in *DeleteItemRequest, opts ...grpc.CallOption) (*DeleteItemResponse, error)
 }
 
 type itemsClient struct {
@@ -37,8 +37,8 @@ func NewItemsClient(cc grpc.ClientConnInterface) ItemsClient {
 	return &itemsClient{cc}
 }
 
-func (c *itemsClient) CreateItem(ctx context.Context, in *CreateItemRequest, opts ...grpc.CallOption) (*CreateItemResponce, error) {
-	out := new(CreateItemResponce)
+func (c *itemsClient) CreateItem(ctx context.Context, in *CreateItemRequest, opts ...grpc.CallOption) (*CreateItemResponse, error) {
+	out := new(CreateItemResponse)
 	err := c.cc.Invoke(ctx, "/gophkeeper.Items/CreateItem", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -46,8 +46,8 @@ func (c *itemsClient) CreateItem(ctx context.Context, in *CreateItemRequest, opt
 	return out, nil
 }
 
-func (c *itemsClient) GetItem(ctx context.Context, in *GetItemRequest, opts ...grpc.CallOption) (*GetItemResponce, error) {
-	out := new(GetItemResponce)
+func (c *itemsClient) GetItem(ctx context.Context, in *GetItemRequest, opts ...grpc.CallOption) (*GetItemResponse, error) {
+	out := new(GetItemResponse)
 	err := c.cc.Invoke(ctx, "/gophkeeper.Items/GetItem", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -55,8 +55,8 @@ func (c *itemsClient) GetItem(ctx context.Context, in *GetItemRequest, opts ...g
 	return out, nil
 }
 
-func (c *itemsClient) GetItemList(ctx context.Context, in *GetItemListRequest, opts ...grpc.CallOption) (*GetItemListResponce, error) {
-	out := new(GetItemListResponce)
+func (c *itemsClient) GetItemList(ctx context.Context, in *GetItemListRequest, opts ...grpc.CallOption) (*GetItemListResponse, error) {
+	out := new(GetItemListResponse)
 	err := c.cc.Invoke(ctx, "/gophkeeper.Items/GetItemList", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -64,8 +64,8 @@ func (c *itemsClient) GetItemList(ctx context.Context, in *GetItemListRequest, o
 	return out, nil
 }
 
-func (c *itemsClient) UpdateItem(ctx context.Context, in *UpdateItemRequest, opts ...grpc.CallOption) (*UpdateItemResponce, error) {
-	out := new(UpdateItemResponce)
+func (c *itemsClient) UpdateItem(ctx context.Context, in *UpdateItemRequest, opts ...grpc.CallOption) (*UpdateItemResponse, error) {
+	out := new(UpdateItemResponse)
 	err := c.cc.Invoke(ctx, "/gophkeeper.Items/UpdateItem", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -73,8 +73,8 @@ func (c *itemsClient) UpdateItem(ctx context.Context, in *UpdateItemRequest, opt
 	return out, nil
 }
 
-func (c *itemsClient) DeleteItem(ctx context.Context, in *DeleteItemRequest, opts ...grpc.CallOption) (*DeleteItemResponce, error) {
-	out := new(DeleteItemResponce)
+func (c *itemsClient) DeleteItem(ctx context.Context, in *DeleteItemRequest, opts ...grpc.CallOption) (*DeleteItemResponse, error) {
+	out := new(DeleteItemResponse)
 	err := c.cc.Invoke(ctx, "/gophkeeper.Items/DeleteItem", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -86,11 +86,11 @@ func (c *itemsClient) DeleteItem(ctx context.Context, in *DeleteItemRequest, opt
 // All implementations must embed UnimplementedItemsServer
 // for forward compatibility
 type ItemsServer interface {
-	CreateItem(context.Context, *CreateItemRequest) (*CreateItemResponce, error)
-	GetItem(context.Context, *GetItemRequest) (*GetItemResponce, error)
-	GetItemList(context.Context, *GetItemListRequest) (*GetItemListResponce, error)
-	UpdateItem(context.Context, *UpdateItemRequest) (*UpdateItemResponce, error)
-	DeleteItem(context.Context, *DeleteItemRequest) (*DeleteItemResponce, error)
+	CreateItem(context.Context, *CreateItemRequest) (*CreateItemResponse, error)
+	GetItem(context.Context, *GetItemRequest) (*GetItemResponse, error)
+	GetItemList(context.Context, *GetItemListRequest) (*GetItemListResponse, error)
+	UpdateItem(context.Context, *UpdateItemRequest) (*UpdateItemResponse, error)
+	DeleteItem(context.Context, *DeleteItemRequest) (*DeleteItemResponse, error)
 	mustEmbedUnimplementedItemsServer()
 }
 
@@ -98,19 +98,19 @@ type ItemsServer interface {
 type UnimplementedItemsServer struct {
 }
 
-func (UnimplementedItemsServer) CreateItem(context.Context, *CreateItemRequest) (*CreateItemResponce, error) {
+func (UnimplementedItemsServer) CreateItem(context.Context, *CreateItemRequest) (*CreateItemResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateItem not implemented")
 }
-func (UnimplementedItemsServer) GetItem(context.Context, *GetItemRequest) (*GetItemResponce, error) {
+func (UnimplementedItemsServer) GetItem(context.Context, *GetItemRequest) (*GetItemResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetItem not implemented")
 }
-func (UnimplementedItemsServer) GetItemList(context.Context, *GetItemListRequest) (*GetItemListResponce, error) {
+func (UnimplementedItemsServer) GetItemList(context.Context, *GetItemListRequest) (*GetItemListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetItemList not implemented")
 }
-func (UnimplementedItemsServer) UpdateItem(context.Context, *UpdateItemRequest) (*UpdateItemResponce, error) {
+func (UnimplementedItemsServer) UpdateItem(context.Context, *UpdateItemRequest) (*UpdateItemResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateItem not implemented")
 }
-func (UnimplementedItemsServer) DeleteItem(context.Context, *DeleteItemRequest) (*DeleteItemResponce, error) {
+func (UnimplementedItemsServer) DeleteItem(context.Context, *DeleteItemRequest) (*DeleteItemResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteItem not implemented")
 }
 func (UnimplementedItemsServer) mustEmbedUnimplementedItemsServer() {}

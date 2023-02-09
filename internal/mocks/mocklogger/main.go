@@ -1,3 +1,4 @@
+// Package mocklogger is a mock for logger.
 package mocklogger
 
 import (

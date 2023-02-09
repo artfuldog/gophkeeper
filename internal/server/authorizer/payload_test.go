@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestPaylodValid(t *testing.T) {
+func TestPayloadValid(t *testing.T) {
 	p, err := NewPayload("username", 5*time.Second)
 	require.NoError(t, err)
 

@@ -11,7 +11,7 @@ func PtrTo[V any](val V) *V {
 }
 
 // Last returns last value of array.
-// If array is empty return defaul nul value.
+// If array is empty return default nul value.
 func Last[V any](s []V) V {
 	if len(s) == 0 {
 		var none V

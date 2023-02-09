@@ -26,22 +26,22 @@ func TestEncryptDecryptAES(t *testing.T) {
 		message []byte
 	}{
 		{
-			name:    "Encypt/decrypt message",
+			name:    "Encrypt/decrypt message",
 			key:     key,
 			message: messageE,
 		},
 		{
-			name:    "Encypt/decrypt message",
+			name:    "Encrypt/decrypt message",
 			key:     key,
 			message: messageS,
 		},
 		{
-			name:    "Encypt/decrypt message",
+			name:    "Encrypt/decrypt message",
 			key:     key,
 			message: messageM,
 		},
 		{
-			name:    "Encypt/decrypt message",
+			name:    "Encrypt/decrypt message",
 			key:     key,
 			message: messageL,
 		},
@@ -75,22 +75,22 @@ func TestEncryptDecryptAESwithAD(t *testing.T) {
 		message []byte
 	}{
 		{
-			name:    "Encypt/decrypt message with AD",
+			name:    "Enrcypt/decrypt message with AD",
 			key:     []byte("Passw@rdAsAkEY&8"),
 			message: messageM,
 		},
 		{
-			name:    "Encypt/decrypt message with AD",
+			name:    "Encrypt/decrypt message with AD",
 			key:     []byte("Passw@rdAsAkEY&8asd-11 a asd 123 asd 12 dasd 12 ----asd ;aksd;asdasdSADawwas;l"),
 			message: messageM,
 		},
 		{
-			name:    "Encypt/decrypt message with AD",
+			name:    "Encrypt/decrypt message with AD",
 			key:     []byte(""),
 			message: messageM,
 		},
 		{
-			name:    "Encypt/decrypt message with AD",
+			name:    "Encrypt/decrypt message with AD",
 			key:     nil,
 			message: messageM,
 		},

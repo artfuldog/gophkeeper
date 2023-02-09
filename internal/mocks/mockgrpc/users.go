@@ -37,14 +37,14 @@ func (m *MockUsersClient) EXPECT() *MockUsersClientMockRecorder {
 }
 
 // CreateUser mocks base method.
-func (m *MockUsersClient) CreateUser(ctx context.Context, in *pb.CreateUserRequest, opts ...grpc.CallOption) (*pb.CreateUserResponce, error) {
+func (m *MockUsersClient) CreateUser(ctx context.Context, in *pb.CreateUserRequest, opts ...grpc.CallOption) (*pb.CreateUserResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, in}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "CreateUser", varargs...)
-	ret0, _ := ret[0].(*pb.CreateUserResponce)
+	ret0, _ := ret[0].(*pb.CreateUserResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -57,14 +57,14 @@ func (mr *MockUsersClientMockRecorder) CreateUser(ctx, in interface{}, opts ...i
 }
 
 // DeleteUser mocks base method.
-func (m *MockUsersClient) DeleteUser(ctx context.Context, in *pb.DeleteUserRequest, opts ...grpc.CallOption) (*pb.DeleteUserResponce, error) {
+func (m *MockUsersClient) DeleteUser(ctx context.Context, in *pb.DeleteUserRequest, opts ...grpc.CallOption) (*pb.DeleteUserResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, in}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "DeleteUser", varargs...)
-	ret0, _ := ret[0].(*pb.DeleteUserResponce)
+	ret0, _ := ret[0].(*pb.DeleteUserResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -77,14 +77,14 @@ func (mr *MockUsersClientMockRecorder) DeleteUser(ctx, in interface{}, opts ...i
 }
 
 // GetRevision mocks base method.
-func (m *MockUsersClient) GetRevision(ctx context.Context, in *pb.GetRevisionRequest, opts ...grpc.CallOption) (*pb.GetRevisionResponce, error) {
+func (m *MockUsersClient) GetRevision(ctx context.Context, in *pb.GetRevisionRequest, opts ...grpc.CallOption) (*pb.GetRevisionResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, in}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "GetRevision", varargs...)
-	ret0, _ := ret[0].(*pb.GetRevisionResponce)
+	ret0, _ := ret[0].(*pb.GetRevisionResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -97,14 +97,14 @@ func (mr *MockUsersClientMockRecorder) GetRevision(ctx, in interface{}, opts ...
 }
 
 // GetUser mocks base method.
-func (m *MockUsersClient) GetUser(ctx context.Context, in *pb.GetUserRequest, opts ...grpc.CallOption) (*pb.GetUserResponce, error) {
+func (m *MockUsersClient) GetUser(ctx context.Context, in *pb.GetUserRequest, opts ...grpc.CallOption) (*pb.GetUserResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, in}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "GetUser", varargs...)
-	ret0, _ := ret[0].(*pb.GetUserResponce)
+	ret0, _ := ret[0].(*pb.GetUserResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -117,14 +117,14 @@ func (mr *MockUsersClientMockRecorder) GetUser(ctx, in interface{}, opts ...inte
 }
 
 // UpdateUser mocks base method.
-func (m *MockUsersClient) UpdateUser(ctx context.Context, in *pb.UpdateUserRequest, opts ...grpc.CallOption) (*pb.UpdateUserResponce, error) {
+func (m *MockUsersClient) UpdateUser(ctx context.Context, in *pb.UpdateUserRequest, opts ...grpc.CallOption) (*pb.UpdateUserResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, in}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "UpdateUser", varargs...)
-	ret0, _ := ret[0].(*pb.UpdateUserResponce)
+	ret0, _ := ret[0].(*pb.UpdateUserResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -137,14 +137,14 @@ func (mr *MockUsersClientMockRecorder) UpdateUser(ctx, in interface{}, opts ...i
 }
 
 // UserLogin mocks base method.
-func (m *MockUsersClient) UserLogin(ctx context.Context, in *pb.UserLoginRequest, opts ...grpc.CallOption) (*pb.UserLoginResponce, error) {
+func (m *MockUsersClient) UserLogin(ctx context.Context, in *pb.UserLoginRequest, opts ...grpc.CallOption) (*pb.UserLoginResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, in}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "UserLogin", varargs...)
-	ret0, _ := ret[0].(*pb.UserLoginResponce)
+	ret0, _ := ret[0].(*pb.UserLoginResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -180,10 +180,10 @@ func (m *MockUsersServer) EXPECT() *MockUsersServerMockRecorder {
 }
 
 // CreateUser mocks base method.
-func (m *MockUsersServer) CreateUser(arg0 context.Context, arg1 *pb.CreateUserRequest) (*pb.CreateUserResponce, error) {
+func (m *MockUsersServer) CreateUser(arg0 context.Context, arg1 *pb.CreateUserRequest) (*pb.CreateUserResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateUser", arg0, arg1)
-	ret0, _ := ret[0].(*pb.CreateUserResponce)
+	ret0, _ := ret[0].(*pb.CreateUserResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -195,10 +195,10 @@ func (mr *MockUsersServerMockRecorder) CreateUser(arg0, arg1 interface{}) *gomoc
 }
 
 // DeleteUser mocks base method.
-func (m *MockUsersServer) DeleteUser(arg0 context.Context, arg1 *pb.DeleteUserRequest) (*pb.DeleteUserResponce, error) {
+func (m *MockUsersServer) DeleteUser(arg0 context.Context, arg1 *pb.DeleteUserRequest) (*pb.DeleteUserResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteUser", arg0, arg1)
-	ret0, _ := ret[0].(*pb.DeleteUserResponce)
+	ret0, _ := ret[0].(*pb.DeleteUserResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -210,10 +210,10 @@ func (mr *MockUsersServerMockRecorder) DeleteUser(arg0, arg1 interface{}) *gomoc
 }
 
 // GetRevision mocks base method.
-func (m *MockUsersServer) GetRevision(arg0 context.Context, arg1 *pb.GetRevisionRequest) (*pb.GetRevisionResponce, error) {
+func (m *MockUsersServer) GetRevision(arg0 context.Context, arg1 *pb.GetRevisionRequest) (*pb.GetRevisionResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetRevision", arg0, arg1)
-	ret0, _ := ret[0].(*pb.GetRevisionResponce)
+	ret0, _ := ret[0].(*pb.GetRevisionResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -225,10 +225,10 @@ func (mr *MockUsersServerMockRecorder) GetRevision(arg0, arg1 interface{}) *gomo
 }
 
 // GetUser mocks base method.
-func (m *MockUsersServer) GetUser(arg0 context.Context, arg1 *pb.GetUserRequest) (*pb.GetUserResponce, error) {
+func (m *MockUsersServer) GetUser(arg0 context.Context, arg1 *pb.GetUserRequest) (*pb.GetUserResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUser", arg0, arg1)
-	ret0, _ := ret[0].(*pb.GetUserResponce)
+	ret0, _ := ret[0].(*pb.GetUserResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -240,10 +240,10 @@ func (mr *MockUsersServerMockRecorder) GetUser(arg0, arg1 interface{}) *gomock.C
 }
 
 // UpdateUser mocks base method.
-func (m *MockUsersServer) UpdateUser(arg0 context.Context, arg1 *pb.UpdateUserRequest) (*pb.UpdateUserResponce, error) {
+func (m *MockUsersServer) UpdateUser(arg0 context.Context, arg1 *pb.UpdateUserRequest) (*pb.UpdateUserResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateUser", arg0, arg1)
-	ret0, _ := ret[0].(*pb.UpdateUserResponce)
+	ret0, _ := ret[0].(*pb.UpdateUserResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -255,10 +255,10 @@ func (mr *MockUsersServerMockRecorder) UpdateUser(arg0, arg1 interface{}) *gomoc
 }
 
 // UserLogin mocks base method.
-func (m *MockUsersServer) UserLogin(arg0 context.Context, arg1 *pb.UserLoginRequest) (*pb.UserLoginResponce, error) {
+func (m *MockUsersServer) UserLogin(arg0 context.Context, arg1 *pb.UserLoginRequest) (*pb.UserLoginResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UserLogin", arg0, arg1)
-	ret0, _ := ret[0].(*pb.UserLoginResponce)
+	ret0, _ := ret[0].(*pb.UserLoginResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

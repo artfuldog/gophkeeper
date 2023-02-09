@@ -64,7 +64,7 @@ func TestItemsService_GetItem(t *testing.T) {
 		respItem := &pb.Item{
 			Name: "name",
 		}
-		resp := &pb.GetItemResponce{
+		resp := &pb.GetItemResponse{
 			Item: respItem,
 		}
 		ts.DB.EXPECT().GetItemByNameAndType(mockAny, mockAny, mockAny, mockAny).Return(respItem, nil)

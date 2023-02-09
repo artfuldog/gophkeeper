@@ -300,7 +300,7 @@ func (g *Gtui) drawMainMenu(ctx context.Context) {
 		AddItem("Vault", "Browse Vault", 'v', func() {
 			g.displayItemBrowser(ctx)
 		}).
-		AddItem("Setting", "Change configuraion", 's', g.displayActiveSettingsPage).
+		AddItem("Setting", "Change configuration", 's', g.displayActiveSettingsPage).
 		AddItem("About/Help", "About this app", 'a', g.displayAboutHelpMenu).
 		AddItem("Log out", "Press to log out", 'l', func() {
 			g.displayUserLoginPage(ctx)
@@ -328,7 +328,7 @@ Supported features:
   - Four types of secret items - Login, Card, Note, Data
   - Full CRUD support
   - Two-factor authentication
-  - Server-client TLS authentication and ecryption 
+  - Server-client TLS authentication and encryption 
   - OTP Authenticator Key (for Login)
   - Client side encryption - all data on server stores encrypted`
 	help := `
@@ -465,7 +465,7 @@ func (g *Gtui) drawItemGrid(ctx context.Context, item *api.Item, pageName string
 	return grid
 }
 
-// drawItemMainForm creates form for dispaying item's main editable information.
+// drawItemMainForm creates form for displaying item's main editable information.
 func (g *Gtui) drawItemMainForm(item *api.Item, pageName string, newItemFlag bool, showSensitive bool) *tview.Form {
 	form := tview.NewForm().SetItemPadding(1).
 		AddInputField("Name", item.Name, 40, nil, func(v string) {
@@ -571,8 +571,8 @@ func (g *Gtui) drawItemMainForm(item *api.Item, pageName string, newItemFlag boo
 	return form
 }
 
-// drawItemInfoForm creates form for dispaying item's uneditable information,
-// such as type and upodated date.
+// drawItemInfoForm creates form for displaying item's uneditable information,
+// such as type and updated date.
 func (g *Gtui) drawItemInfoForm(item *api.Item, pageName string, newItemFlag bool) *tview.Form {
 	updated := ""
 	if !newItemFlag {
@@ -589,7 +589,7 @@ func (g *Gtui) drawItemInfoForm(item *api.Item, pageName string, newItemFlag boo
 	return form
 }
 
-// drawItemCFForm creates form for dispaying item's custom fields.
+// drawItemCFForm creates form for displaying item's custom fields.
 func (g Gtui) drawItemCFForm(item *api.Item, pageName string, showSensitive bool) *tview.Form {
 	form := tview.NewForm()
 
@@ -655,7 +655,7 @@ func (g Gtui) drawItemButtonsForm(ctx context.Context, item *api.Item,
 	return form
 }
 
-// displayOTPKey displays TTOP Secret key for setup 2-factor authentication.
+// displayOTPKey displays TOTP Secret key for setup 2-factor authentication.
 func (g *Gtui) displayUploadFileDialog(itemData *[]byte) {
 	selfPage := pageUploadFile
 
@@ -691,7 +691,7 @@ func (g *Gtui) displayUploadFileDialog(itemData *[]byte) {
 	g.pages.AddPage(selfPage, grid, true, true)
 }
 
-// displayOTPKey displays TTOP Secret key for setup 2-factor authentication.
+// displayOTPKey displays TOTP Secret key for setup 2-factor authentication.
 func (g *Gtui) displayDownloadFileDialog(itemData []byte, itemName string) {
 	selfPage := pageDownloadFile
 

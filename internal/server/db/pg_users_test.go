@@ -89,7 +89,7 @@ func TestPosgtre_CreateUser(t *testing.T) {
 			err:     ErrConstraintViolation,
 		},
 		{
-			name: "Create new user with missed ecnryption key",
+			name: "Create new user with missed encryption key",
 			args: args{
 				ctx:  context.Background(),
 				user: newUserMissedEkey,
@@ -120,7 +120,7 @@ func TestPosgtre_CreateUser(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := testDB.CreateUser(tt.args.ctx, tt.args.user)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("DBPosgtre.CreateUser() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Postgre.CreateUser() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if tt.wantErr && !errors.Is(tt.err, assert.AnError) {
@@ -129,7 +129,7 @@ func TestPosgtre_CreateUser(t *testing.T) {
 		})
 	}
 
-	t.Run("Check creating user 1 was succesfull", func(t *testing.T) {
+	t.Run("Check creating user 1 was successful", func(t *testing.T) {
 		newUser, _ := testDB.GetUserByName(context.Background(), newUser1.Username)
 
 		assert.Equal(t, newUser.Email, newUser1.Email)
@@ -137,10 +137,10 @@ func TestPosgtre_CreateUser(t *testing.T) {
 		assert.Equal(t, newUser.OtpKey, newUser1.OtpKey)
 
 		if err := testDB.DeleteUserByName(context.Background(), newUser1.Username); err != nil {
-			t.Errorf("DBPosgtre.CreateUser() - failed delete test user: %v", err)
+			t.Errorf("Postgre.CreateUser() - failed delete test user: %v", err)
 		}
 	})
-	t.Run("Check creating user 2 was succesfull", func(t *testing.T) {
+	t.Run("Check creating user 2 was successful", func(t *testing.T) {
 		newUser, _ := testDB.GetUserByName(context.Background(), newUser2.Username)
 
 		assert.Equal(t, newUser.Email, newUser2.Email)
@@ -148,7 +148,7 @@ func TestPosgtre_CreateUser(t *testing.T) {
 		assert.Equal(t, newUser.OtpKey, newUser2.OtpKey)
 
 		if err := testDB.DeleteUserByName(context.Background(), newUser2.Username); err != nil {
-			t.Errorf("DBPosgtre.CreateUser() - failed delete test user: %v", err)
+			t.Errorf("Postgre.CreateUser() - failed delete test user: %v", err)
 		}
 	})
 }
@@ -178,10 +178,10 @@ func TestPosgtre_GetUserByName(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "Get unexisting user",
+			name: "Get unexisted user",
 			args: args{
 				ctx:      context.Background(),
-				username: "unexisting_user",
+				username: "unexisted_user",
 			},
 			want:    nil,
 			wantErr: true,
@@ -212,7 +212,7 @@ func TestPosgtre_GetUserByName(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := testDB.GetUserByName(tt.args.ctx, tt.args.username)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("DBPosgtre.GetUserByName() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Postgre.GetUserByName() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
@@ -221,7 +221,7 @@ func TestPosgtre_GetUserByName(t *testing.T) {
 			}
 
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("DBPosgtre.GetUserByName() - \ngot = %v \nwant = %v", got, tt.want)
+				t.Errorf("Postgre.GetUserByName() - \ngot = %v \nwant = %v", got, tt.want)
 			}
 		})
 	}
@@ -263,10 +263,10 @@ func TestPosgtre_GetUserAuthData(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "Get unexisting user",
+			name: "Get unexisted user",
 			args: args{
 				ctx:      context.Background(),
-				username: "unexisting_user",
+				username: "unexisted_user",
 			},
 			wantErr: true,
 			err:     ErrNotFound,
@@ -294,7 +294,7 @@ func TestPosgtre_GetUserAuthData(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			gotPwd, gotKey, err := testDB.GetUserAuthData(tt.args.ctx, tt.args.username)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("DBPosgtre.GetUserPwdHash() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Postgre.GetUserPwdHash() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
@@ -333,10 +333,10 @@ func TestPosgtre_GetUserEKey(t *testing.T) {
 			wantErr:  false,
 		},
 		{
-			name: "Get unexisting user",
+			name: "Get unexisted user",
 			args: args{
 				ctx:      context.Background(),
-				username: "unexisting_user",
+				username: "unexisted_user",
 			},
 			wantErr: true,
 			err:     ErrNotFound,
@@ -364,7 +364,7 @@ func TestPosgtre_GetUserEKey(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			gotEkey, err := testDB.GetUserEKey(tt.args.ctx, tt.args.username)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("DBPosgtre.GetUserEKey() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Postgre.GetUserEKey() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
@@ -402,10 +402,10 @@ func TestPosgtre_GetUserRevision(t *testing.T) {
 			wantErr:      false,
 		},
 		{
-			name: "Get unexisting user",
+			name: "Get unexisted user",
 			args: args{
 				ctx:      context.Background(),
-				username: "unexisting_user",
+				username: "unexisted_user",
 			},
 			wantErr: true,
 			err:     ErrNotFound,
@@ -433,7 +433,7 @@ func TestPosgtre_GetUserRevision(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			gotRevision, err := testDB.GetUserRevision(tt.args.ctx, tt.args.username)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("DBPosgtre.GetUserEKey() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Postgre.GetUserEKey() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
@@ -469,7 +469,7 @@ func TestPosgtre_UpdateUser(t *testing.T) {
 		OtpKey:   newOtpKey,
 	}
 
-	updateUnexistinglUser := &pb.User{
+	updateUnexistedlUser := &pb.User{
 		Username: "unexisteduser",
 		Pwdhash:  newPwdHash,
 	}
@@ -493,7 +493,7 @@ func TestPosgtre_UpdateUser(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "Unsuccesfull Update existing user's email",
+			name: "Unsuccessful Update existing user's email",
 			args: args{
 				ctx:  context.Background(),
 				user: updateWrongEmailUser,
@@ -518,10 +518,10 @@ func TestPosgtre_UpdateUser(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "Update unexisting user",
+			name: "Update unexisted user",
 			args: args{
 				ctx:  context.Background(),
-				user: updateUnexistinglUser,
+				user: updateUnexistedlUser,
 			},
 			wantErr: true,
 			err:     ErrNotFound,
@@ -531,7 +531,7 @@ func TestPosgtre_UpdateUser(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := testDB.UpdateUser(tt.args.ctx, tt.args.user)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("DBPosgtre.UpdateUser() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Postgre.UpdateUser() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if tt.wantErr && !errors.Is(tt.err, assert.AnError) {
@@ -540,7 +540,7 @@ func TestPosgtre_UpdateUser(t *testing.T) {
 		})
 	}
 
-	t.Run("Check update was succesfull", func(t *testing.T) {
+	t.Run("Check update was successful", func(t *testing.T) {
 		updatedUser, _ := testDB.GetUserByName(context.Background(), testUser1.Username)
 
 		assert.Equal(t, updatedUser.Email, newEmail)
@@ -569,7 +569,7 @@ func TestPosgtre_DeleteUserByName(t *testing.T) {
 	}
 
 	if err := testDB.CreateUser(context.Background(), newUser1); err != nil {
-		t.Errorf("DBPosgtre.UpdateUser() - failed create test user: %v", err)
+		t.Errorf("Postgre.UpdateUser() - failed create test user: %v", err)
 	}
 
 	type args struct {
@@ -600,7 +600,7 @@ func TestPosgtre_DeleteUserByName(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "Delete unexisting user",
+			name: "Delete unexisted user",
 			args: args{
 				ctx:      context.Background(),
 				username: "unexisted_user",
@@ -613,7 +613,7 @@ func TestPosgtre_DeleteUserByName(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := testDB.DeleteUserByName(tt.args.ctx, tt.args.username)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("DBPosgtre.UpdateUser() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Postgre.UpdateUser() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
@@ -623,11 +623,11 @@ func TestPosgtre_DeleteUserByName(t *testing.T) {
 		})
 	}
 
-	t.Run("Check delete was succesfull", func(t *testing.T) {
+	t.Run("Check delete was successful", func(t *testing.T) {
 		_, err := testDB.GetUserByName(context.Background(), newUserUsername)
 
 		if !errors.Is(err, ErrNotFound) {
-			t.Errorf("DBPosgtre.DeleteUserByName() error = %v, wantErr %v", err, ErrNotFound)
+			t.Errorf("Postgre.DeleteUserByName() error = %v, wantErr %v", err, ErrNotFound)
 		}
 	})
 }

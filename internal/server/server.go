@@ -173,7 +173,7 @@ func (s *Server) createGRPCServer(cfg *Config) (err error) {
 // GRPC-server.
 func (s *Server) getGRPCCredentials(cfg *Config) (credentials.TransportCredentials, error) {
 	if cfg.TLSDisable {
-		s.Logger.Warn(nil, "TLS is disabled, all comunications between client and server are insecured",
+		s.Logger.Warn(nil, "TLS is disabled, all communications between client and server are insecured",
 			"Server:getGRPCCredentials")
 		return insecure.NewCredentials(), nil
 	}
@@ -208,13 +208,13 @@ func (s *Server) startGRPCServer(ctx context.Context, controlCh chan struct{}) {
 			serverStatusCh <- err
 		}
 	}()
-	s.Logger.Info("GRCP is running", componentName)
+	s.Logger.Info("GRPC is running", componentName)
 
 	select {
 	case <-ctx.Done():
 		s.grpcServer.GracefulStop()
 
-		s.Logger.Info("GRCP is stopped", componentName)
+		s.Logger.Info("GRPC is stopped", componentName)
 		close(controlCh)
 	case err := <-serverStatusCh:
 		s.Logger.Error(err, "", componentName)

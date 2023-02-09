@@ -2,7 +2,7 @@
 //
 // Package have two implementation of logger:
 //   - zlogger wrapping zerolog package
-//   - nologger - dummy implemetation which implements all methods but nothing does (useful for testing)
+//   - nologger - dummy implementation which implements all methods but nothing does (useful for testing)
 //
 // Logger provides seven level of events and two output formats in Stdout (console) -
 // raw JSON or pretty colored output.
@@ -13,9 +13,9 @@ import (
 	"strings"
 )
 
-// L represents general Logger inteface.
+// L represents general Logger interface.
 //
-// L contains all methods, which particular implemenation of logger must implement.
+// L contains all methods, which particular implementation of logger must implement.
 type L interface {
 	Log(level Level, err error, message string, component string)
 	Trace(message string, component string)

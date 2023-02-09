@@ -116,7 +116,7 @@ func TestPosgtre_CreateItem(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := testDB.CreateItem(tt.args.ctx, tt.args.username, tt.args.item)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("DBPosgtre.CreateUser() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Postgre.CreateUser() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if tt.wantErr && !errors.Is(tt.err, assert.AnError) {
@@ -126,7 +126,7 @@ func TestPosgtre_CreateItem(t *testing.T) {
 	}
 
 	for _, item := range testItems {
-		t.Run(fmt.Sprintf("Check creating %s was succesfull", item.Name), func(t *testing.T) {
+		t.Run(fmt.Sprintf("Check creating %s was successful", item.Name), func(t *testing.T) {
 			newItem, _ := testDB.GetItemByNameAndType(context.Background(),
 				testUser2.Username, item.Name, item.Type)
 
@@ -139,7 +139,7 @@ func TestPosgtre_CreateItem(t *testing.T) {
 			}
 
 			if err := testDB.DeleteItem(context.Background(), testUser2.Username, newItem.Id); err != nil {
-				t.Errorf("DBPosgtre.CreateUser() - failed delete test item: %v", err)
+				t.Errorf("Postgre.CreateUser() - failed delete test item: %v", err)
 			}
 		})
 	}
@@ -278,7 +278,7 @@ func TestPosgtre_GetItemByNameAndType(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := testDB.GetItemByNameAndType(tt.args.ctx, tt.args.username, tt.args.itemName, tt.args.itemType)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("DBPosgtre.GetItemByNameAndType() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Postgre.GetItemByNameAndType() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
@@ -291,10 +291,10 @@ func TestPosgtre_GetItemByNameAndType(t *testing.T) {
 			}
 
 			if !reflect.DeepEqual(got.Secrets, tt.want.Secrets) {
-				t.Errorf("DBPosgtre.GetItemByNameAndType() = %v, want %v", got, tt.want)
+				t.Errorf("Postgre.GetItemByNameAndType() = %v, want %v", got, tt.want)
 			}
 			if !reflect.DeepEqual(got.Additions, tt.want.Additions) {
-				t.Errorf("DBPosgtre.GetItemByNameAndType() = %v, want %v", got, tt.want)
+				t.Errorf("Postgre.GetItemByNameAndType() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -356,7 +356,7 @@ func TestPosgtre_GetItemList(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := testDB.GetItemList(tt.args.ctx, tt.args.username)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("DBPosgtre.GetItemList() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Postgre.GetItemList() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
@@ -455,7 +455,7 @@ func TestPosgtre_UpdateItem(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "Update unexisting item",
+			name: "Update unexisted item",
 			args: args{
 				ctx:      context.Background(),
 				username: itemUsername,
@@ -465,7 +465,7 @@ func TestPosgtre_UpdateItem(t *testing.T) {
 			err:     ErrOperationFailed,
 		},
 		{
-			name: "Update unexisting user's item",
+			name: "Update unexisted user's item",
 			args: args{
 				ctx:      context.Background(),
 				username: "wrong username",
@@ -488,7 +488,7 @@ func TestPosgtre_UpdateItem(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := testDB.UpdateItem(tt.args.ctx, tt.args.username, tt.args.item)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("DBPosgtre.UpdateItem() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Postgre.UpdateItem() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
 			if tt.wantErr && !errors.Is(tt.err, assert.AnError) {
@@ -560,7 +560,7 @@ func TestPosgtre_DeleteItem(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := testDB.DeleteItem(tt.args.ctx, tt.args.username, tt.args.itemID)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("DBPosgtre.DeleteItem() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Postgre.DeleteItem() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if tt.wantErr && !errors.Is(tt.err, assert.AnError) {
 				assert.ErrorIs(t, err, tt.err)

@@ -81,7 +81,7 @@ func DecryptAES(key, encrypted []byte) ([]byte, error) {
 }
 
 // DecryptAESwithAD decrypts encrypted with AES GCM message and additional information.
-// The key argument can be any length, for key streching to 16, 24, or 32 bytes
+// The key argument can be any length, for key stretching to 16, 24, or 32 bytes
 // will be used derivation function (deriveKey).
 func DecryptAESwithAD(key, encrypted []byte) ([]byte, error) {
 	if len(encrypted) < AESKeyLength {
