@@ -74,6 +74,7 @@ require (
 	github.com/jackc/pgx/v4 v4.17.2
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
+	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.15.0
 	golang.org/x/sys v0.4.0 // indirect

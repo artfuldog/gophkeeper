@@ -100,7 +100,7 @@ func (db *Posgtre) GetItemList(ctx context.Context, username Username) ([]*pb.It
 	defer db.deferTxRollback(ctx, tx) //nolint:wsl
 
 	stmtItems, argsItems, err := db.psql.
-		Select("name, type, items.updated, hash").
+		Select("items.id, name, type, items.updated, hash").
 		From("items").
 		LeftJoin("users on user_id=users.id").
 		Where("users.username=?", username).
@@ -136,6 +136,124 @@ func (db *Posgtre) GetItemList(ctx context.Context, username Username) ([]*pb.It
 	}
 
 	return items, nil
+}
+
+// GetItemsByID gets item's information from DB.
+//
+//nolint:cyclop // necessary evil
+func (db *Posgtre) GetItemsByID(ctx context.Context, username Username, ids []int64) ([]*pb.Item, error) {
+	componentName := "Postgre:GetItemsByID"
+
+	tx, err := db.beginTxRO(ctx, componentName)
+	if err != nil {
+		return nil, err
+	}
+	defer db.deferTxRollback(ctx, tx) //nolint:wsl
+
+	stmtItems, argsItems, err := db.psql.
+		Select("items.id, name, type, reprompt, hash").
+		Column(`s.notes as "secrets.notes", s.secret as "secrets.secret"`).
+		Column(`a.uris as "additions.uris", a.custom_fields as "additions.custom_fields"`).
+		From("items").
+		LeftJoin("users on user_id=users.id").
+		LeftJoin("secrets s on items.id=s.item_id").
+		LeftJoin("additions a on items.id=a.item_id").
+		Where("users.username=? and items.id = any(?)", username, ids).
+		OrderBy("items.id").
+		ToSql()
+	if err != nil {
+		return nil, stackErrors(ErrInternalDBError, err)
+	}
+
+	db.logger.Debug(fmt.Sprintf("run SQL: %s , args: %v", stmtItems, argsItems), componentName)
+
+	rows, err := tx.Query(ctx, stmtItems, argsItems...)
+	if err != nil {
+		return nil, wrapPgError(err)
+	}
+	defer rows.Close()
+
+	var items []*pb.Item
+
+	rs := pgxscan.NewRowScanner(rows)
+
+	for rows.Next() {
+		var item pb.Item
+		if err := rs.Scan(&item); err != nil {
+			return nil, stackErrors(ErrInternalDBError, err)
+		}
+
+		items = append(items, &item)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	stmtUpdateds, argsUpdateds, err := db.psql.
+		Select("items.updated").
+		From("items").Join("users on user_id=users.id").
+		Where("users.username=? and items.id = any(?)", username, ids).
+		OrderBy("items.id").
+		ToSql()
+	if err != nil {
+		return nil, stackErrors(ErrInternalDBError, err)
+	}
+
+	db.logger.Debug(fmt.Sprintf("run SQL: %s , args: %v", stmtUpdateds, argsUpdateds), componentName)
+
+	rows, err = tx.Query(ctx, stmtUpdateds, argsUpdateds...)
+	if err != nil {
+		return nil, wrapPgError(err)
+	}
+	defer rows.Close()
+
+	rs = pgxscan.NewRowScanner(rows)
+	i := 0
+
+	for rows.Next() {
+		var updated pgtype.Timestamptz
+		if err := rs.Scan(&updated); err != nil {
+			return nil, stackErrors(ErrInternalDBError, err)
+		}
+
+		if updated.Status == pgtype.Present {
+			items[i].Updated = timestamppb.New(updated.Time)
+		}
+		i++
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return items, nil
+}
+
+// GetItemsByID gets item's information from DB.
+func (db *Posgtre) GetItemHashByID(ctx context.Context, id int64) ([]byte, error) {
+	componentName := "Postgre:GetItemsByID"
+
+	tx, err := db.beginTxRO(ctx, componentName)
+	if err != nil {
+		return nil, err
+	}
+	defer db.deferTxRollback(ctx, tx) //nolint:wsl
+
+	sqlStmt := `select hash from items where id = $1`
+
+	db.logger.Debug(fmt.Sprintf("run SQL: %s, %d", sqlStmt, id), componentName)
+
+	var hash []byte
+	if err := db.pool.QueryRow(ctx, sqlStmt, id).Scan(&hash); err != nil {
+		if pgxscan.NotFound(err) {
+			return nil, stackErrors(ErrNotFound, err)
+		}
+
+		return nil, wrapPgError(err)
+	}
+
+	return hash, nil
 }
 
 // UpdateItem updates existing item.

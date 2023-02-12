@@ -12,9 +12,10 @@ func TestAuthInterceptor(t *testing.T) {
 	ts.Client.Token = "token1234%^"
 
 	ctx, cancel := context.WithCancel(context.Background())
+	ctrlCh := make(chan struct{})
 	defer cancel()
 
-	ts.Client.Connect(ctx)
+	ts.Client.Connect(ctx, ctrlCh)
 	ts.Client.UserLogin(ctx, "", "", "")
 	ts.Client.GetItem(ctx, "", "")
 }

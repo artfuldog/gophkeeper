@@ -105,7 +105,6 @@ linters:
 issues:
   exclude:
     - "block should not start with a whitespace"
-    #- "return statements should not be cuddled if block has more*"
   exclude-rules:
     - path: _test\.go
       linters:

@@ -7,6 +7,7 @@ import (
 	"image/png"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/artfuldog/gophkeeper/internal/client/api"
 	"github.com/artfuldog/gophkeeper/internal/client/config"
@@ -54,8 +55,11 @@ func (g *Gtui) displayUserLoginPage(ctx context.Context) {
 }
 
 // displayUserVerificationPage displays page for user input verification code
-// in case of 2-factor authentication.
-func (g *Gtui) displayUserVerificationPage(ctx context.Context, username, password string) {
+// in case of 2-factor authentication. As stopClient should be passed cancel function for
+// client's context.
+func (g *Gtui) displayUserVerificationPage(ctx context.Context, stopClient context.CancelFunc,
+	username, password string) {
+
 	selfPage := pageUserVerification
 
 	var code string
@@ -68,6 +72,7 @@ func (g *Gtui) displayUserVerificationPage(ctx context.Context, username, passwo
 			g.userLogin(ctx, username, password, code)
 		}).
 		AddButton("Cancel", func() {
+			stopClient()
 			g.clearStatus(0)
 			g.pages.RemovePage(selfPage)
 		})
@@ -93,6 +98,7 @@ func (g *Gtui) displayInitSettingsPage(ctx context.Context) {
 	initSecretKey := g.config.GetSecretKey()
 	initServer := g.config.GetServer()
 	initMode := g.config.GetMode()
+	initSyncInterval := g.config.GetSyncInterval()
 	initShowSensitive := g.config.GetShowSensitive()
 	initCACert := g.config.GetCACert()
 
@@ -120,6 +126,12 @@ func (g *Gtui) displayInitSettingsPage(ctx context.Context) {
 			}
 			g.config.SetMode(config.ModeServer)
 		}).
+		AddInputField("Synchronization interval", fmt.Sprint(initSyncInterval), 10, checkFieldInt, func(v string) {
+			i, err := (strconv.Atoi(v))
+			if err == nil {
+				g.config.SetSyncInterval(time.Duration(i) * time.Second)
+			}
+		}).
 		AddCheckbox("Show sensitive", initShowSensitive, func(v bool) {
 			g.config.SetShowSensitive(v)
 		}).
@@ -133,6 +145,7 @@ func (g *Gtui) displayInitSettingsPage(ctx context.Context) {
 			g.config.SetSecretKey(initSecretKey)
 			g.config.SetServer(initServer)
 			g.config.SetMode(initMode)
+			g.config.SetSyncInterval(initSyncInterval)
 			g.config.SetShowSensitive(initShowSensitive)
 			g.config.SetCACert(initCACert)
 
@@ -188,12 +201,21 @@ func (g *Gtui) displayActiveSettingsPage() {
 		AddTextView("Username", g.config.GetUser(), 40, 1, true, false).
 		// AddTextView("Secret Key", g.config.GetSecretKey(), 40, 1, true, false).
 		AddTextView("Server address", g.config.GetServer(), 40, 1, true, false).
-		AddTextView("Working Mode", fmt.Sprint(g.config.GetMode()), 40, 1, true, false).
-		AddTextView("Show sensitive", fmt.Sprint(g.config.GetShowSensitive()), 5, 1, true, false).
-		AddTextView("CA certificate path", fmt.Sprint(g.config.GetCACert()), 40, 1, true, false).
-		AddButton("Back", func() {
-			g.pages.RemovePage(selfPage)
-		})
+		AddTextView("Working Mode", fmt.Sprint(g.config.GetMode()), 40, 1, true, false)
+
+	if g.config.GetMode() == config.ModeLocal {
+		form.AddTextView("Sync interval", fmt.Sprint(g.config.GetSyncInterval()), 10, 1, true, false)
+	}
+
+	form.AddTextView("Show sensitive", fmt.Sprint(g.config.GetShowSensitive()), 5, 1, true, false)
+
+	if len(g.config.GetCACert()) > 0 {
+		form.AddTextView("CA certificate path", fmt.Sprint(g.config.GetCACert()), 40, 1, true, false)
+	}
+
+	form.AddButton("Back", func() {
+		g.pages.RemovePage(selfPage)
+	})
 
 	form.SetBorder(true).SetTitle(" Settings ").SetTitleAlign(tview.AlignLeft)
 	form.SetButtonsAlign(tview.AlignLeft).SetButtonActivatedStyle(styleCtrButtonsActive).
@@ -266,7 +288,7 @@ func (g *Gtui) displayQRcode(otp *api.TOTPKey, parentPage string) {
 	g.pages.AddPage(selfPage, grid, true, true)
 }
 
-// displayOTPKey displays TTOP Secret key for setup 2-factor authentication.
+// displayOTPKey displays TOTP Secret key for setup 2-factor authentication.
 func (g *Gtui) displayOTPKey(key string, parentPage string) {
 	selfPage := pageOTPCode
 
@@ -292,18 +314,28 @@ func (g *Gtui) displayOTPKey(key string, parentPage string) {
 	g.pages.AddPage(selfPage, grid, true, true)
 }
 
-// drawMainMenu setups main menu for future use.
-func (g *Gtui) drawMainMenu(ctx context.Context) {
+// displayMainMenu displays main menu.
+// As clientCTX should be passed client's context, as stopClient cancel function for client's context.
+// Context and cancel function are used for control status and stops client after user logout.
+func (g *Gtui) displayMainMenu(selfCtx, clientCtx context.Context, stopClient context.CancelFunc) {
 	selfPage := pageMainMenu
 
 	list := tview.NewList().
 		AddItem("Vault", "Browse Vault", 'v', func() {
-			g.displayItemBrowser(ctx)
+			g.displayItemBrowser(clientCtx)
 		}).
 		AddItem("Setting", "Change configuration", 's', g.displayActiveSettingsPage).
 		AddItem("About/Help", "About this app", 'a', g.displayAboutHelpMenu).
 		AddItem("Log out", "Press to log out", 'l', func() {
-			g.displayUserLoginPage(ctx)
+			stopClient()
+
+			clientClose := time.NewTimer(api.WaitForClosingInterval)
+			select {
+			case <-clientClose.C:
+			case <-g.clientStopCh:
+			}
+
+			g.displayUserLoginPage(selfCtx)
 			g.setStatus("logged out", 2)
 		}).
 		AddItem("Quit", "Press to exit", 'q', g.displayQuitModal)
@@ -315,7 +347,7 @@ func (g *Gtui) drawMainMenu(ctx context.Context) {
 
 	list.SetDoneFunc(g.displayQuitModal)
 
-	g.pages.AddPage(selfPage, list, true, false)
+	g.pages.AddPage(selfPage, list, true, true)
 }
 
 // drawMainMenu setups main menu for future use.

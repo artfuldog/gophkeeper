@@ -74,6 +74,38 @@ func (s *ItemsService) GetItemList(ctx context.Context, req *pb.GetItemListReque
 	return resp, nil
 }
 
+// GetItem returns item's information.
+func (s *ItemsService) GetItems(ctx context.Context, req *pb.GetItemsRequest) (*pb.GetItemsResponse, error) {
+	componentName := "ItemsService:GetItems"
+	resp := new(pb.GetItemsResponse)
+
+	var err error
+
+	resp.Items, err = s.db.GetItemsByID(ctx, req.Username, req.Ids)
+	if err != nil {
+		s.logger.Warn(err, "db error", componentName)
+		return nil, wrapErrorToClient(err)
+	}
+
+	return resp, nil
+}
+
+// GetItem returns item's information.
+func (s *ItemsService) GetItemHash(ctx context.Context, req *pb.GetItemHashRequest) (*pb.GetItemHashResponse, error) {
+	componentName := "ItemsService:GetItemHash"
+	resp := new(pb.GetItemHashResponse)
+
+	var err error
+
+	resp.Hash, err = s.db.GetItemHashByID(ctx, req.Id)
+	if err != nil {
+		s.logger.Warn(err, "db error", componentName)
+		return nil, wrapErrorToClient(err)
+	}
+
+	return resp, nil
+}
+
 // UpdateItem updates existing item.
 func (s *ItemsService) UpdateItem(ctx context.Context, req *pb.UpdateItemRequest) (*pb.UpdateItemResponse, error) {
 	componentName := "ItemsService:UpdateItem"

@@ -373,6 +373,158 @@ func TestPosgtre_GetItemList(t *testing.T) {
 	}
 }
 
+func TestPosgtre_GetItemsByID(t *testing.T) {
+	canceledCtx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	type args struct {
+		ctx      context.Context
+		username Username
+		ids      []int64
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantLen int
+		wantErr bool
+		err     error
+	}{
+		{
+			name: "Get item of existing user",
+			args: args{
+				ctx:      context.Background(),
+				username: testUser1.Username,
+				ids:      []int64{testItemLogin.Id},
+			},
+			wantLen: 1,
+			wantErr: false,
+		},
+		{
+			name: "Get items of existing user",
+			args: args{
+				ctx:      context.Background(),
+				username: testUser1.Username,
+				ids:      []int64{testItemCard.Id, testItemData.Id, testItemNotes.Id},
+			},
+			wantLen: 3,
+			wantErr: false,
+		},
+		{
+			name: "Get items of existing user",
+			args: args{
+				ctx:      context.Background(),
+				username: "wrong username",
+				ids:      []int64{testItemCard.Id, testItemData.Id, testItemNotes.Id},
+			},
+			wantLen: 0,
+			wantErr: false,
+		},
+		{
+			name: "Wrong ID",
+			args: args{
+				ctx:      context.Background(),
+				username: testUser1.Username,
+				ids:      []int64{testItemCard.Id, testItemData.Id, 9999999},
+			},
+			wantLen: 2,
+			wantErr: false,
+		},
+		{
+			name: "Canceled context",
+			args: args{
+				ctx:      canceledCtx,
+				username: testUser1.Username,
+				ids:      []int64{testItemCard.Id, testItemData.Id, testItemNotes.Id},
+			},
+			wantErr: true,
+			err:     ErrTransactionFailed,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := testDB.GetItemsByID(tt.args.ctx, tt.args.username, tt.args.ids)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Postgre.GetItemsByID() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && !errors.Is(tt.err, assert.AnError) {
+				assert.ErrorIs(t, err, tt.err)
+			}
+
+			if tt.wantErr {
+				return
+			}
+
+			assert.Equal(t, tt.wantLen, len(got))
+		})
+	}
+}
+
+func TestPosgtre_GetItemsByHash(t *testing.T) {
+	canceledCtx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	type args struct {
+		ctx context.Context
+		id  int64
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    []byte
+		wantErr bool
+		err     error
+	}{
+		{
+			name: "Get existing item's hash",
+			args: args{
+				ctx: context.Background(),
+				id:  testItemCard.Id,
+			},
+			want:    testItemCard.Hash,
+			wantErr: false,
+		},
+		{
+			name: "Get hash of unexisting item",
+			args: args{
+				ctx: context.Background(),
+				id:  99999999,
+			},
+			wantErr: true,
+			err:     ErrNotFound,
+		},
+		{
+			name: "Canceled context",
+			args: args{
+				ctx: canceledCtx,
+				id:  testItemCard.Id,
+			},
+			wantErr: true,
+			err:     ErrTransactionFailed,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := testDB.GetItemHashByID(tt.args.ctx, tt.args.id)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Postgre.GetItemsByHash() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && !errors.Is(tt.err, assert.AnError) {
+				assert.ErrorIs(t, err, tt.err)
+			}
+
+			if tt.wantErr {
+				return
+			}
+
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
 func TestPosgtre_UpdateItem(t *testing.T) {
 	err := testDB.CreateItem(context.Background(), testUser2.Username, testItemEmptyNotesSecrets)
 	if err != nil {

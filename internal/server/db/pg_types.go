@@ -38,6 +38,7 @@ func (u User) toPB() *pb.User {
 
 // ItemShort represents short message information from database.
 type ItemShort struct {
+	ID      int64     `db:"id"`
 	Name    string    `db:"name"`
 	Type    string    `db:"type"`
 	Updated time.Time `db:"updated"`
@@ -47,6 +48,7 @@ type ItemShort struct {
 // toPB converts ItemShort to protobuf format.
 func (i ItemShort) toPB() *pb.ItemShort {
 	return &pb.ItemShort{
+		Id:      i.ID,
 		Name:    i.Name,
 		Type:    i.Type,
 		Updated: timestamppb.New(i.Updated),

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/artfuldog/gophkeeper/internal/logger"
 	"github.com/spf13/viper"
@@ -112,6 +113,10 @@ func TestConfiger_Validate(t *testing.T) {
 	c.SetServer("127.0.0.1:1111")
 	assert.ErrorIs(t, ErrEmptyAgentMode, c.Validate())
 	c.SetMode(ModeLocal)
+	assert.ErrorIs(t, ErrWrongSyncInterval, c.Validate())
+	c.SetSyncInterval(1 * time.Hour)
+	assert.ErrorIs(t, ErrWrongSyncInterval, c.Validate())
+	c.SetSyncInterval(1 * time.Minute)
 
 	assert.NoError(t, c.Validate())
 }
@@ -145,6 +150,12 @@ func TestConfiger_GettersSetters(t *testing.T) {
 
 		c.Set("mode", 105)
 		assert.Equal(t, ModeUnknown, c.GetMode())
+	})
+
+	t.Run("Check sync interval", func(t *testing.T) {
+		c := &Configer{Viper: viper.New()}
+		c.SetSyncInterval(33 * time.Second)
+		assert.Equal(t, (33 * time.Second), c.GetSyncInterval())
 	})
 
 	t.Run("Check Show sensitive", func(t *testing.T) {
@@ -186,6 +197,11 @@ func TestConfiger_CreateAppDir(t *testing.T) {
 func TestConfiger_GetConfigDefaultFilepath(t *testing.T) {
 	c := &Configer{Viper: viper.New()}
 	assert.Equal(t, c.GetConfigDefaultFilepath(), (appConfigDir + appConfigName))
+}
+
+func TestConfiger_GetAppConfigDir(t *testing.T) {
+	c := &Configer{Viper: viper.New()}
+	assert.Equal(t, c.GetAppConfigDir(), appConfigDir)
 }
 
 func BenchmarkConfiger(b *testing.B) {

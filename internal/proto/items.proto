@@ -47,11 +47,21 @@ message GetItemResponse {
   Item item = 2;
 }
 
+message GetItemsRequest {
+  string username = 1;
+  repeated int64 ids = 2;
+}
+
+message GetItemsResponse {
+  repeated Item items =1;
+}
+
 message ItemShort {
-  string name = 1; // @gotags: db:"name"
-  string type = 2; // @gotags: db:"type"
-  optional google.protobuf.Timestamp updated = 3; // @gotags: db:"updated"
-  bytes hash = 4; // @gotags: db:"hash"
+  int64 id = 1; // @gotags: db:"id"
+  string name = 2; // @gotags: db:"name"
+  string type = 3; // @gotags: db:"type"
+  optional google.protobuf.Timestamp updated = 4; // @gotags: db:"updated"
+  bytes hash = 5; // @gotags: db:"hash"
 }
 
 message GetItemListRequest {
@@ -60,6 +70,14 @@ message GetItemListRequest {
 
 message GetItemListResponse {
   repeated ItemShort items = 1;
+}
+
+message GetItemHashRequest {
+  int64 id = 1; // item ID
+}
+
+message GetItemHashResponse {
+  bytes hash = 1;
 }
 
 message UpdateItemRequest {
@@ -83,7 +101,9 @@ message DeleteItemResponse {
 service Items {
   rpc CreateItem(CreateItemRequest) returns (CreateItemResponse);
   rpc GetItem(GetItemRequest) returns (GetItemResponse);
+  rpc GetItems(GetItemsRequest) returns (GetItemsResponse);
   rpc GetItemList(GetItemListRequest) returns (GetItemListResponse);
+  rpc GetItemHash(GetItemHashRequest) returns (GetItemHashResponse);
   rpc UpdateItem(UpdateItemRequest) returns (UpdateItemResponse);
   rpc DeleteItem(DeleteItemRequest) returns (DeleteItemResponse);
 }

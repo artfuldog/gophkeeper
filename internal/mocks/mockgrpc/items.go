@@ -96,6 +96,26 @@ func (mr *MockItemsClientMockRecorder) GetItem(ctx, in interface{}, opts ...inte
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetItem", reflect.TypeOf((*MockItemsClient)(nil).GetItem), varargs...)
 }
 
+// GetItemHash mocks base method.
+func (m *MockItemsClient) GetItemHash(ctx context.Context, in *pb.GetItemHashRequest, opts ...grpc.CallOption) (*pb.GetItemHashResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetItemHash", varargs...)
+	ret0, _ := ret[0].(*pb.GetItemHashResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetItemHash indicates an expected call of GetItemHash.
+func (mr *MockItemsClientMockRecorder) GetItemHash(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetItemHash", reflect.TypeOf((*MockItemsClient)(nil).GetItemHash), varargs...)
+}
+
 // GetItemList mocks base method.
 func (m *MockItemsClient) GetItemList(ctx context.Context, in *pb.GetItemListRequest, opts ...grpc.CallOption) (*pb.GetItemListResponse, error) {
 	m.ctrl.T.Helper()
@@ -114,6 +134,26 @@ func (mr *MockItemsClientMockRecorder) GetItemList(ctx, in interface{}, opts ...
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, in}, opts...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetItemList", reflect.TypeOf((*MockItemsClient)(nil).GetItemList), varargs...)
+}
+
+// GetItems mocks base method.
+func (m *MockItemsClient) GetItems(ctx context.Context, in *pb.GetItemsRequest, opts ...grpc.CallOption) (*pb.GetItemsResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetItems", varargs...)
+	ret0, _ := ret[0].(*pb.GetItemsResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetItems indicates an expected call of GetItems.
+func (mr *MockItemsClientMockRecorder) GetItems(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetItems", reflect.TypeOf((*MockItemsClient)(nil).GetItems), varargs...)
 }
 
 // UpdateItem mocks base method.
@@ -204,6 +244,21 @@ func (mr *MockItemsServerMockRecorder) GetItem(arg0, arg1 interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetItem", reflect.TypeOf((*MockItemsServer)(nil).GetItem), arg0, arg1)
 }
 
+// GetItemHash mocks base method.
+func (m *MockItemsServer) GetItemHash(arg0 context.Context, arg1 *pb.GetItemHashRequest) (*pb.GetItemHashResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetItemHash", arg0, arg1)
+	ret0, _ := ret[0].(*pb.GetItemHashResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetItemHash indicates an expected call of GetItemHash.
+func (mr *MockItemsServerMockRecorder) GetItemHash(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetItemHash", reflect.TypeOf((*MockItemsServer)(nil).GetItemHash), arg0, arg1)
+}
+
 // GetItemList mocks base method.
 func (m *MockItemsServer) GetItemList(arg0 context.Context, arg1 *pb.GetItemListRequest) (*pb.GetItemListResponse, error) {
 	m.ctrl.T.Helper()
@@ -217,6 +272,21 @@ func (m *MockItemsServer) GetItemList(arg0 context.Context, arg1 *pb.GetItemList
 func (mr *MockItemsServerMockRecorder) GetItemList(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetItemList", reflect.TypeOf((*MockItemsServer)(nil).GetItemList), arg0, arg1)
+}
+
+// GetItems mocks base method.
+func (m *MockItemsServer) GetItems(arg0 context.Context, arg1 *pb.GetItemsRequest) (*pb.GetItemsResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetItems", arg0, arg1)
+	ret0, _ := ret[0].(*pb.GetItemsResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetItems indicates an expected call of GetItems.
+func (mr *MockItemsServerMockRecorder) GetItems(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetItems", reflect.TypeOf((*MockItemsServer)(nil).GetItems), arg0, arg1)
 }
 
 // UpdateItem mocks base method.

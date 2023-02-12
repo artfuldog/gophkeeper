@@ -20,18 +20,18 @@ tests:			## Make relevent packages tests with clean cache
 	@echo "\n=== Package - internal/server ==="
 	@$(GO_RUN_TEST_CMD) -cover ./internal/server/...
 
-tests-all:		## Make all tests
+tests-all:		## Run all tests
 	@/usr/local/go/bin/go clean -testcache
 	@$(GO_RUN_TEST_CMD) -cover ./internal/...
 
-tests-race:		## Make all tests with racing checking
+tests-race:		## Run all tests with racing checking
 	@/usr/local/go/bin/go clean -testcache
 	@$(GO_RUN_TEST_CMD) -race -cover ./internal/...
 
-bench:
+bench:			## Run all benchmarks
 	@$(GO_RUN_TEST_CMD) -run=Bench* ./internal/... -bench=. -benchtime=25000x -count=8 | grep Benchmark
 
-lint:
+lint:			## Lint code
 	@golangci-lint run ./...
 
 mocks:			## Generate mocks for protobuf and database
@@ -39,12 +39,13 @@ mocks:			## Generate mocks for protobuf and database
 	@mockgen -source=internal/pb/users_grpc.pb.go -destination=internal/mocks/mockgrpc/users.go -package=mockgrpc
 	@mockgen -source=internal/server/db/db.go -destination=internal/mocks/mockdb/db.go -package=mockdb
 	@mockgen -source=internal/server/authorizer/authorizer.go -destination=internal/mocks/mockauth/authorizer.go -package=mockauth
+	@mockgen -source=internal/client/storage/storage.go -destination=internal/mocks/mockstorage/storage.go -package=mockstorage
 
-release-dry-run:
+release-dry-run:	## Release app with dry-run
 	@goreleaser build \
 	&& goreleaser release --skip-publish --snapshow --rm-dist
 
-release:
+release:		## Release app
 	@goreleaser build --rm-dist\
 	&& goreleaser release --rm-dist
 
@@ -65,21 +66,29 @@ install-ca-cert:	## Install CA root certificate
 	@sudo cp certs/ca.crt /etc/ssl/certs/gophkeeper.crt
 	@sudo update-ca-certificates
 
+run-server:		## Run server
+	go run cmd/server/main.go -d 127.0.0.1:5432/gophkeeper \
+	--db_user gksa -l debug -k 123456789f123456789q123456789pQ1 \
+	-t 1800 -m 10000000 --tls-cert certs/service.pem --tls-key certs/service.key
+
+run-server-notls:	## Run server with disabled tls
+	go run cmd/server/main.go -d 127.0.0.1:5432/gophkeeper \
+	--db_user gksa -l debug -k 123456789f123456789q123456789pQ1 \
+	-t 1800 -m 10000000 --disable-tls
+
 run-server-race:	## Run server with race flag
 	go run --race cmd/server/main.go -d 127.0.0.1:5432/gophkeeper \
 	--db_user gksa -l debug -k 123456789f123456789q123456789pQ1 \
 	-t 1800 -m 10000000 --tls-cert certs/service.pem --tls-key certs/service.key
 
-run-server-race-notls:	## Run server with race flag and disaled tls
-	go run --race cmd/server/main.go -d 127.0.0.1:5432/gophkeeper \
-	--db_user gksa -l debug -k 123456789f123456789q123456789pQ1 \
-	-t 1800 -m 10000000 --disable-tls
+run-client:		## Run client with race flag
+	go run cmd/client/main.go
+
+run-client-notls:	## Run client with disabled tls
+	go run cmd/client/main.go -t
 
 run-client-race:	## Run client with race flag
 	go run --race cmd/client/main.go
-
-run-client-race-notls:	## Run server with race flag and disaled tls
-	go run --race cmd/client/main.go -t
 
 help:	## Show this help.
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'

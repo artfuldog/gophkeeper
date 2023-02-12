@@ -85,7 +85,11 @@ type DB interface {
 	// Read secured item with provided name and type.
 	GetItemByNameAndType(context.Context, Username, ItemName, ItemType) (*pb.Item, error)
 	// Returns short representation of all user's items
-	GetItemList(ctx context.Context, username Username) ([]*pb.ItemShort, error)
+	GetItemList(context.Context, Username) ([]*pb.ItemShort, error)
+	// Returns items with provided IDs.
+	GetItemsByID(context.Context, Username, []int64) ([]*pb.Item, error)
+	// Returns item's hash.
+	GetItemHashByID(context.Context, int64) ([]byte, error)
 	// Updates existing item.
 	UpdateItem(context.Context, Username, *pb.Item) error
 	// Delete item.

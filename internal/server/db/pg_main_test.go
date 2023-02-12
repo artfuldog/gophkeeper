@@ -145,6 +145,7 @@ func TestMain(m *testing.M) {
 		newItem, _ := testDB.GetItemByNameAndType(ctx, testUser1.Username, item.Name, item.Type)
 		testItems[i].Updated = newItem.Updated
 		testItems[i].Id = newItem.Id
+		testItems[i].Hash = newItem.Hash
 	}
 
 	for i, user := range testUsers {

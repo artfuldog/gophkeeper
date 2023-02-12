@@ -103,6 +103,57 @@ func TestItemsService_GetItemList(t *testing.T) {
 	})
 }
 
+func TestItemsService_GetItems(t *testing.T) {
+	ts, tsErr := NewTestSuiteGRPCServer(t)
+	if tsErr != nil {
+		t.Errorf("failed to init test suite: %v", tsErr)
+	}
+	defer ts.Stop()
+
+	t.Run("DB returns error", func(t *testing.T) {
+		ts.DB.EXPECT().GetItemsByID(mockAny, mockAny, mockAny).Return(nil, assert.AnError)
+		req := &pb.GetItemsRequest{}
+		_, err := ts.ItemsClient.GetItems(testCtx, req)
+		assert.Error(t, err)
+	})
+
+	t.Run("Successfully get items", func(t *testing.T) {
+		respItems := []*pb.Item{
+			{
+				Name: "name",
+			},
+		}
+		ts.DB.EXPECT().GetItemsByID(mockAny, mockAny, mockAny).Return(respItems, nil)
+		req := &pb.GetItemsRequest{}
+		gotResp, err := ts.ItemsClient.GetItems(testCtx, req)
+		require.NoError(t, err)
+		assert.NotEmpty(t, gotResp)
+	})
+}
+
+func TestItemsService_GetItemHash(t *testing.T) {
+	ts, tsErr := NewTestSuiteGRPCServer(t)
+	if tsErr != nil {
+		t.Errorf("failed to init test suite: %v", tsErr)
+	}
+	defer ts.Stop()
+
+	t.Run("DB returns error", func(t *testing.T) {
+		ts.DB.EXPECT().GetItemHashByID(mockAny, mockAny).Return(nil, assert.AnError)
+		req := &pb.GetItemHashRequest{}
+		_, err := ts.ItemsClient.GetItemHash(testCtx, req)
+		assert.Error(t, err)
+	})
+
+	t.Run("Successfully get hash", func(t *testing.T) {
+		ts.DB.EXPECT().GetItemHashByID(mockAny, mockAny).Return([]byte("hash"), nil)
+		req := &pb.GetItemHashRequest{}
+		resp, err := ts.ItemsClient.GetItemHash(testCtx, req)
+		require.NoError(t, err)
+		assert.Equal(t, []byte("hash"), resp.Hash)
+	})
+}
+
 func TestItemsService_UpdateItem(t *testing.T) {
 	ts, tsErr := NewTestSuiteGRPCServer(t)
 	if tsErr != nil {

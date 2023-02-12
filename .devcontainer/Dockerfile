@@ -35,3 +35,4 @@ RUN go install github.com/favadi/protoc-go-inject-tag@latest
 RUN go install -v golang.org/x/tools/cmd/godoc@latest
 RUN go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.51.1
 RUN go install github.com/golang/mock/mockgen@v1.6.0
+RUN go install -v github.com/cweill/gotests/gotests@v1.6.0

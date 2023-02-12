@@ -147,19 +147,49 @@ func (mr *MockDBMockRecorder) GetItemByNameAndType(arg0, arg1, arg2, arg3 interf
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetItemByNameAndType", reflect.TypeOf((*MockDB)(nil).GetItemByNameAndType), arg0, arg1, arg2, arg3)
 }
 
-// GetItemList mocks base method.
-func (m *MockDB) GetItemList(ctx context.Context, username db.Username) ([]*pb.ItemShort, error) {
+// GetItemHashByID mocks base method.
+func (m *MockDB) GetItemHashByID(arg0 context.Context, arg1 int64) ([]byte, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetItemList", ctx, username)
+	ret := m.ctrl.Call(m, "GetItemHashByID", arg0, arg1)
+	ret0, _ := ret[0].([]byte)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetItemHashByID indicates an expected call of GetItemHashByID.
+func (mr *MockDBMockRecorder) GetItemHashByID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetItemHashByID", reflect.TypeOf((*MockDB)(nil).GetItemHashByID), arg0, arg1)
+}
+
+// GetItemList mocks base method.
+func (m *MockDB) GetItemList(arg0 context.Context, arg1 db.Username) ([]*pb.ItemShort, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetItemList", arg0, arg1)
 	ret0, _ := ret[0].([]*pb.ItemShort)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetItemList indicates an expected call of GetItemList.
-func (mr *MockDBMockRecorder) GetItemList(ctx, username interface{}) *gomock.Call {
+func (mr *MockDBMockRecorder) GetItemList(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetItemList", reflect.TypeOf((*MockDB)(nil).GetItemList), ctx, username)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetItemList", reflect.TypeOf((*MockDB)(nil).GetItemList), arg0, arg1)
+}
+
+// GetItemsByID mocks base method.
+func (m *MockDB) GetItemsByID(arg0 context.Context, arg1 db.Username, arg2 []int64) ([]*pb.Item, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetItemsByID", arg0, arg1, arg2)
+	ret0, _ := ret[0].([]*pb.Item)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetItemsByID indicates an expected call of GetItemsByID.
+func (mr *MockDBMockRecorder) GetItemsByID(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetItemsByID", reflect.TypeOf((*MockDB)(nil).GetItemsByID), arg0, arg1, arg2)
 }
 
 // GetMaxSecretSize mocks base method.

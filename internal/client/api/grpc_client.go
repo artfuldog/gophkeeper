@@ -1,13 +1,16 @@
 package api
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/artfuldog/gophkeeper/internal/client/config"
+	"github.com/artfuldog/gophkeeper/internal/client/storage"
 	"github.com/artfuldog/gophkeeper/internal/common"
 	"github.com/artfuldog/gophkeeper/internal/crypt"
 	"github.com/artfuldog/gophkeeper/internal/logger"
@@ -26,13 +29,14 @@ type GRPCClient struct {
 	// gRPC-client for Items service.
 	itemsClient pb.ItemsClient
 
+	// Configer instance for read and change configuraion parameters live.
 	config *config.Configer
-	// parameters GRPCParameters
+	// parameters GRPCParameters.
 	Logger logger.L
 
-	// Auth token
+	// Auth token.
 	Token string
-	// Max secret size
+	// Max secret size.
 	MaxSecretSize uint32
 
 	// Encryption key. Used for encrypting/decrypting all sended/received
@@ -41,6 +45,18 @@ type GRPCClient struct {
 	// after successful authentication and authorization, for decrypting this key
 	// client uses secretkey which stored unecrypted on user's side.
 	encKey []byte
+
+	// Local storage of agent.
+	storage storage.S
+	// Stop channel for receiving notifications from storage and graceful storage stop.
+	storageStopCh chan struct{}
+	// Control channel for synchronization with server, used for forcing synchronization
+	// with server. SyncType define type of synchronization (please see SyncType type).
+	syncControlCh chan SyncType
+	// Channel used for internal (between client's methods) control of synchoronization status.
+	// Used in conjunction with SyncWithWait, for notifiing calling method about synzhronization
+	// completion.
+	syncCompleteCh chan struct{}
 }
 
 var _ Client = (*GRPCClient)(nil)
@@ -48,13 +64,15 @@ var _ Client = (*GRPCClient)(nil)
 // NewGRPCClient creates new GRPCClient instance.
 func NewGRPCClient(config *config.Configer, l logger.L) *GRPCClient {
 	return &GRPCClient{
-		config: config,
-		Logger: l,
+		config:         config,
+		Logger:         l,
+		syncControlCh:  make(chan SyncType),
+		syncCompleteCh: make(chan struct{}),
 	}
 }
 
 // Connect intiates connections and starts client for gRPC-services.
-func (c *GRPCClient) Connect(ctx context.Context) error {
+func (c *GRPCClient) Connect(ctx context.Context, controlCh chan<- struct{}) error {
 	componentName := "GRPCClient:Connect"
 
 	creds, err := c.getCredentials()
@@ -78,6 +96,14 @@ func (c *GRPCClient) Connect(ctx context.Context) error {
 		if errConn != nil {
 			c.Logger.Error(err, "close connection", componentName)
 		}
+
+		storageClose := time.NewTimer(WaitForClosingInterval)
+		select {
+		case <-storageClose.C:
+		case <-c.storageStopCh:
+		}
+
+		close(controlCh)
 	}()
 
 	c.usersClient = pb.NewUsersClient(conn)
@@ -200,6 +226,10 @@ func (c *GRPCClient) UserRegister(ctx context.Context, user *NewUser) (*TOTPKey,
 
 // GetItemsList returns list with short representation of items.
 func (c *GRPCClient) GetItemsList(ctx context.Context) ([]*pb.ItemShort, error) {
+	if c.config.GetMode() == config.ModeLocal {
+		return c.getItemsListFromStorage(ctx)
+	}
+
 	request := &pb.GetItemListRequest{
 		Username: c.config.GetUser(),
 	}
@@ -212,24 +242,89 @@ func (c *GRPCClient) GetItemsList(ctx context.Context) ([]*pb.ItemShort, error) 
 	return resp.Items, nil
 }
 
-// GetItem returns all item's content.
-func (c *GRPCClient) GetItem(ctx context.Context, itemName, itemType string) (*Item, error) {
-	request := &pb.GetItemRequest{
-		Username: c.config.GetUser(),
-		ItemName: itemName,
-		ItemType: itemType,
+// getItemsListFromStorage returns list with short representation of items from local storage.
+func (c *GRPCClient) getItemsListFromStorage(ctx context.Context) ([]*pb.ItemShort, error) {
+	itemsList, err := c.storage.GetItemsList(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	resp, err := c.itemsClient.GetItem(ctx, request)
+	return c.itemsListFromStorageToPB(itemsList), nil
+}
+
+// itemsListFromStorageToPB converts items list from local storage format to pb format.
+func (c *GRPCClient) itemsListFromStorageToPB(strItems storage.Items) []*pb.ItemShort {
+	pbItems := make([]*pb.ItemShort, len(strItems))
+
+	for i, item := range strItems {
+		pbItems[i] = &pb.ItemShort{
+			Name: item.Name,
+			Type: item.Type,
+		}
+	}
+
+	return pbItems
+}
+
+// GetItem returns all item's content from server of local storage.
+func (c *GRPCClient) GetItem(ctx context.Context, itemName, itemType string) (*Item, error) {
+	pbItem := new(pb.Item)
+
+	switch c.config.GetMode() {
+	case config.ModeLocal:
+		storItem, err := c.storage.GetItem(ctx, itemName, itemType)
+		if err != nil {
+			return nil, err
+		}
+
+		if err := serializeSafe(pbItem, storItem); err != nil {
+			return nil, err
+		}
+	default:
+		request := &pb.GetItemRequest{
+			Username: c.config.GetUser(),
+			ItemName: itemName,
+			ItemType: itemType,
+		}
+
+		resp, err := c.itemsClient.GetItem(ctx, request)
+		if err != nil {
+			return nil, c.wrapError(err)
+		}
+		pbItem = resp.Item
+	}
+
+	if err := c.DecryptPbItem(pbItem); err != nil {
+		return nil, err
+	}
+
+	return NewItemFromPB(pbItem), nil
+}
+
+// GetItemsForStorage returns all items in storage format. Secret data stores encrypted.
+func (c *GRPCClient) GetItemsForStorage(ctx context.Context, itemIDs []int64) (storage.Items, error) {
+	request := &pb.GetItemsRequest{
+		Username: c.config.GetUser(),
+		Ids:      itemIDs,
+	}
+
+	resp, err := c.itemsClient.GetItems(ctx, request)
 	if err != nil {
 		return nil, c.wrapError(err)
 	}
 
-	if err := c.DecryptPbItem(resp.Item); err != nil {
-		return nil, err
+	items := make(storage.Items, len(resp.Items))
+	for i, item := range resp.Items {
+		items[i] = &storage.Item{
+			ID:   item.Id,
+			Name: item.Name,
+			Type: item.Type,
+			Hash: item.Hash,
+			Data: toBytesUnsafe(item),
+		}
 	}
 
-	return NewItemFromPB(resp.Item), nil
+	return items, nil
 }
 
 // SaveItem update existing or create new item.
@@ -269,11 +364,19 @@ func (c *GRPCClient) createItem(ctx context.Context, item *pb.Item) error {
 		return c.wrapError(err)
 	}
 
+	c.ForceSyncWithWait()
+
 	return nil
 }
 
 // updateItem updates existing item.
 func (c *GRPCClient) updateItem(ctx context.Context, item *pb.Item) error {
+	if c.config.GetMode() == config.ModeLocal {
+		if err := c.checkItemRemoteChanges(ctx, item); err != nil {
+			return err
+		}
+	}
+
 	request := &pb.UpdateItemRequest{
 		Username: c.config.GetUser(),
 		Item:     item,
@@ -284,10 +387,32 @@ func (c *GRPCClient) updateItem(ctx context.Context, item *pb.Item) error {
 		return c.wrapError(err)
 	}
 
+	c.ForceSyncWithWait()
+
 	return nil
 }
 
-// updateItem updates existing item.
+func (c *GRPCClient) checkItemRemoteChanges(ctx context.Context, item *pb.Item) error {
+	synced, _, err := c.revisionsIsEqual(ctx)
+	if err != nil {
+		return err
+	}
+
+	if !synced {
+		resp, err := c.itemsClient.GetItemHash(ctx, &pb.GetItemHashRequest{Id: item.Id})
+		if err != nil {
+			return ErrOutOfSync
+		}
+
+		if !bytes.Equal(resp.Hash, item.Hash) {
+			return ErrOutOfSync
+		}
+	}
+
+	return nil
+}
+
+// DeleteItem deletes existing item.
 func (c *GRPCClient) DeleteItem(ctx context.Context, item *Item) error {
 	request := &pb.DeleteItemRequest{
 		Username: c.config.GetUser(),
@@ -298,6 +423,8 @@ func (c *GRPCClient) DeleteItem(ctx context.Context, item *Item) error {
 	if err != nil {
 		return c.wrapError(err)
 	}
+
+	c.ForceSyncWithWait()
 
 	return nil
 }

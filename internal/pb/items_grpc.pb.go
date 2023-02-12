@@ -24,7 +24,9 @@ const _ = grpc.SupportPackageIsVersion7
 type ItemsClient interface {
 	CreateItem(ctx context.Context, in *CreateItemRequest, opts ...grpc.CallOption) (*CreateItemResponse, error)
 	GetItem(ctx context.Context, in *GetItemRequest, opts ...grpc.CallOption) (*GetItemResponse, error)
+	GetItems(ctx context.Context, in *GetItemsRequest, opts ...grpc.CallOption) (*GetItemsResponse, error)
 	GetItemList(ctx context.Context, in *GetItemListRequest, opts ...grpc.CallOption) (*GetItemListResponse, error)
+	GetItemHash(ctx context.Context, in *GetItemHashRequest, opts ...grpc.CallOption) (*GetItemHashResponse, error)
 	UpdateItem(ctx context.Context, in *UpdateItemRequest, opts ...grpc.CallOption) (*UpdateItemResponse, error)
 	DeleteItem(ctx context.Context, in *DeleteItemRequest, opts ...grpc.CallOption) (*DeleteItemResponse, error)
 }
@@ -55,9 +57,27 @@ func (c *itemsClient) GetItem(ctx context.Context, in *GetItemRequest, opts ...g
 	return out, nil
 }
 
+func (c *itemsClient) GetItems(ctx context.Context, in *GetItemsRequest, opts ...grpc.CallOption) (*GetItemsResponse, error) {
+	out := new(GetItemsResponse)
+	err := c.cc.Invoke(ctx, "/gophkeeper.Items/GetItems", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *itemsClient) GetItemList(ctx context.Context, in *GetItemListRequest, opts ...grpc.CallOption) (*GetItemListResponse, error) {
 	out := new(GetItemListResponse)
 	err := c.cc.Invoke(ctx, "/gophkeeper.Items/GetItemList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *itemsClient) GetItemHash(ctx context.Context, in *GetItemHashRequest, opts ...grpc.CallOption) (*GetItemHashResponse, error) {
+	out := new(GetItemHashResponse)
+	err := c.cc.Invoke(ctx, "/gophkeeper.Items/GetItemHash", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +108,9 @@ func (c *itemsClient) DeleteItem(ctx context.Context, in *DeleteItemRequest, opt
 type ItemsServer interface {
 	CreateItem(context.Context, *CreateItemRequest) (*CreateItemResponse, error)
 	GetItem(context.Context, *GetItemRequest) (*GetItemResponse, error)
+	GetItems(context.Context, *GetItemsRequest) (*GetItemsResponse, error)
 	GetItemList(context.Context, *GetItemListRequest) (*GetItemListResponse, error)
+	GetItemHash(context.Context, *GetItemHashRequest) (*GetItemHashResponse, error)
 	UpdateItem(context.Context, *UpdateItemRequest) (*UpdateItemResponse, error)
 	DeleteItem(context.Context, *DeleteItemRequest) (*DeleteItemResponse, error)
 	mustEmbedUnimplementedItemsServer()
@@ -104,8 +126,14 @@ func (UnimplementedItemsServer) CreateItem(context.Context, *CreateItemRequest) 
 func (UnimplementedItemsServer) GetItem(context.Context, *GetItemRequest) (*GetItemResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetItem not implemented")
 }
+func (UnimplementedItemsServer) GetItems(context.Context, *GetItemsRequest) (*GetItemsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetItems not implemented")
+}
 func (UnimplementedItemsServer) GetItemList(context.Context, *GetItemListRequest) (*GetItemListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetItemList not implemented")
+}
+func (UnimplementedItemsServer) GetItemHash(context.Context, *GetItemHashRequest) (*GetItemHashResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetItemHash not implemented")
 }
 func (UnimplementedItemsServer) UpdateItem(context.Context, *UpdateItemRequest) (*UpdateItemResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateItem not implemented")
@@ -162,6 +190,24 @@ func _Items_GetItem_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Items_GetItems_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetItemsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ItemsServer).GetItems(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/gophkeeper.Items/GetItems",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ItemsServer).GetItems(ctx, req.(*GetItemsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Items_GetItemList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetItemListRequest)
 	if err := dec(in); err != nil {
@@ -176,6 +222,24 @@ func _Items_GetItemList_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ItemsServer).GetItemList(ctx, req.(*GetItemListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Items_GetItemHash_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetItemHashRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ItemsServer).GetItemHash(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/gophkeeper.Items/GetItemHash",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ItemsServer).GetItemHash(ctx, req.(*GetItemHashRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -232,8 +296,16 @@ var Items_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Items_GetItem_Handler,
 		},
 		{
+			MethodName: "GetItems",
+			Handler:    _Items_GetItems_Handler,
+		},
+		{
 			MethodName: "GetItemList",
 			Handler:    _Items_GetItemList_Handler,
+		},
+		{
+			MethodName: "GetItemHash",
+			Handler:    _Items_GetItemHash_Handler,
 		},
 		{
 			MethodName: "UpdateItem",

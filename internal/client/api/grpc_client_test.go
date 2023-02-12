@@ -8,9 +8,11 @@ import (
 	"testing"
 
 	"github.com/artfuldog/gophkeeper/internal/client/config"
+	"github.com/artfuldog/gophkeeper/internal/client/storage"
 	"github.com/artfuldog/gophkeeper/internal/crypt"
 	"github.com/artfuldog/gophkeeper/internal/mocks/mockgrpc"
 	"github.com/artfuldog/gophkeeper/internal/mocks/mocklogger"
+	"github.com/artfuldog/gophkeeper/internal/mocks/mockstorage"
 	"github.com/artfuldog/gophkeeper/internal/pb"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -34,6 +36,7 @@ type TestSuiteGRPClient struct {
 	Client      *GRPCClient
 	UsersClient *mockgrpc.MockUsersClient
 	ItemsClient *mockgrpc.MockItemsClient
+	Storage     *mockstorage.MockS
 }
 
 func NewTestSuiteGRPClient(t gomock.TestReporter) *TestSuiteGRPClient {
@@ -46,16 +49,19 @@ func NewTestSuiteGRPClient(t gomock.TestReporter) *TestSuiteGRPClient {
 
 	testUsersService := mockgrpc.NewMockUsersClient(mockCtrl)
 	testItemsService := mockgrpc.NewMockItemsClient(mockCtrl)
+	testStorage := mockstorage.NewMockS(mockCtrl)
 
 	testClient := NewGRPCClient(testConfig, testLogger)
 	testClient.itemsClient = testItemsService
 	testClient.usersClient = testUsersService
+	testClient.storage = testStorage
 
 	return &TestSuiteGRPClient{
 		MockCtrl:    mockCtrl,
 		Client:      testClient,
 		UsersClient: testUsersService,
 		ItemsClient: testItemsService,
+		Storage:     testStorage,
 	}
 }
 
@@ -68,16 +74,17 @@ func (s *TestSuiteGRPClient) Stop() {
 func TestGRPCClient_Connect(t *testing.T) {
 	ts := NewTestSuiteGRPClient(t)
 	defer ts.Stop()
+	ctrlCh := make(chan struct{})
 
 	ts.Client.config.SetCACert("/wrong/file/path/to/ca")
 	t.Run("Creds error", func(t *testing.T) {
-		assert.Error(t, ts.Client.Connect(testGRPCctx))
+		assert.Error(t, ts.Client.Connect(testGRPCctx, ctrlCh))
 	})
 
 	ts.Client.config.SetCACert("")
 	ts.Client.config.SetServer("")
 	t.Run("Connection error", func(t *testing.T) {
-		assert.Error(t, ts.Client.Connect(testGRPCctx))
+		assert.Error(t, ts.Client.Connect(testGRPCctx, ctrlCh))
 	})
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -85,7 +92,7 @@ func TestGRPCClient_Connect(t *testing.T) {
 
 	ts.Client.config.SetServer("127.0.0.1:3200")
 	t.Run("Connection error", func(t *testing.T) {
-		require.NoError(t, ts.Client.Connect(ctx))
+		require.NoError(t, ts.Client.Connect(ctx, ctrlCh))
 	})
 }
 
@@ -206,11 +213,26 @@ func TestGRPCClient_GetItemsList(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("Server response PK", func(t *testing.T) {
+	t.Run("Server response OK", func(t *testing.T) {
 		resp := &pb.GetItemListResponse{
 			Items: []*pb.ItemShort{{Name: "123"}},
 		}
 		ts.ItemsClient.EXPECT().GetItemList(testGRPCctx, mockAnyVal).Return(resp, nil)
+		items, err := ts.Client.GetItemsList(testGRPCctx)
+		require.NoError(t, err)
+		assert.NotEmpty(t, items)
+	})
+
+	ts.Client.config.SetMode(config.ModeLocal)
+
+	t.Run("Local storage error", func(t *testing.T) {
+		ts.Storage.EXPECT().GetItemsList(testGRPCctx).Return(nil, assert.AnError)
+		_, err := ts.Client.GetItemsList(testGRPCctx)
+		assert.Error(t, err)
+	})
+	t.Run("Local storage OK", func(t *testing.T) {
+		resp := storage.Items{{Name: "123"}}
+		ts.Storage.EXPECT().GetItemsList(testGRPCctx).Return(resp, nil)
 		items, err := ts.Client.GetItemsList(testGRPCctx)
 		require.NoError(t, err)
 		assert.NotEmpty(t, items)
@@ -237,7 +259,7 @@ func TestGRPCClient_GetItem(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("Successfully get item", func(t *testing.T) {
+	t.Run("Successfully get item from server", func(t *testing.T) {
 		ts.Client.encKey = testGRPCencKey
 		pbItem := TestingNewPbLoginItem()
 		ts.Client.EncryptPbItem(pbItem)
@@ -249,6 +271,57 @@ func TestGRPCClient_GetItem(t *testing.T) {
 		item, err := ts.Client.GetItem(testGRPCctx, itemName, itemType)
 		require.NoError(t, err)
 		assert.NotEmpty(t, item)
+	})
+
+	ts.Client.config.SetMode(config.ModeLocal)
+
+	t.Run("Local storage error", func(t *testing.T) {
+		ts.Storage.EXPECT().GetItem(testGRPCctx, mockAnyVal, mockAnyVal).Return(nil, assert.AnError)
+		_, err := ts.Client.GetItem(testGRPCctx, itemName, itemType)
+		assert.Error(t, err)
+	})
+
+	t.Run("Serialization error", func(t *testing.T) {
+		storItem := []byte("random bytes")
+		ts.Storage.EXPECT().GetItem(testGRPCctx, mockAnyVal, mockAnyVal).Return(storItem, nil)
+		_, err := ts.Client.GetItem(testGRPCctx, itemName, itemType)
+		assert.Error(t, err)
+	})
+
+	t.Run("Successfully get item from local storage", func(t *testing.T) {
+		pbItem := TestingNewPbLoginItem()
+		ts.Client.EncryptPbItem(pbItem)
+		storItem := toBytesUnsafe(pbItem)
+
+		ts.Storage.EXPECT().GetItem(testGRPCctx, mockAnyVal, mockAnyVal).Return(storItem, nil)
+		item, err := ts.Client.GetItem(testGRPCctx, itemName, itemType)
+		require.NoError(t, err)
+		assert.NotEmpty(t, item)
+	})
+}
+
+func TestGRPCClient_GetItemsForStorage(t *testing.T) {
+	ts := NewTestSuiteGRPClient(t)
+	defer ts.Stop()
+
+	t.Run("Server response error", func(t *testing.T) {
+		ts.ItemsClient.EXPECT().GetItems(testGRPCctx, mockAnyVal).Return(nil, assert.AnError)
+		_, err := ts.Client.GetItemsForStorage(testGRPCctx, []int64{1, 2, 3})
+		assert.Error(t, err)
+	})
+
+	t.Run("Successfully get item", func(t *testing.T) {
+		ts.Client.encKey = testGRPCencKey
+		pbItem := TestingNewPbLoginItem()
+		ts.Client.EncryptPbItem(pbItem)
+
+		resp := &pb.GetItemsResponse{
+			Items: []*pb.Item{pbItem},
+		}
+		ts.ItemsClient.EXPECT().GetItems(testGRPCctx, mockAnyVal).Return(resp, nil)
+		items, err := ts.Client.GetItemsForStorage(testGRPCctx, []int64{1, 2, 3})
+		require.NoError(t, err)
+		assert.Equal(t, 1, len(items))
 	})
 }
 
@@ -300,6 +373,62 @@ func TestGRPCClient_SaveItem(t *testing.T) {
 		resp := &pb.UpdateItemResponse{}
 
 		ts.ItemsClient.EXPECT().UpdateItem(testGRPCctx, mockAnyVal).Return(resp, nil)
+		require.NoError(t, ts.Client.SaveItem(testGRPCctx, item))
+	})
+
+	ts.Client.config.SetMode(config.ModeLocal)
+
+	t.Run("Update item - failed to get revision", func(t *testing.T) {
+		item := TestingNewLoginItem()
+		item.ID = 100
+
+		ts.UsersClient.EXPECT().GetRevision(testGRPCctx, mockAnyVal).Return(nil, assert.AnError)
+		assert.Error(t, ts.Client.SaveItem(testGRPCctx, item))
+	})
+
+	t.Run("Update item - get item error", func(t *testing.T) {
+		item := TestingNewLoginItem()
+		item.ID = 100
+
+		revResp := &pb.GetRevisionResponse{Revision: []byte("revision1")}
+
+		ts.UsersClient.EXPECT().GetRevision(testGRPCctx, mockAnyVal).Return(revResp, nil)
+		ts.Storage.EXPECT().GetRevision(testGRPCctx).Return([]byte("revision2"), nil)
+		ts.ItemsClient.EXPECT().GetItemHash(mockAnyVal, mockAnyVal).Return(nil, assert.AnError)
+		assert.ErrorIs(t, ErrOutOfSync, ts.Client.SaveItem(testGRPCctx, item))
+	})
+
+	t.Run("Update item - remote changes", func(t *testing.T) {
+		item := TestingNewLoginItem()
+		item.ID = 100
+
+		revResp := &pb.GetRevisionResponse{Revision: []byte("revision1")}
+		hashResp := &pb.GetItemHashResponse{Hash: []byte("wrhash")}
+
+		ts.UsersClient.EXPECT().GetRevision(testGRPCctx, mockAnyVal).Return(revResp, nil)
+		ts.Storage.EXPECT().GetRevision(testGRPCctx).Return([]byte("revision2"), nil)
+		ts.ItemsClient.EXPECT().GetItemHash(mockAnyVal, mockAnyVal).Return(hashResp, nil)
+		assert.ErrorIs(t, ErrOutOfSync, ts.Client.SaveItem(testGRPCctx, item))
+	})
+
+	t.Run("Update item with local storage", func(t *testing.T) {
+		item := TestingNewLoginItem()
+		item.ID = 100
+
+		revResp := &pb.GetRevisionResponse{Revision: []byte("revision1")}
+		ts.UsersClient.EXPECT().GetRevision(testGRPCctx, mockAnyVal).Return(revResp, nil)
+		ts.Storage.EXPECT().GetRevision(testGRPCctx).Return([]byte("revision1"), nil)
+
+		resp := &pb.UpdateItemResponse{}
+		ts.ItemsClient.EXPECT().UpdateItem(testGRPCctx, mockAnyVal).Return(resp, nil)
+
+		go func() {
+			syncMode := <-ts.Client.syncControlCh
+			assert.Equal(t, SyncWaitForComplete, syncMode)
+
+			ts.Client.syncCompleteCh <- struct{}{}
+		}()
+
 		require.NoError(t, ts.Client.SaveItem(testGRPCctx, item))
 	})
 }

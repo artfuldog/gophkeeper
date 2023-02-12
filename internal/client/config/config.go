@@ -10,6 +10,7 @@ import (
 	"io/fs"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/artfuldog/gophkeeper/internal/logger"
 	"github.com/mitchellh/mapstructure"
@@ -31,6 +32,7 @@ var (
 	ErrEmptySecretKey     = errors.New("secret key is empty, must be set")
 	ErrEmptyServer        = errors.New("server address is empty, must be set")
 	ErrEmptyAgentMode     = errors.New("agent mode is not set")
+	ErrWrongSyncInterval  = errors.New("sync interval must be between 10 and 1800 seconds")
 )
 
 // Agent's modes.
@@ -100,7 +102,8 @@ func ReadFlags() *Flags {
 //   - User - username
 //   - SecretKey - secret key, used for decrypt encryption key from server
 //   - Server - server address in format <ip-address/fqdn/hostname>:<port>, ex. 10.20.30.40:3200, my.host.com:3333
-//   - Mode - agent working mode - local / server(not implemented yet)
+//   - Mode - agent working mode - local / server
+//   - SyncInterval - interval between synchronization with server in seconds (10 - 1800)
 //   - ShowSensitive - show by default sensitive information in UI
 //   - LogLevel - agent log level, currently useless, ignore it
 //   - CAcert - path to CA root certificate. Recommended way - not use this optioin and install CA into system.
@@ -115,6 +118,7 @@ func NewConfiger(flags *Flags) (*Configer, error) {
 	cfg := &Configer{Viper: viper.New()}
 
 	cfg.SetDefault("mode", ModeServer)
+	cfg.SetDefault("syncinterval", 30*time.Second)
 	cfg.SetDefault("showsensitive", false)
 	cfg.SetDefault("loglevel", fmt.Sprint(logger.ErrorLevel))
 	cfg.SetDefault("disabletls", false)
@@ -169,6 +173,10 @@ func (c *Configer) Validate() error {
 
 	if !c.IsSet("mode") || c.unmarshallAgentMode() == ModeUnknown {
 		return ErrEmptyAgentMode
+	}
+
+	if c.GetSyncInterval() < (10*time.Second) || c.GetSyncInterval() > (1800*time.Second) {
+		return ErrWrongSyncInterval
 	}
 
 	return nil
@@ -243,6 +251,20 @@ func (c *Configer) SetMode(v AgentMode) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.Set("mode", fmt.Sprint(v))
+}
+
+// GetMode returns current sync interval.
+func (c *Configer) GetSyncInterval() time.Duration {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.GetDuration("syncinterval")
+}
+
+// SetMode sets current sync interval.
+func (c *Configer) SetSyncInterval(v time.Duration) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.Set("syncinterval", v)
 }
 
 // GetShowSensitive returns current status of showing sensitive information.
@@ -326,6 +348,12 @@ func (c *Configer) CreateAppDir() error {
 	return nil
 }
 
+// GetConfigDefaultFilepath returns default config path.
 func (c *Configer) GetConfigDefaultFilepath() string {
 	return (appConfigDir + appConfigName)
+}
+
+// GetAppConfigDir returns application config directory.
+func (c *Configer) GetAppConfigDir() string {
+	return appConfigDir
 }
