@@ -50,6 +50,13 @@ var (
 //
 // DB contains all methods, which particular implementation of DB must support.
 type DB interface {
+	Executor
+	UsersManager
+	ItemsManager
+}
+
+// Executor defines methods for DB's configure, execution and setup operations.
+type Executor interface {
 	// Perform initial connect to database.
 	Connect(context.Context) error
 	// Perform initial connect to database.
@@ -62,7 +69,10 @@ type DB interface {
 	Clear(context.Context)
 	// Returns maximum available size of secret.
 	GetMaxSecretSize() uint32
+}
 
+// UserManager defines methods for CRUD operations with Users.
+type UsersManager interface {
 	// Register/create new user.
 	CreateUser(context.Context, *pb.User) error
 	// Read user data.
@@ -79,7 +89,10 @@ type DB interface {
 	UpdateUserSecrets(context.Context, *pb.User) error
 	// Delete user.
 	DeleteUserByName(context.Context, Username) error
+}
 
+// ItemsManager defines methods for CRUD operations with Items.
+type ItemsManager interface {
 	// Create new secured item.
 	CreateItem(context.Context, Username, *pb.Item) error
 	// Read secured item with provided name and type.
