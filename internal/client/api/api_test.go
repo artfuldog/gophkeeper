@@ -178,7 +178,7 @@ func TestingNewPbSecNoteItem() *pb.Item {
 
 func TestingNewSecDataItem() *Item {
 	return &Item{
-		Name:     "secnote1",
+		Name:     "secdata1",
 		Type:     common.ItemTypeSecData,
 		Reprompt: false,
 		Notes:    "some notes",

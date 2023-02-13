@@ -30,6 +30,8 @@ dist/
 
 # Self-signed certificates
 certs/
+# Except ones for integration testing
+!it/certs
 
 # Test coverage files
 *.cov

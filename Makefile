@@ -7,6 +7,12 @@ proto:			## Generate protobuf files
 	internal/proto/*.proto
 	@protoc-go-inject-tag -input="./internal/pb/*.pb.go"
 
+setup-testdb:
+	@createdb -h localhost -p 5432 -U postgres gophkeeper_db_tests || echo ""
+	@psql -h localhost -p 5432 -U postgres --command "grant all privileges on database gophkeeper_db_tests to gksa;"
+	@createdb -h localhost -p 5432 -U postgres gophkeeper_db_inttests || echo ""
+	@psql -h localhost -p 5432 -U postgres --command "grant all privileges on database gophkeeper_db_tests to gksa;"
+
 tests:			## Make relevent packages tests with clean cache
 	@/usr/local/go/bin/go clean -testcache
 	@echo "=== Package - internal/client ==="
@@ -27,6 +33,10 @@ tests-all:		## Run all tests
 tests-race:		## Run all tests with racing checking
 	@/usr/local/go/bin/go clean -testcache
 	@$(GO_RUN_TEST_CMD) -race -cover ./internal/...
+
+tests-int:		## Run integration tests
+	@/usr/local/go/bin/go clean -testcache
+	@$(GO_RUN_TEST_CMD) -v -race ./it/...
 
 bench:			## Run all benchmarks
 	@$(GO_RUN_TEST_CMD) -run=Bench* ./internal/... -bench=. -benchtime=25000x -count=8 | grep Benchmark
