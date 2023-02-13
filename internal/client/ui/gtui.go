@@ -23,10 +23,16 @@ const (
 	pageItemBrowser      = "Item browser"
 	pageItem             = "Item page"
 	pageUploadFile       = "Upload File"
-	pageDownloadFile     = "Dpwnload File"
+	pageDownloadFile     = "Download File"
+	pageCfBrowser        = "CF Browser"
+	pageEditCf           = "Edit CF page"
+	pageCreateCf         = "Create CF page"
+	pageURIBrowser       = "URI Browser"
+	pageURICreateUpdate  = "URI Create Update"
 
 	modalQuit     = "Quit modal"
 	modalItemType = "Item Type Modal"
+	modalCFType   = "CF type modal"
 )
 
 // Primitives styles

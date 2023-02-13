@@ -31,3 +31,26 @@ func TestListItemTypes(t *testing.T) {
 	itemTypes := ListItemTypes()
 	assert.Equal(t, itemTypes, []string{"l", "c", "n", "d"})
 }
+
+func TestCFTypeToText(t *testing.T) {
+	t.Run("Check string", func(t *testing.T) {
+		assert.Equal(t, CfTypeToText(CfTypeText), "text")
+		assert.Equal(t, CfTypeToText(CfTypeHidden), "hidden")
+		assert.Equal(t, CfTypeToText(CfTypeBool), "bool")
+		assert.Equal(t, CfTypeToText("Asdasdasdas"), "unknown")
+	})
+}
+
+func TestCFTypeFromText(t *testing.T) {
+	t.Run("Check string", func(t *testing.T) {
+		assert.Equal(t, CfTypeFromText("text"), CfTypeText)
+		assert.Equal(t, CfTypeFromText("hidden"), CfTypeHidden)
+		assert.Equal(t, CfTypeFromText("bool"), CfTypeBool)
+		assert.Equal(t, CfTypeFromText("asdasdadasdasd"), "")
+	})
+}
+
+func TestListCFTypes(t *testing.T) {
+	itemTypes := ListCFTypes()
+	assert.Equal(t, []string{"t", "h", "b"}, itemTypes)
+}

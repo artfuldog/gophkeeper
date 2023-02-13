@@ -91,8 +91,8 @@ func (g *Gtui) displayCreateItemPage(ctx context.Context, itemType string) {
 	item := &api.Item{
 		Type:         itemType,
 		Secret:       api.NewSecretEmpty(itemType),
-		URIs:         api.URIs{{}},
-		CustomFields: api.CustomFields{{}},
+		URIs:         api.URIs{},
+		CustomFields: api.CustomFields{},
 	}
 
 	g.pages.AddPage(selfPage, g.drawItemGrid(ctx, item, selfPage, true, true), true, true)
@@ -105,19 +105,19 @@ func (g *Gtui) drawItemGrid(ctx context.Context, item *api.Item, pageName string
 	grid := tview.NewGrid()
 	itemMainForm := g.drawItemMainForm(item, pageName, newItemFlag, showSensitive)
 	itemInfoForm := g.drawItemInfoForm(item, pageName, newItemFlag)
-	itemCFForm := g.drawItemCFForm(item, pageName, showSensitive)
+	itemAdditionsForm := g.drawItemAdditionsForm(ctx, item, pageName, newItemFlag, showSensitive)
 	itemButtonsForm := g.drawItemButtonsForm(ctx, item, pageName, newItemFlag, showSensitive)
 
 	grid.SetRows(2, 0, 1).SetColumns(0, 0).
 		SetBorders(true).SetBordersColor(tcell.ColorLightSkyBlue).
 		AddItem(itemMainForm, 0, 0, 2, 1, 0, 0, true).
 		AddItem(itemInfoForm, 0, 1, 1, 1, 0, 0, false).
-		AddItem(itemCFForm, 1, 1, 1, 1, 0, 0, false).
+		AddItem(itemAdditionsForm, 1, 1, 1, 1, 0, 0, false).
 		AddItem(itemButtonsForm, 2, 0, 1, 2, 0, 0, false)
 
-	itemMainForm.SetInputCapture(g.captureAndSetFocus(itemButtonsForm, itemCFForm, tcell.KeyCtrlT, tcell.KeyCtrlY))
-	itemCFForm.SetInputCapture(g.captureAndSetFocus(itemMainForm, itemButtonsForm, tcell.KeyCtrlT, tcell.KeyCtrlY))
-	itemButtonsForm.SetInputCapture(g.captureAndSetFocus(itemCFForm, itemMainForm, tcell.KeyCtrlT, tcell.KeyCtrlY))
+	itemMainForm.SetInputCapture(g.captureAndSetFocus(itemButtonsForm, itemAdditionsForm, tcell.KeyCtrlT, tcell.KeyCtrlY))
+	itemAdditionsForm.SetInputCapture(g.captureAndSetFocus(itemMainForm, itemButtonsForm, tcell.KeyCtrlT, tcell.KeyCtrlY))
+	itemButtonsForm.SetInputCapture(g.captureAndSetFocus(itemAdditionsForm, itemMainForm, tcell.KeyCtrlT, tcell.KeyCtrlY))
 
 	return grid
 }
@@ -246,9 +246,17 @@ func (g *Gtui) drawItemInfoForm(item *api.Item, pageName string, newItemFlag boo
 	return form
 }
 
-// drawItemCFForm creates form for displaying item's custom fields.
-func (g Gtui) drawItemCFForm(item *api.Item, pageName string, showSensitive bool) *tview.Form {
+// drawItemAdditionsForm creates form for displaying item's custom fields.
+func (g Gtui) drawItemAdditionsForm(ctx context.Context, item *api.Item, parentPage string,
+	newItemFlag bool, showSensitive bool) *tview.Form {
+
 	form := tview.NewForm()
+
+	selfData := ItemMenuData{
+		ParentPage:    parentPage,
+		NewItemFlag:   newItemFlag,
+		ShowSensitive: showSensitive,
+	}
 
 	for i, cf := range item.CustomFields {
 		index := i
@@ -263,11 +271,9 @@ func (g Gtui) drawItemCFForm(item *api.Item, pageName string, showSensitive bool
 				form.AddInputField(cf.Name, cf.ValueStr, 40, nil, func(v string) {
 					item.CustomFields[index].ValueStr = v
 				})
-			} else {
-				form.AddPasswordField(cf.Name, cf.ValueStr, 40, '*', func(v string) {
-					item.CustomFields[index].ValueStr = v
-				})
+				continue
 			}
+			form.AddTextView(cf.Name, common.MaskAll(8), 40, 1, true, false)
 		case common.CfTypeBool:
 			form.AddCheckbox(cf.Name, cf.ValueBool, func(v bool) {
 				item.CustomFields[index].ValueBool = v
@@ -275,8 +281,27 @@ func (g Gtui) drawItemCFForm(item *api.Item, pageName string, showSensitive bool
 		}
 	}
 
-	form.SetCancelFunc(func() { g.pages.RemovePage(pageName) })
-	form.SetBorderPadding(0, 0, 0, 0)
+	if item.Type == common.ItemTypeLogin && len(item.URIs) > 0 {
+		form.AddTextView("=== URIs:", "", 20, 1, true, false)
+
+		for i, uri := range item.URIs {
+			index := i
+			form.AddInputField(fmt.Sprintf(" #%d", i), uri.URI, 40, nil, func(v string) {
+				item.URIs[index].URI = v
+			})
+		}
+	}
+
+	form.AddButton("Edit custom fields", func() { g.displayCFBrowser(ctx, item, selfData) })
+
+	if item.Type == common.ItemTypeLogin {
+		form.AddButton("Edit URIs", func() { g.displayURIBrowser(ctx, item, selfData) })
+	}
+
+	form.SetCancelFunc(func() { g.pages.RemovePage(parentPage) })
+
+	form.SetButtonsAlign(tview.AlignLeft).SetBorderPadding(0, 0, 0, 0)
+	form.SetButtonStyle(styleCtrButtonsInactive).SetButtonActivatedStyle(styleCtrButtonsActive)
 
 	return form
 }

@@ -74,6 +74,27 @@ func TestIndexOf(t *testing.T) {
 	})
 }
 
+func TestDeleteElement(t *testing.T) {
+	t.Run("Check string", func(t *testing.T) {
+		testArray := []string{"one", "two", "three"}
+		index := 1
+		testArray = DeleteElement(index, testArray)
+		assert.Equal(t, []string{"one", "three"}, testArray)
+	})
+	t.Run("Check string last element", func(t *testing.T) {
+		testArray := []string{"one", "two", "three"}
+		index := 2
+		testArray = DeleteElement(index, testArray)
+		assert.Equal(t, []string{"one", "two"}, testArray)
+	})
+	t.Run("Check float", func(t *testing.T) {
+		testArray := []float64{123.12314, 1090454.1255, 149102.1, 12389.111}
+		index := 0
+		testArray = DeleteElement(index, testArray)
+		assert.Equal(t, []float64{1090454.1255, 149102.1, 12389.111}, testArray)
+	})
+}
+
 func TestMaskAll(t *testing.T) {
 	t.Run("Check", func(t *testing.T) {
 		assert.Equal(t, MaskAll(8), "********")

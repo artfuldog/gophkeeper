@@ -32,7 +32,7 @@ func ItemTypeText(itemType string) string {
 	}
 }
 
-// ItemTypeText returns type's name in human-readable format.
+// ItemTypeFromText returns constant of type from human-readable string.
 func ItemTypeFromText(itemType string) string {
 	switch itemType {
 	case "login":
@@ -51,4 +51,37 @@ func ItemTypeFromText(itemType string) string {
 // ListItemTypes return available item type.
 func ListItemTypes() []string {
 	return []string{"l", "c", "n", "d"}
+}
+
+// CfTypeToText returns custom field's type in human-readable format.
+func CfTypeToText(cfType string) string {
+	switch cfType {
+	case CfTypeText:
+		return "text"
+	case CfTypeHidden:
+		return "hidden"
+	case CfTypeBool:
+		return "bool"
+	default:
+		return "unknown"
+	}
+}
+
+// CfTypeFromText returns constant of custom field's type from human-readable string.
+func CfTypeFromText(cfType string) string {
+	switch cfType {
+	case "text":
+		return CfTypeText
+	case "hidden":
+		return CfTypeHidden
+	case "bool":
+		return CfTypeBool
+	default:
+		return ""
+	}
+}
+
+// ListCFTypes return available custom fields' type.
+func ListCFTypes() []string {
+	return []string{"t", "h", "b"}
 }

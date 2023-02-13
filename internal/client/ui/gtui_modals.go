@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/artfuldog/gophkeeper/internal/client/api"
 	"github.com/artfuldog/gophkeeper/internal/common"
 	"github.com/rivo/tview"
 )
@@ -58,6 +59,39 @@ func (g *Gtui) displayItemCreateModal(ctx context.Context) {
 			g.pages.RemovePage(selfPage)
 			g.setStatus(fmt.Sprintf("creating new %s item", common.ItemTypeText(itemType)), 2)
 			g.displayCreateItemPage(ctx, itemType)
+		})
+
+	g.setStatus("Wait for user input...", 0)
+	g.pages.AddPage(selfPage, modal, true, true)
+}
+
+// displayCfCreateModal displays modal window with available custom fields' types,
+// reads user input, creates and switches to custom field create page.
+func (g *Gtui) displayCfCreateModal(ctx context.Context, item *api.Item, imData ItemMenuData) {
+	selfPage := modalCFType
+
+	modal := tview.NewModal().
+		SetText("Choose custom field type").
+		AddButtons([]string{"Text", "Hidden", "Bool"}).
+		SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+			var cfType string
+
+			switch buttonLabel {
+			case "Text":
+				cfType = common.CfTypeText
+			case "Hidden":
+				cfType = common.CfTypeHidden
+			case "Bool":
+				cfType = common.CfTypeBool
+			default:
+				g.pages.RemovePage(selfPage)
+				g.setStatus("canceled...", 2)
+				return
+			}
+
+			g.pages.RemovePage(selfPage)
+			g.setStatus(fmt.Sprintf("creating new %s custom field", common.CfTypeToText(cfType)), 2)
+			g.displayCreateCfPage(ctx, item, cfType, imData)
 		})
 
 	g.setStatus("Wait for user input...", 0)

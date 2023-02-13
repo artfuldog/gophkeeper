@@ -44,6 +44,10 @@ func IndexOf[V comparable](val V, s []V) int {
 	return -1
 }
 
+func DeleteElement[V comparable](i int, s []V) []V {
+	return append(s[:i], s[i+1:]...)
+}
+
 // MaskAll returns masked with asterisk string with provided length.
 func MaskAll(masked int) string {
 	return strings.Repeat("*", masked)
