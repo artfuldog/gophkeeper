@@ -188,7 +188,7 @@ func (g *Gtui) drawItemMainForm(item *api.Item, pageName string, newItemFlag boo
 					valInt, _ := strconv.Atoi(v)
 					secret.ExpYear = uint8(valInt)
 				}).
-				AddInputField("Expiration CVV", fmt.Sprint(secret.Cvv), 3, checkFieldInt, func(v string) {
+				AddInputField("CVV", fmt.Sprint(secret.Cvv), 3, checkFieldInt, func(v string) {
 					valInt, _ := strconv.Atoi(v)
 					secret.Cvv = uint16(valInt)
 				})
@@ -198,7 +198,7 @@ func (g *Gtui) drawItemMainForm(item *api.Item, pageName string, newItemFlag boo
 				AddTextView("Cardholder", common.MaskLeft(secret.ChName, 5), 40, 1, true, false).
 				AddTextView("Expiration Month", common.MaskAll(2), 2, 1, true, false).
 				AddTextView("Expiration Year", common.MaskAll(2), 2, 1, true, false).
-				AddTextView("Expiration CVV", common.MaskAll(3), 3, 1, true, false)
+				AddTextView("CVV", common.MaskAll(3), 3, 1, true, false)
 		}
 	case common.ItemTypeSecData:
 		secret := item.GetSecData()
@@ -271,8 +271,10 @@ func (g Gtui) drawItemAdditionsForm(ctx context.Context, item *api.Item, parentP
 				form.AddInputField(cf.Name, cf.ValueStr, 40, nil, func(v string) {
 					item.CustomFields[index].ValueStr = v
 				})
+
 				continue
 			}
+
 			form.AddTextView(cf.Name, common.MaskAll(8), 40, 1, true, false)
 		case common.CfTypeBool:
 			form.AddCheckbox(cf.Name, cf.ValueBool, func(v bool) {

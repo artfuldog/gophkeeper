@@ -14,7 +14,7 @@ It was developed as graduation diploma of [Yandex Practicum's "Advanced Go-Devel
 - Two-factor authentication
 - Server-client TLS authentication and encryption 
 - Generation TOTP Verification codes
-- Client and server side encryption
+- Both client and server side encryption
 - Server horizontal scaling
 
 ### Secret Items
@@ -24,14 +24,14 @@ It was developed as graduation diploma of [Yandex Practicum's "Advanced Go-Devel
 3) Note - text information
 4) Data - binary files
 
-All items may have notes field for store related to item information.
+All items have notes field which may be used for storing related information.
 
-All items may have custom fields for storing additional information (**currently not supported in GTUI**):
+All items may have custom fields for storing additional information:
 - Text - key-value in plain text
 - Hidden - same as text, but value is considered as sensitive information
 - Bool - flag
 
-Login items may have URI fields for storing related web-pages information (**currently not supported in GTUI**).
+Login items may have URI fields for storing related web-pages information.
 
 Detailed description of items field is provided on DB schema below.
 
@@ -62,8 +62,25 @@ Client's configuration parameters:
 - Server address
 - Secret key
 - E-mail
+- Working mode
 - Show sensitive (when enabled all item's value is shown by default, when disabled sensitive data is hidden)
 - CA certificate path - path to custom CA root certificate in case server's certificate is signed by unknown authority of self-signed certificates used.
+
+### Working mode
+Client supports two working mode:
+- Server
+- Local
+
+In server mode secret items is stored only on server, all operations with operations require server response. In case of server failure client will lose access to all operations to item, including reading.
+
+In local mode secret items also stored locally (also encrypted). Reading secret items available in case of server failure. This allows reduce traffic between client and server.
+
+However, for security purposes client will have no access to locally encrypted items without encryption key from server. Thus initial login is required to gain access to private data.
+
+### Installation
+Pre-complied executable for Windows, Linux and MacOS are available on [Releases page](https://github.com/artfuldog/gophkeeper/releases). No additional software required.
+
+### Basic processes
 
 **First time setup and user registration process:**
 
@@ -74,8 +91,15 @@ Client's configuration parameters:
 ![main_menu](./doc/main_menu.gif)
 
 
-**CRUD operations:**
+**Vault browse:**
 ![vault_browse](./doc/vault_browse.gif)
+
+**Edit items:**
+![exit_items](./doc/item_edit.gif)
+
+**Autonomous work**
+![autonomous_work](./doc/autonomous_work.gif)
+
 
 
 ## Server

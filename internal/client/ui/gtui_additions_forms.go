@@ -98,6 +98,7 @@ func (g *Gtui) displayEditCfPage(ctx context.Context, item *api.Item,
 			AddButton("Save", func() {
 				item.CustomFields[index] = cf
 				g.pages.RemovePage(selfPage)
+				g.displayCFBrowser(ctx, item, imData)
 			}).
 			AddButton("Delete", func() {
 				item.CustomFields = common.DeleteElement(index, cfs)
@@ -229,12 +230,14 @@ func (g *Gtui) displayURIPage(ctx context.Context, item *api.Item, index int, im
 			g.displayURIBrowser(ctx, item, imData)
 		})
 		g.pages.AddPage(selfPage, form, true, true)
+
 		return
 	}
 
 	form.AddButton("Save", func() {
 		item.URIs[index] = *uri
 		g.pages.RemovePage(selfPage)
+		g.displayURIBrowser(ctx, item, imData)
 	}).
 		AddButton("Delete", func() {
 			item.URIs = common.DeleteElement(index, item.URIs)
