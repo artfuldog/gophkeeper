@@ -128,9 +128,8 @@ Server's configuration parameters is described in documentation and can be viewe
 Parameters can be passed via environmental variables and cli arguments (flags). However, general recommendation is pass credentials **only** via envvars.
 
 ## **Roadmap, currently not implemented**
-- Custom fields and URIs (for Login items) support in GUI
 - Reprompt password to show sensitive information for flagged items
-- Client local working mode, with storing data encrypted locally
+- Change password/email for user
 
 ## Documentation
 
