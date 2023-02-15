@@ -1,0 +1,9 @@
+cacert: "certs/ca.crt"
+disabletls: false
+loglevel: error
+mode: local
+secretkey: "cisco-123"
+server: localhost:3200
+showsensitive: false
+syncinterval: 10s
+user: IntTestUser

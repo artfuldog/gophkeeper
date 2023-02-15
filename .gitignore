@@ -13,3 +13,26 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+# Temp files
+*drawio.bkp
+*drawio.svg.bkp
+*drawio.dtmp
+
+# Local folders
+local/
+
+# Distribs
+dist/
+
+# App working dirs
+**/.gophkeeper
+
+# Self-signed certificates
+certs/
+# Except ones for integration testing
+!it/certs
+
+# Test coverage files
+*.cov
+

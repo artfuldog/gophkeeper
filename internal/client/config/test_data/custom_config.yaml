@@ -1,0 +1,5 @@
+# username
+user: test2f2
+secretkey: somekey
+server: 127.0.0.1:3200
+showsensitive: true

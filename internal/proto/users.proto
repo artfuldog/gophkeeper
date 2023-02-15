@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+package gophkeeper;
+
+option go_package = "internal/pb";
+
+import "google/protobuf/timestamp.proto";
+
+message User {
+  string username = 1; // @gotags: db:"username"
+  optional string email = 2; // @gotags: db:"email"
+  optional string pwdhash = 3; // @gotags: db:"pwdhash"
+  optional string otp_key = 4; // @gotags: db:"otpkey"
+  optional bytes ekey = 5; // @gotags: db:"ekey"
+  optional bytes revision = 6; // @gotags: db:"revision"
+  optional google.protobuf.Timestamp updated = 7; // @gotags: db:"updated"
+  optional google.protobuf.Timestamp regdate = 8; // @gotags: db:"regdate"
+}
+
+message TOTPKey {
+  string secret = 1;
+  bytes qrcode = 2;
+}
+
+message ServerLimits {
+  int32 max_secret_size = 1;
+}
+
+message CreateUserRequest {
+  User user = 1;
+  bool twofactor = 2;
+}
+message CreateUserResponse {
+  string info = 1;
+  TOTPKey totpkey = 2;
+}
+
+message GetUserRequest {
+  string username = 1;
+}
+message GetUserResponse {
+  User user = 1;
+}
+
+message UpdateUserRequest {
+  bool bymask = 1;
+  User user = 2;
+}
+message UpdateUserResponse {
+  string info = 1;
+}
+
+message DeleteUserRequest {
+  string username = 1;
+}
+message DeleteUserResponse {
+  string info = 1;
+}
+
+message UserLoginRequest {
+  string username = 1;
+  string password = 2;
+  string otp_code = 3;
+}
+
+message UserLoginResponse {
+  bool secondFactor = 1;
+  bytes ekey = 2;
+  string token = 3;
+  ServerLimits server_limits = 4;
+}
+
+message GetRevisionRequest {
+  string username = 1;
+}
+message GetRevisionResponse {
+  bytes revision = 1;
+}
+
+service Users {
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+
+  rpc UserLogin(UserLoginRequest) returns (UserLoginResponse);
+
+  rpc GetRevision(GetRevisionRequest) returns (GetRevisionResponse);
+}
